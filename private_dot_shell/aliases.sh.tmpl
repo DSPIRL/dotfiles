@@ -1,3 +1,6 @@
+# Only load aliases in interactive shells (prevents issues with Claude Code, scripts, etc.)
+[[ $- != *i* ]] && return
+
 ##### SYSTEM #####
 alias l='command ls --color=auto'
 alias grep='grep --color=auto'
