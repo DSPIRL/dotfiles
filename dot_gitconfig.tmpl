@@ -1,6 +1,11 @@
 [user]
+{{- if .useKeePassXC }}
     email = "{{ keepassxcAttribute "Chezmoi" "git_email" }}"
     name = "{{ keepassxcAttribute "Chezmoi" "git_name" }}"
+{{- else }}
+    email = ""
+    name = ""
+{{- end }}
 [init]
 	defaultBranch = main
 [core]
