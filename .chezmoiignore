@@ -28,6 +28,7 @@ dot_config/karabiner/
 # Skip when KeePassXC not available (WSL or missing database)
 {{ if not .useKeePassXC }}
 dot_config/private_chezmoi/
+encrypted_dot_gitconfig.tmpl.age
 {{ end }}
 
 # Linux-only (skip on macOS)
