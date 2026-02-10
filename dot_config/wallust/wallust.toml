@@ -1,0 +1,17 @@
+# backend = "full"
+# color_space = "lch"
+# palette = "dark"
+
+backend = "full"
+color_space = "labmixed"
+palette = "dark"
+
+threshold = 15
+
+[templates]
+cava = { template = 'colors-cava', target = '~/.config/cava/config' }
+ghostty = { template = 'colors-ghostty.conf', target = '~/.config/ghostty/themes/wallust.conf' }
+alacritty = { template = 'alacritty-colors.toml', target = '~/.config/alacritty/colors.toml' }
+hypr = { template = 'colors-hypr.conf', target = '~/.config/hypr/themes/wallust.conf' }
+rofi = { template = 'colors-rofi.rasi', target = '~/.config/rofi/wallust/colors-rofi.rasi' }
+waybar = { template = 'colors-waybar.css', target = '~/.config/waybar/wallust/colors-wallust.css' }

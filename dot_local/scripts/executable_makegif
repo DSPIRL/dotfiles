@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+read -rp 'What do you want to name the file?: ' varFileName
+
+ffmpeg \
+    -i $* \
+    -r 30 \
+    -vf "scale=1440:-1,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" \
+    -ss 00:00:00 -to 00:00:50 \
+    ${varFileName}.gif

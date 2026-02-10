@@ -1,0 +1,15 @@
+alacritty
+btop
+eza
+fzf
+htop
+jj
+neovim
+nushell
+silicon
+ttf-jetbrains-mono
+ttf-jetbrains-mono-nerd
+zoxide
+zsh
+zsh-autosuggestions
+zsh-syntax-highlighting

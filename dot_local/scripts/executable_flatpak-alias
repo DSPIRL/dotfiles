@@ -1,0 +1,8 @@
+#!/bin/env bash
+
+flatpak list
+
+read -rp 'What is the Flatpak Application ID?: ' varAppId
+read -rp 'What is the app shorthand name (no caps)?: ' varAppName
+
+sudo ln -fvs /var/lib/flatpak/exports/bin/${varAppId} /usr/bin/${varAppName}

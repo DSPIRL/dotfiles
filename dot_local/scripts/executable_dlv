@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+read -rp 'Video URL: ' varVideoUrl
+read -rp 'File name: ' varFileName
+
+ffmpeg -i "${varVideoUrl}" -c:v libx264 -preset slow -crf 22 "${varFileName}.mp4"

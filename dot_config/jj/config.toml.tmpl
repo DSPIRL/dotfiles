@@ -1,0 +1,38 @@
+[ui]
+paginate = "never"
+default-command = "log"
+
+[user]
+{{- if .isWSL }}
+email = ""
+name = ""
+{{- else }}
+email = "{{ keepassxcAttribute "Chezmoi" "git_email" }}"
+name = "{{ keepassxcAttribute "Chezmoi" "git_name" }}"
+{{- end }}
+
+[init]
+defaultBranch = "main"
+
+[core]
+autocrlf = "input"
+{{- if eq .chezmoi.os "darwin" }}
+	editor = "/opt/homebrew/bin/nvim"
+{{- else }}
+	editor = "/usr/bin/nvim"
+{{- end }}
+# editor = "{some editor path}"
+
+[diff]
+tool = "nvimdiff"
+
+[difftool]
+prompt = false
+
+[signing]
+# behavior = "own"
+# backend = "gpg"
+# key = "{some key}"
+
+[git]
+# sign-on-push = true

@@ -1,0 +1,183 @@
+;;; Configuration Settings
+(defcfg
+    rapid-event-delay 20            ;; Delay for rapid event processing
+    process-unmapped-keys yes       ;; Allow unmapped keys to pass through
+    linux-dev-names-exclude (        ;; Exclude specific devices
+        "Glove80"
+        "Glove80 Left"
+        "TPPS/2 Elan TrackPoint"
+        "TBK Mini Splinky"
+        "Razer DeathAdder V2 Pro"
+        "Razer DeathAdder V2 Pro"
+    )
+    linux-dev-names-include (
+        "AT Translated Set 2 keyboard"
+    )
+)
+
+;;; Variables
+(defvar
+    ;; Timing variables for tap-hold behavior
+    tap-time 200     ;; Time window for tap detection
+    hold-time 150    ;; Time window for hold detection
+    tt $tap-time     ;; Alias for tap-time
+    ht $hold-time    ;; Alias for hold-time
+
+    ;; QWERTY layout - Define which keys are on left/right side
+    qwerty-left-hand-keys (
+        q w e r t
+        a s d f g
+        z x c v b
+    )
+    qwerty-right-hand-keys (
+        y u i o p
+        h j k l ;
+        n m , . /
+    )
+
+    ;; Dvorak layout - Define which keys are on left/right side
+    dvorak-left-hand-keys (
+        ' , . p y
+        a o e u i
+        ; q j k x
+    )
+    dvorak-right-hand-keys (
+        f g c r l
+        d h t n s
+        b m w v z
+    )
+)
+
+;;; Physical Key Layout
+(defsrc
+    grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+    tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+    caps a    s    d    f    g    h    j    k    l    ;    '    ret
+    lsft z    x    c    v    b    n    m    ,    .    /    rsft
+    lctl lmet lalt           spc            ralt rmet rctl
+)
+
+;;; QWERTY Layer
+(deflayer qwerty
+    grv  1     2     3     4     5    6    7     8     9     0     -    =    bspc
+    tab  q     w     e     r     t    y    u     i     o     p     [    ]    \
+    esc  @qa   @qs   @qd   @qf   g    h    @qj   @qk   @ql   @q;   '    ret
+    lsft z     x     c     v     b    n    m     ,     .     /     rsft
+    lctl lmet  @qalt             @qspc           ralt  rmet  @dvk
+)
+
+;;; Dvorak Layer
+(deflayer dvorak
+    grv  1     2     3     4     5    6    7     8     9     0     [    ]    bspc
+    tab  '     ,     .     p     y    f    g     c     r     l     /    =    \
+    esc  @da   @do   @de   @du   i    d    @dh   @dt   @dn   @ds   -    ret
+    lsft ;     q     j     k     x    b    m     w     v     z     rsft
+    lctl lmet  @dalt             @dspc           ralt  rmet  @qty
+)
+
+;;; Navigation Layers
+(deflayer qwerty-nav
+    _    _    _    _    _    _    _    _    _    _    _    _    _    _
+    _    _    _    _    _    _    _    ret  bspc _    _    _    _    _
+    _    _    _    _    _    _    left down up   right _    _    _
+    _    _    _    _    _    _    _    _    _    _    _    _
+    _    _    _              _              _    _    _
+)
+
+(deflayer dvorak-nav
+    _    _    _    _    _    _    _    _    _    _    _    _    _    _
+    _    _    _    _    _    _    _    ret  bspc _    _    _    _    _
+    _    _    _    _    _    _    left down up   right _    _    _
+    _    _    _    _    _    _    _    _    _    _    _    _
+    _    _    _              _              _    _    _
+)
+
+;;; Helper Layers
+(deflayer qwerty-helper
+    grv  1     2     3     4     5    6    7     8     9     0     -    =    bspc
+    tab  S-1   S-2   S-3   S-4   S-5  S-6  S-7   S-8   S-9   S-0   [    ]    \
+    esc  S-,   [     S-9   S-[   \    /    S-]   S-0   ]     S-.   `    ret
+    lsft \     x     S--   -     -    S-8  +     =     S-grv S-\   rsft
+    lctl lmet  @qalt             _               ralt  rmet  @dvk
+)
+
+(deflayer dvorak-helper
+    grv  1     2     3     4     5    6    7     8     9     0     -    =    bspc
+    tab  S-1   S-2   S-3   S-4   S-5  S-6  S-7   S-8   S-9   S-0   [    ]    \
+    esc  S-,   [     S-9   S-[   \    /    S-]   S-0   ]     S-.   `    ret
+    lsft \     x     S--   -     -    S-8  +     =     S-grv S-\   rsft
+    lctl lmet  @qalt             _               ralt  rmet  @qty
+)
+
+;;; No-Modifier Layers
+(deflayer qwerty-nomods
+    grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+    tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+    esc  a    s    d    f    g    h    j    k    l    ;    '    ret
+    lsft z    x    c    v    b    n    m    ,    .    /    rsft
+    lctl lmet lalt           spc            ralt rmet rctl
+)
+
+(deflayer dvorak-nomods
+    grv  1    2    3    4    5    6    7    8    9    0    [    ]    bspc
+    tab  '    ,    .    p    y    f    g    c    r    l    /    =    \
+    esc  a    o    e    u    i    d    h    t    n    s    -    ret
+    lsft ;    q    j    k    x    b    m    w    v    z    rsft
+    lctl lmet lalt           spc            ralt rmet rctl
+)
+
+;;; Fake Key Definitions
+(deffakekeys
+    to-qwerty (layer-switch qwerty)
+    to-dvorak (layer-switch dvorak)
+)
+
+;;; Aliases
+(defalias
+    ;;; Layout Switching
+    dvk (layer-switch dvorak)    ;; Switch to Dvorak
+    qty (layer-switch qwerty)    ;; Switch to QWERTY
+
+    ;;; Tap Handlers
+    qtap (multi
+        (layer-switch qwerty-nomods)
+        (on-idle-fakekey to-qwerty tap 20)  ;; Return to QWERTY after 20ms idle
+    )
+    dtap (multi
+        (layer-switch dvorak-nomods)
+        (on-idle-fakekey to-dvorak tap 20)  ;; Return to Dvorak after 20ms idle
+    )
+
+
+    ;;; QWERTY Home Row Mods
+    ;; Format: (tap-hold-release-keys $tap-time $hold-time (tap-action) modifier affected-keys)
+    qa (tap-hold-release-keys $tap-time $hold-time (multi a @qtap) lsft $qwerty-left-hand-keys)
+    qs (tap-hold-release-keys $tap-time $hold-time (multi s @qtap) lctl $qwerty-left-hand-keys)
+    qd (tap-hold-release-keys $tap-time $hold-time (multi d @qtap) lalt $qwerty-left-hand-keys)
+    qf (tap-hold-release-keys $tap-time $hold-time (multi f @qtap) lmet $qwerty-left-hand-keys)
+    qj (tap-hold-release-keys $tap-time $hold-time (multi j @qtap) rmet $qwerty-right-hand-keys)
+    qk (tap-hold-release-keys $tap-time $hold-time (multi k @qtap) ralt $qwerty-right-hand-keys)
+    ql (tap-hold-release-keys $tap-time $hold-time (multi l @qtap) rctl $qwerty-right-hand-keys)
+    q; (tap-hold-release-keys $tap-time $hold-time (multi ; @qtap) rsft $qwerty-right-hand-keys)
+
+    ;;; Dvorak Home Row Mods
+    ;; Same modifier order as QWERTY: shift, ctrl, alt, meta (both sides)
+    da (tap-hold-release-keys $tap-time $hold-time (multi a @dtap) lsft $dvorak-left-hand-keys)
+    do (tap-hold-release-keys $tap-time $hold-time (multi o @dtap) lctl $dvorak-left-hand-keys)
+    de (tap-hold-release-keys $tap-time $hold-time (multi e @dtap) lalt $dvorak-left-hand-keys)
+    du (tap-hold-release-keys $tap-time $hold-time (multi u @dtap) lmet $dvorak-left-hand-keys)
+    dh (tap-hold-release-keys $tap-time $hold-time (multi h @dtap) rmet $dvorak-right-hand-keys)
+    dt (tap-hold-release-keys $tap-time $hold-time (multi t @dtap) ralt $dvorak-right-hand-keys)
+    dn (tap-hold-release-keys $tap-time $hold-time (multi n @dtap) rctl $dvorak-right-hand-keys)
+    ds (tap-hold-release-keys $tap-time $hold-time (multi s @dtap) rsft $dvorak-right-hand-keys)
+
+
+    ;;; Layer Modifiers
+    ;; QWERTY
+    qalt (tap-hold $tt $ht lalt (layer-while-held qwerty-nav))
+    qspc (tap-hold $tt $ht spc (layer-while-held qwerty-helper))
+
+    ;; Dvorak
+    dalt (tap-hold $tt $ht lalt (layer-while-held dvorak-nav))
+    dspc (tap-hold $tt $ht spc (layer-while-held dvorak-helper))
+)

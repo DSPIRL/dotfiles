@@ -1,0 +1,56 @@
+[env]
+TERM = "xterm-256color"
+
+[window]
+padding = { x = 4, y = 4 }
+decorations = "Buttonless"
+opacity = 0.7
+blur = true
+dimensions = { columns = 125, lines = 45 }
+option_as_alt = "Both"
+
+[font]
+normal = { family = "JetBrainsMono Nerd Font", style = "Medium" }
+bold = { family = "JetBrainsMono Nerd Font", style = "Bold" }
+italic = { family = "JetBrainsMono Nerd Font", style = "Italic" }
+size = 14
+
+[mouse]
+hide_when_typing = true
+
+##### COLOR SCHEME #####
+# Default colors
+[colors.primary]
+# background = '#011423'
+background = '#111111'
+foreground = '#CBE0F0'
+
+# Colors the cursor will use if `custom_cursor_colors` is true
+[colors.cursor]
+text = "#011423"
+cursor = "#47FF9C"
+
+[colors.normal]
+black = "#214969"
+red = "#E52E2E"
+green = "#44FFB1"
+yellow = "#FFE073"
+blue = "#0FC5ED"
+magenta = "#a277ff"
+cyan = "#24EAF7"
+white = "#24EAF7"
+
+[colors.bright]
+black = "#214969"
+red = "#E52E2E"
+green = "#44FFB1"
+yellow = "#FFE073"
+blue = "#A277FF"
+magenta = "#a277ff"
+cyan = "#24EAF7"
+white = "#24EAF7"
+
+[keyboard]
+bindings = [
+    { key = "F", mods = "Control|Alt|Shift", action = "ToggleFullscreen" },
+]

@@ -1,0 +1,115 @@
+/* ROUNDED THEME FOR ROFI */
+/* Author: Newman Sanchez (https://github.com/newmanls) */
+
+
+* {
+    font:   "Roboto 14";
+
+    background-color:   @window-background;
+    text-color:         @normal-text;
+
+    margin:     0px;
+    padding:    0px;
+    spacing:    0px;
+}
+
+window {
+    location:       north;
+    y-offset:       calc(35% - 176px);
+    width:          600;
+    border-radius:  28px;
+
+    border:         2px;
+
+    background-color:   @normal-background;
+    border-color: @window-border;
+}
+
+mainbox {
+    padding:    12px;
+}
+
+inputbar {
+    // background-color:   @prompt-background;
+    background-color:   #1B1D2B55;
+    border-color:       @window-border;
+
+    border:         2px;
+    border-radius:  28px;
+
+    spacing:    8px;
+    children:   [ entry ];
+}
+
+prompt {
+    text-color: @normal-text;
+    border:         2px;
+    border-radius:  28px;
+}
+
+entry {
+	expand: true;
+    placeholder: " 💻️ Apps";
+    placeholder-color: @scrollbar-filled;
+    background-color:   #1B1D2B55;
+	horizontal-align: 0.5;
+	padding: 15px;
+}
+
+message {
+    margin:             12px 0 0;
+    border-radius:      28px;
+    border-color:       @error-message-border;
+    background-color:   @normal-background;
+}
+
+textbox {
+    padding:    8px 24px;
+}
+
+listview {
+    background-color: @normal-background;
+
+    margin:     12px 0 0;
+    lines:      8;
+    columns:    1;
+
+    fixed-height: false;
+}
+
+element {
+    padding:        8px 16px;
+    margin: 4px;
+    spacing:        8px;
+    border-radius:  28px;
+    background-color:   #1B1D2B33;
+}
+
+element normal active {
+    text-color: @normal-background;
+}
+
+element alternate active {
+    text-color: @normal-background;
+}
+
+element selected normal, element selected active {
+    background-color:   #1B1D2B55;
+    border: 2px;
+    border-color: @selected-background;
+    // text-color: @selected-text;
+}
+
+element-icon {
+    size:           1em;
+    vertical-align: 0.5;
+}
+
+element-text {
+    text-color: @normal-text;
+    background-color: @normal-background;
+}
+
+selected {
+        text-color: @selected-text;
+}

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+export USER_TERMINAL=alacritty
+
+$USER_TERMINAL -e bash -c "tput setaf 5 bold; read -rp 'Press shortcut: ' -s -n1 varShortcut"

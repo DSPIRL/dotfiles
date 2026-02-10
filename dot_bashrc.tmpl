@@ -1,0 +1,35 @@
+# If not running interactively, don't do anything
+# [[ $- != *i* ]] && return
+
+##### SHELL PROMPT #####
+PS1='[\u@\h \W]\$ '
+
+##### OH MY POSH PROMPT #####
+if [[ -n $(command -v oh-my-posh) ]]; then
+    eval "$(oh-my-posh init bash)"
+fi
+
+##### COMPLETERS #####
+export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense' # optional
+source <(carapace _carapace)
+
+if [[ -n $(chezmoi) ]]; then
+    eval $(chezmoi completion bash)
+fi
+
+##### KEYBINDS #####
+# Bind Ctrl+O to edit command in vim
+bind '"\C-o": edit-and-execute-command'
+
+##### SOURCE RC FILE #####
+{{- if .isWSL }}
+source $DOTS_SHELL/bash/wsl.sh
+{{- else }}
+source $DOTS_SHELL/shellrc.sh
+{{- end }}
+
+{{ if not .isWSL }}
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:$HOME/.lmstudio/bin"
+# End of LM Studio CLI section
+{{ end }}

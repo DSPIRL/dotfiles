@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+for f in *.mp4; do
+    ffmpeg -i "$f" "${f/%mp4/wav}"
+    ffmpeg -i "$f" -vcodec copy -an -bsf:v h264_mp4toannexb "${f/%mp4/m4v}"
+    rm "$f"
+    ffmpeg -i "${f/%mp4/m4v}" -i "${f/%mp4/wav}" -acodec copy -vcodec copy "${f/%mp4/mov}"
+    rm "${f/%mp4/m4v}"
+    rm "${f/%mp4/wav}"
+done
