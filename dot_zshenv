@@ -1,4 +1,0 @@
-##### CUSTOM ENVIRONMENT VARIABLES #####
-export DOTS="${HOME}/.local/share/chezmoi"
-export DOTS_CONFIG="${DOTS}/dot_config"
-export DOTS_SHELL="${DOTS}/shell"

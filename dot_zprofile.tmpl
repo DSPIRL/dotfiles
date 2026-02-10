@@ -1,0 +1,100 @@
+##### XDG DIRECTORIES #####
+export XDG_CONFIG_HOME="${HOME}/.config"
+export XDG_DATA_HOME="${HOME}/.local/share"
+export XDG_CACHE_HOME="${HOME}/.cache"
+
+{{- if eq .chezmoi.os "linux" }}
+export XDG_DATA_DIRS="${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+{{- end }}
+
+##### PATH #####
+export PATH="${HOME}/.local/bin:${PATH}"
+export PATH="${HOME}/.local/scripts:${PATH}"
+
+##### RUST #####
+if [[ -d "${HOME}/.cargo" ]]; then
+  . "${HOME}/.cargo/env"
+  export CARGO_HOME="${HOME}/.cargo"
+  export PATH="${CARGO_HOME}/bin:${PATH}"
+fi
+
+##### BUN #####
+if [[ -d "${HOME}/.bun" ]]; then
+  export BUN_INSTALL="${HOME}/.bun"
+  export PATH="${BUN_INSTALL}/bin:${PATH}"
+fi
+
+##### EMACS #####
+[[ -d "${HOME}/.config/emacs/bin" ]] && export PATH="${HOME}/.config/emacs/bin:${PATH}"
+
+##### LM STUDIO #####
+[[ -d "${HOME}/.lmstudio" ]] && export PATH="${PATH}:${HOME}/.lmstudio/bin"
+
+{{- if eq .chezmoi.os "darwin" }}
+
+##### JAVA/ANDROID (macOS) #####
+if [[ -d "/Applications/Android Studio.app" ]]; then
+  export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+  export ANDROID_HOME="${HOME}/Library/Android/sdk"
+  [[ -d "${ANDROID_HOME}/ndk" ]] && export NDK_HOME="${ANDROID_HOME}/ndk/$(command ls -1 ${ANDROID_HOME}/ndk 2>/dev/null | head -1)"
+  export PATH="${JAVA_HOME}/bin:${PATH}"
+fi
+
+##### FLUTTER (macOS) #####
+[[ -d "${HOME}/development/flutter" ]] && export PATH="${HOME}/development/flutter/bin:${PATH}"
+[[ -d "${HOME}/fvm/default" ]] && export PATH="${HOME}/fvm/default/bin:${PATH}"
+
+##### RUBY (macOS) #####
+if [[ -d "/opt/homebrew/opt/ruby" ]]; then
+  export PATH="/opt/homebrew/opt/ruby/bin:${PATH}"
+  export PATH="/opt/homebrew/lib/ruby/gems/3.4.0/bin:${PATH}"
+  export GEM_HOME="${HOME}/.gem"
+fi
+
+##### DOTNET (macOS) #####
+if [[ -d "${HOME}/.dotnet" ]]; then
+  export DOTNET_ROOT="/opt/homebrew/bin"
+  export PATH="${PATH}:${DOTNET_ROOT}:${HOME}/.dotnet/tools"
+fi
+
+##### NVM (macOS) #####
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "${NVM_DIR}/nvm.sh" ] && \. "${NVM_DIR}/nvm.sh"
+[ -s "${NVM_DIR}/bash_completion" ] && \. "${NVM_DIR}/bash_completion"
+
+{{- else if eq .chezmoi.os "linux" }}
+
+##### JAVA/ANDROID (Linux) #####
+if [[ -d "/opt/android-studio" ]]; then
+  export JAVA_HOME=/opt/android-studio/jbr
+  export ANDROID_HOME="${HOME}/Android/Sdk"
+fi
+
+##### DOTNET (Linux) #####
+if [[ -d "${HOME}/.dotnet" ]]; then
+  export DOTNET_ROOT="/usr/local/share/dotnet"
+  export PATH="${PATH}:${DOTNET_ROOT}:${HOME}/.dotnet/tools"
+fi
+
+##### JETBRAINS TOOLBOX (Linux) #####
+[[ -d "${HOME}/.local/share/JetBrains/Toolbox/scripts" ]] && export PATH="${PATH}:${HOME}/.local/share/JetBrains/Toolbox/scripts"
+
+{{- end }}
+
+##### EDITOR #####
+if command -v alacritty &>/dev/null; then
+  export USER_TERMINAL=alacritty
+{{- if eq .chezmoi.os "linux" }}
+  export TERM=alacritty
+{{- end }}
+fi
+
+if command -v nvim &>/dev/null; then
+  export NVIM_PATH="$(command -v nvim)"
+  export VISUAL="${NVIM_PATH}"
+  export EDITOR="${NVIM_PATH}"
+fi
+
+{{- if eq .chezmoi.os "linux" }}
+export QT_QPA_PLATFORMTHEME="qt5ct"
+{{- end }}
