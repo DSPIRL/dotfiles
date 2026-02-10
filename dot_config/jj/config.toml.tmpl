@@ -3,7 +3,7 @@ paginate = "never"
 default-command = "log"
 
 [user]
-{{- if .useKeePassXC }}
+{{- if dig "useKeePassXC" false . }}
 email = "{{ keepassxcAttribute "Chezmoi" "git_email" }}"
 name = "{{ keepassxcAttribute "Chezmoi" "git_name" }}"
 {{- else }}

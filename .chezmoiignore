@@ -26,7 +26,7 @@ dot_config/karabiner/
 {{ end }}
 
 # Skip when KeePassXC not available (WSL or missing database)
-{{ if not .useKeePassXC }}
+{{ if not (dig "useKeePassXC" false .) }}
 dot_config/private_chezmoi/
 encrypted_dot_gitconfig.tmpl.age
 {{ end }}
