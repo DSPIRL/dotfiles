@@ -1,8 +1,14 @@
 # Auxiliary directories (not deployed to ~)
-shell/
 install_scripts/
 package_lists/
 assets/
+
+# Non-deployed shell subdirs
+private_dot_shell/manpages/
+private_dot_shell/scripts/
+private_dot_shell/kdeshortcuts.kksrc
+private_dot_shell/dink.sh
+private_dot_shell/.git-submodule-aliases.sh
 
 # Git/Stow artifacts
 .git

@@ -1,0 +1,23 @@
+[user]
+    email = "{{ keepassxcAttribute "Chezmoi" "git_email" }}"
+    name = "{{ keepassxcAttribute "Chezmoi" "git_name" }}"
+[init]
+	defaultBranch = main
+[core]
+	autocrlf = input
+{{- if eq .chezmoi.os "darwin" }}
+	editor = /opt/homebrew/bin/nvim
+{{- else }}
+	editor = /usr/bin/nvim
+{{- end }}
+[diff]
+	tool = nvimdiff
+[difftool]
+	prompt = false
+[merge]
+	tool = nvimdiff
+[filter "lfs"]
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f

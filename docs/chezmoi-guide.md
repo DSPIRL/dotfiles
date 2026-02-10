@@ -26,12 +26,52 @@ chezmoi apply
 
 On WSL systems, encryption and KeePassXC are disabled automatically - the setup will work without the database.
 
-### What Happens During Init
+---
 
-1. `.chezmoi.toml.tmpl` is processed to generate the config
-2. On non-WSL systems, KeePassXC is configured and the age identity is set
-3. The age key is pulled from KeePassXC entry "Chezmoi" (attribute: "key")
-4. Encrypted files can now be decrypted during `chezmoi apply`
+## How Chezmoi Commands Work
+
+### `chezmoi init`
+
+Processes `.chezmoi.toml.tmpl` and generates `~/.config/chezmoi/chezmoi.toml`.
+
+**What happens:**
+1. Reads `.chezmoi.toml.tmpl` from source directory
+2. Evaluates template variables (`.chezmoi.os`, `.chezmoi.homeDir`, etc.)
+3. Runs any template logic (e.g., `stat` check for KeePassXC database)
+4. Writes the result to `~/.config/chezmoi/chezmoi.toml`
+5. Sets up encryption, KeePassXC paths, and data variables for other templates
+
+**When to run:** After cloning the repo, or after changing `.chezmoi.toml.tmpl`.
+
+### `chezmoi apply`
+
+Deploys files from source state to your home directory.
+
+**What happens:**
+1. Reads config from `~/.config/chezmoi/chezmoi.toml`
+2. Reads `.chezmoiignore` and excludes matching files
+3. For each managed file:
+   - If `.tmpl`: evaluates the template
+   - If `encrypted_`: decrypts using age/gpg
+   - If `private_`: sets permissions to 600
+   - Transforms `dot_` prefix to `.`
+4. Compares result to target file in `~`
+5. Writes files that differ (creates/updates)
+
+**Example transformation:**
+```
+Source: encrypted_dot_gitconfig.tmpl.age
+  → decrypt → evaluate template → write to ~/.gitconfig
+```
+
+### Order of Operations
+
+```
+chezmoi init   →  .chezmoi.toml.tmpl  →  ~/.config/chezmoi/chezmoi.toml
+chezmoi apply  →  reads config        →  processes source files  →  writes to ~/
+```
+
+**Important:** Always run `chezmoi init` after modifying `.chezmoi.toml.tmpl`, otherwise the config will be stale and templates may reference undefined variables.
 
 ---
 
