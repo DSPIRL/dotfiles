@@ -1,0 +1,156 @@
+# This is the configuration file for Ghostty.
+#
+# This template file has been automatically created at the following
+# path since Ghostty couldn't find any existing config files on your system:
+#
+#   /home/athe/.config/ghostty/config
+#
+# The template does not set any default options, since Ghostty ships
+# with sensible defaults for all options. Users should only need to set
+# options that they want to change from the default.
+#
+# Run `ghostty +show-config --default --docs` to view a list of
+# all available config options and their default values.
+#
+# Additionally, each config option is also explained in detail
+# on Ghostty's website, at https://ghostty.org/docs/config.
+
+# Config syntax crash course
+# ==========================
+# # The config file consists of simple key-value pairs,
+# # separated by equals signs.
+# font-family = Iosevka
+# window-padding-x = 2
+#
+# # Spacing around the equals sign does not matter.
+# # All of these are identical:
+# key=value
+# key= value
+# key =value
+# key = value
+#
+# # Any line beginning with a # is a comment. It's not possible to put
+# # a comment after a config option, since it would be interpreted as a
+# # part of the value. For example, this will have a value of "#123abc":
+# background = #123abc
+#
+# # Empty values are used to reset config keys to default.
+# key =
+#
+# # Some config options have unique syntaxes for their value,
+# # which is explained in the docs for that config option.
+# # Just for example:
+# resize-overlay-duration = 4s 200ms
+#
+#
+# ==================================
+# ===USER CONFIG===
+# theme = wallust.conf
+theme = Carbonfox
+font-family = "JetBrainsMono Nerd Font"
+font-size = 14
+quit-after-last-window-closed = true
+quit-after-last-window-closed-delay = 2s
+shell-integration-features = no-cursor
+macos-option-as-alt = true
+# fullscreen = true # Starts the app in fullscreen
+
+
+# === MOUSE ===
+mouse-hide-while-typing = true
+
+# === CURSOR ===
+cursor-style = block
+cursor-click-to-move = true
+
+# === WINDOWS & TABS ===
+background-opacity = 0.93
+background-blur = true
+unfocused-split-opacity = 0.6
+window-decoration = auto
+macos-window-buttons = hidden
+macos-titlebar-proxy-icon = hidden
+macos-titlebar-style = tabs
+# macos-titlebar-style = hidden
+# gtk-titlebar = false
+
+# === KEYBINDS ===
+# WINDOW
+# keybind = ctrl+enter=toggle_fullscreen
+# keybind = ctrl+shift+n=new_window
+# keybind = ctrl+shift+q=quit
+# keybind = alt+f4=close_window
+
+# SPLITS
+# keybind = ctrl+alt+h=goto_split:left
+# keybind = ctrl+alt+j=goto_split:down
+# keybind = ctrl+alt+k=goto_split:up
+# keybind = ctrl+alt+l=goto_split:right
+# keybind = ctrl+alt+enter=toggle_split_zoom
+
+# keybind = ctrl+alt+equal=equalize_splits
+# keybind = ctrl+alt+shift+k=resize_split:up,10
+# keybind = ctrl+alt+shift+j=resize_split:down,10
+# keybind = ctrl+alt+shift+h=resize_split:left,10
+# keybind = ctrl+alt+shift+l=resize_split:right,10
+
+# keybind = ctrl+shift+l=new_split:right
+# keybind = ctrl+shift+h=new_split:left
+# keybind = ctrl+shift+j=new_split:down
+# keybind = ctrl+shift+k=new_split:up
+
+# TABS
+# keybind = alt+one=goto_tab:1
+# keybind = alt+two=goto_tab:2
+# keybind = alt+three=goto_tab:3
+# keybind = alt+four=goto_tab:4
+# keybind = alt+five=goto_tab:5
+# keybind = alt+six=goto_tab:6
+# keybind = alt+seven=goto_tab:7
+# keybind = alt+eight=goto_tab:8
+# keybind = alt+nine=goto_tab:9
+# keybind = alt+zero=last_tab
+
+# keybind = ctrl+t=new_tab
+# keybind = ctrl+w=close_tab
+
+# keybind = ctrl+tab=next_tab
+# keybind = ctrl+shift+tab=previous_tab
+
+# QUICK TERMINAL
+# keybind = ctrl+alt+space=toggle_quick_terminal
+
+# CLIPBOARD
+# keybind = ctrl+shift+v=paste_from_clipboard
+# keybind = ctrl+shift+c=copy_to_clipboard
+# keybind = ctrl+shift+a=select_all
+
+# SCREEN TO FILE
+# keybind = ctrl+shift+o=write_screen_file:open
+# keybind = ctrl+shift+j=write_screen_file:paste
+
+# CONFIG
+# keybind = ctrl+comma=open_config
+# keybind = ctrl+shift+comma=reload_config
+
+# FONT
+# keybind = ctrl+plus=increase_font_size:1
+# keybind = ctrl+equal=increase_font_size:1
+# keybind = ctrl+minus=decrease_font_size:1
+# keybind = ctrl+zero=reset_font_size
+
+# THE REST
+# keybind = shift+insert=paste_from_selection
+# keybind = shift+up=adjust_selection:up
+# keybind = ctrl+shift+page_down=jump_to_prompt:1
+# keybind = shift+left=adjust_selection:left
+# keybind = shift+page_up=scroll_page_up
+#
+# keybind = shift+end=scroll_to_bottom
+# keybind = shift+right=adjust_selection:right
+# keybind = shift+page_down=scroll_page_down
+# keybind = ctrl+shift+page_up=jump_to_prompt:-1
+# keybind = shift+down=adjust_selection:down
+# keybind = ctrl+insert=copy_to_clipboard
+# keybind = shift+home=scroll_to_top
+# keybind = ctrl+shift+i=inspector:toggle

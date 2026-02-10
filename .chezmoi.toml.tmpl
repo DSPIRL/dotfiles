@@ -1,0 +1,14 @@
+{{ if not (and (eq .chezmoi.os "linux") (contains "microsoft" .chezmoi.kernel.osrelease)) -}}
+encryption = "age"
+{{ end }}
+[data]
+    isWSL = {{ if and (eq .chezmoi.os "linux") (contains "microsoft" .chezmoi.kernel.osrelease) }}true{{ else }}false{{ end }}
+
+{{ if not (and (eq .chezmoi.os "linux") (contains "microsoft" .chezmoi.kernel.osrelease)) }}
+[age]
+    identity = "~/.config/chezmoi/key.txt"
+    recipient = "age1u8jpuvpt70q406l9j289jm8ayvn6ktmu67r8qru40492zkx4gufqfy6qwj"
+
+[keepassxc]
+    database = "~/Documents/Syncs/Phone Backup/KeePass/Passwords.kdbx"
+{{ end }}

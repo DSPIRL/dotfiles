@@ -1,0 +1,28 @@
+[general]
+import = ["./colors.toml"]
+
+[env]
+TERM = "xterm-256color"
+
+[window]
+padding = { x = 4, y = 4 }
+decorations = "Buttonless"
+opacity = 1
+blur = true
+dimensions = { columns = 125, lines = 45 }
+option_as_alt = "Both"
+
+[font]
+normal = { family = "JetBrainsMono Nerd Font", style = "Medium" }
+bold = { family = "JetBrainsMono Nerd Font", style = "Bold" }
+italic = { family = "JetBrainsMono Nerd Font", style = "Italic" }
+size = 14
+
+[mouse]
+hide_when_typing = true
+
+[keyboard]
+bindings = [
+  { key = "F", mods = "Control|Alt|Shift", action = "ToggleFullscreen" },
+  { key = "Space", mods = "Control|Alt|Shift", action = "ToggleViMode" },
+]

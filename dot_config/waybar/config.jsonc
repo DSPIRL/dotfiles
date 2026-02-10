@@ -1,0 +1,321 @@
+/* @import url('../../.cache/wal/colors-waybar.css'); */
+/*
+ * config 1
+  /$$$$$$                       /$$$$$$  /$$                   /$$  
+ /$$__  $$                     /$$__  $$|__/                 /$$$$  
+| $$  \__/  /$$$$$$  /$$$$$$$ | $$  \__/ /$$  /$$$$$$       |_  $$  
+| $$       /$$__  $$| $$__  $$| $$$$    | $$ /$$__  $$        | $$  
+| $$      | $$  \ $$| $$  \ $$| $$_/    | $$| $$  \ $$        | $$  
+| $$    $$| $$  | $$| $$  | $$| $$      | $$| $$  | $$        | $$  
+|  $$$$$$/|  $$$$$$/| $$  | $$| $$      | $$|  $$$$$$$       /$$$$$$
+ \______/  \______/ |__/  |__/|__/      |__/ \____  $$      |______/
+                                             /$$  \ $$              
+                                            |  $$$$$$/              
+                                             \______/               
+ */
+{
+  "layer": "top",
+  "position": "top",
+  "reload_style_on_change": true,
+  "modules-left": [
+    "hyprland/workspaces"
+  ],
+  "modules-center": [
+    "clock#date",
+    // "custom/weather",
+    "custom/spotify",
+    "custom/notification",
+  ],
+  "modules-right": [
+    "tray",
+    "group/expand",
+    // "pulseaudio",
+    "wireplumber",
+    "bluetooth",
+    "network",
+    "battery",
+    "custom/power",
+  ],
+  "hyprland/workspaces": {
+    // "format": "{icon}",
+    // "format-icons": {
+    //   "active": "",
+    //   "default": "",
+    //   "empty": "",
+    // },
+    // "persistent-workspaces": {
+    //   "*": [4, 5, 6],
+    // },
+    "all-outputs": true,
+    "format": "{name}",
+    "format-icons": {
+      "1": "一",
+      "2": "二",
+      "3": "三",
+      "4": "四",
+      "5": "五",
+      "6": "六",
+      "7": "七",
+      "8": "八",
+      "9": "九",
+      "10": "十",
+    },
+    "on-scroll-up": "hyprctl dispatch workspace e+1 1>/dev/null",
+    "on-scroll-down": "hyprctl dispatch workspace e-1 1>/dev/null",
+    "sort-by-number": true,
+    "active-only": false,
+  },
+  "custom/notification": {
+    "tooltip": false,
+    "format": "| ",
+    "on-click": "swaync-client -t -sw",
+    "escape": true,
+  },
+  "clock#1": {
+    "format": " {:%a}",
+    "tooltip": false,
+    "on-click": "gsimplecal",
+  },
+  "clock#2": {
+    "format": " {:%d-%h-%Y}",
+    "tooltip": false,
+    "on-click": "gsimplecal",
+  },
+  "clock#3": {
+    "format": " {:%H:%M:%S %p}",
+    "tooltip": false,
+    "on-click": "gsimplecal",
+  },
+  "clock": {
+    "format": " {:%H:%M   %e %b}",
+    "today-format": "<b>{}</b>",
+    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+  },
+  "clock#date": {
+    "format": "󰥔 {:%H:%M |  %e %b}",
+    "today-format": "<b>{}</b>",
+    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+    "on-click": "gnome-calendar",
+    "calendar": {
+      "format": {
+        "today": "<span color='#00ff00'><b>{}</b></span>",
+      },
+    },
+  },
+  // "clock": {
+  //   "format": "{:%R - %a} ",
+  //   "interval": 1,
+  //   "tooltip-format": "<tt>{calendar}</tt>",
+  //   "calendar": {
+  //     "format": {
+  //       "today": "<span color='#00ff00'><b>{}</b></span>",
+  //     },
+  //   },
+  //   "on-click": "gnome-calendar",
+  //   // "actions": {
+  //   //     "on-click-right": "shift_down",
+  //   //     "on-click": "shift_up"
+  //   // }
+  // },
+  "network": {
+    "format-wifi": " ",
+    "format-ethernet": " ",
+    "format-disconnected": " ",
+    "tooltip-format-disconnected": "Error",
+    "tooltip-format-wifi": "{essid} ({signalStrength}%)  ",
+    "tooltip-format-ethernet": "{ifname} 🖧 ",
+    "on-click": "$USER_TERMINAL -e nmtui",
+  },
+  "pulseaudio": {
+    "scroll-step": 3, // %, can be a float
+    "format": "{icon} {volume}% {format_source}",
+    "format-bluetooth": "{volume}% {icon} {format_source}",
+    "format-bluetooth-muted": "{icon} {format_source}",
+    "format-muted": "{format_source}",
+    //"format-source": "{volume}% ",
+    //"format-source-muted": "",
+    "format-source": "",
+    "format-source-muted": "",
+    "format-icons": {
+      "headphone": "",
+      "hands-free": "",
+      "headset": "",
+      "phone": "",
+      "portable": "",
+      "car": "",
+      "default": [
+        "",
+        "",
+        ""
+      ],
+    },
+    "on-click": "pavucontrol",
+    "on-click-right": "amixer sset Master toggle",
+  },
+  "wireplumber": {
+    "on-click": "pavucontrol",
+    "on-click-right": "amixer sset Master toggle 1>/dev/null",
+    //on-click: "${wpctl} set-mute @DEFAULT_AUDIO_SINK@ toggle";
+    //on-scroll-down: "${wpctl} set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 0.04+";
+    //on-scroll-up: "${wpctl} set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 0.04-";
+    "format": "<span foreground='#fab387'>{icon}</span> {volume}%",
+    "format-muted": "",
+    "format-source": "",
+    "format-source-muted": "",
+    //"format-muted": "<span foreground='#fab387'> </span>",
+    //"format-icons": [ "<span foreground='#fab387'></span>" ]
+    "format-icons": {
+      "headphone": "",
+      "hands-free": "",
+      "headset": "",
+      "phone": "",
+      "portable": "",
+      "car": "",
+      "default": [
+        "",
+        "",
+        ""
+      ],
+    },
+  },
+  "bluetooth": {
+    "format-on": "󰂯",
+    "format-off": "BT-off",
+    "format-disabled": "󰂲",
+    "format-connected-battery": "󰂯{device_battery_percentage}%",
+    "format-alt": "󰂯{device_alias}",
+    "tooltip-format": "{controller_alias}\t{controller_address}\n\n{num_connections}connected",
+    "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{num_connections} connected\n\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias}\n{device_address}",
+    "tooltip-format-enumerate-connected-battery": "{device_alias}\n{device_address}\n{device_battery_percentage}%",
+    "on-click-right": "blueman-manager",
+  },
+  "battery": {
+    "interval": 30,
+    "states": {
+      "good": 95,
+      "warning": 30,
+      "critical": 20,
+    },
+    "format": "{icon} {capacity}%",
+    "format-charging": "󰂄{capacity}%",
+    "format-plugged": "󰂄{capacity}%",
+    "format-alt": "{icon} {time}",
+    "format-icons": [
+      "󰁻",
+      "󰁼",
+      "󰁾",
+      "󰂀",
+      "󰂂",
+      "󰁹"
+    ],
+  },
+  "custom/pacman": {
+    "format": "󰅢 {}",
+    "interval": 30,
+    "exec": "checkupdates | wc -l",
+    "exec-if": "exit 0",
+    "on-click": "stay 'paru -Syu'; pkill -SIGRTMIN+8 waybar",
+    "signal": 8,
+    "tooltip": false,
+  },
+  "custom/expand": {
+    "format": "",
+    "tooltip": false,
+  },
+  "custom/endpoint": {
+    "format": "|",
+    "tooltip": false,
+  },
+  "group/expand": {
+    "orientation": "horizontal",
+    "drawer": {
+      "transition-duration": 600,
+      "transition-to-left": true,
+      "click-to-reveal": true,
+    },
+    "modules": [
+      "custom/expand",
+      "custom/colorpicker",
+      "custom/pacman",
+      "custom/hyprsunset",
+      "cpu",
+      "memory",
+      "temperature",
+      "custom/endpoint",
+    ],
+  },
+  "custom/colorpicker": {
+    "format": "{} ",
+    "return-type": "json",
+    "interval": "once",
+    "exec": "~/.config/waybar/scripts/colorpicker.sh -j",
+    "on-click": "~/.config/waybar/scripts/colorpicker.sh",
+    "signal": 1,
+    "tooltip": false,
+  },
+  // "custom/weather": {
+  //   "format": "{}",
+  //   "format-alt": "{alt}: {}",
+  //   "format-alt-click": "click-right",
+  //   "interval": 3600,
+  //   "exec": "curl -s 'https://wttr.in/?format=1'",
+  //   "return-type": "json",
+  //   "exec": "~/.config/waybar/modules/weather.sh",
+  //   "exec-if": "ping wttr.in -c1",
+  // },
+  "custom/spotify": {
+    "exec": "~/.config/waybar/mediaplayer.py --player spotify",
+    "format": "{}  ",
+    "return-type": "json",
+    "on-click": "playerctl play-pause",
+    "on-scroll-up": "playerctl next",
+    "on-scroll-down": "playerctl previous",
+  },
+  "custom/hyprsunset": {
+    "format": " ",
+    "return-type": "json",
+    "interval": "once",
+    "on-click": "~/.config/waybar/scripts/hyprsunset.sh",
+    "on-click-right": "gddccontrol",
+    "tooltip-format": "Left click for night mode.\nRight click for brightness control.",
+    "signal": 1,
+  },
+  "custom/media": {
+    "format": "{0} {1}",
+    "return-type": "json",
+    "max-length": 40,
+    "format-icons": {
+      "spotify": "",
+      "default": "🎜",
+    },
+    "escape": true,
+    //"exec": "~/.config/waybar/mediaplayer.py" // Script in resources folder
+    // "exec": "~/.config/waybar/mediaplayer.py --player spotify 2> /dev/null" // Filter player based on name
+  },
+  "custom/power": {
+    "format": " 󰐥 ",
+    "tooltip": false,
+    "on-click": "wlogout",
+  },
+  "cpu": {
+    // "format": "󰻠",
+    "format": " {usage:>2}%",
+    "tooltip": true,
+    "interval": 2,
+    "on-click": "$USER_TERMINAL -e btop -p 2",
+  },
+  "memory": {
+    "format": " {percentage}%",
+    "interval": 5,
+    // "format": ""
+  },
+  "temperature": {
+    "critical-threshold": 80,
+    "format": "{temperatureC}°C",
+  },
+  "tray": {
+    "icon-size": 14,
+    "spacing": 10,
+  },
+}

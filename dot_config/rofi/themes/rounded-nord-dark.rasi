@@ -1,0 +1,35 @@
+/* ROUNDED THEME FOR ROFI */
+/* Author: Newman Sanchez (https://github.com/newmanls) */
+
+// PYWAL //
+// /* Light theme. */
+// @import "~/.cache/wal/colors-rofi-light"
+
+/* Dark theme. */
+// @import "~/.cache/wal/colors-rofi-dark"
+//
+// END PYWAL //
+
+
+// WALLUST //
+@import "./wallust/colors-rofi.rasi"
+// END WALLUST //
+
+
+// ORIGINAL
+// * {
+//     bg0:    #2E3440DD;
+//     bg1:    #3B4252;
+//     bg2:    #4C566ADD;
+//     bg3:    #88C0D0DD;
+//     fg0:    #D8DEE9;
+//     fg1:    #ECEFF4;
+//     fg2:    #D8DEE9;
+//     fg3:    #4C566A;
+// }
+
+@import "templates/rounded-template-wallust.rasi"
+
+element selected {
+    text-color: @selected-text;
+}

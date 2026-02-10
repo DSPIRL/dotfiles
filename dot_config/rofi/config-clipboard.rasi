@@ -1,0 +1,11 @@
+@import "~/.config/rofi/config.rasi"  
+
+/* ---- Mainbox ---- */
+mainbox {
+  children: [ "inputbar", "message", "listview"];
+}
+
+/* ---- Entry ---- */
+entry {
+  placeholder: " 📋 Clipboard ";
+}

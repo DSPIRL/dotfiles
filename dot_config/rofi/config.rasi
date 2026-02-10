@@ -1,0 +1,16 @@
+configuration {
+    modes: [ combi ];
+    combi-modes: [ window, drun, run ];
+}
+
+
+/* Insert theme modifications after this */
+@theme "themes/rounded-nord-dark.rasi"
+// @theme "themes/material.rasi"
+
+// PYWAL //
+/* Dark theme. */
+// @import "~/.cache/wal/colors-rofi-dark"
+//
+// /* Light theme. */
+// @import "~/.cache/wal/colors-rofi-light"

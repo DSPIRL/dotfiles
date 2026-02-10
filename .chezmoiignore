@@ -1,0 +1,60 @@
+# Auxiliary directories (not deployed to ~)
+shell/
+install_scripts/
+package_lists/
+assets/
+
+# Git/Stow artifacts
+.git
+.gitignore
+.stow-local-ignore
+*.md
+
+# Nushell sqlite
+*/nushell/history.sqlite3*
+
+# Neovim plugin lockfile (machine-specific)
+dot_config/nvim/lazy-lock.json
+
+# Podman connections (machine-specific)
+dot_config/containers/podman-connections.json
+
+# macOS-only (skip on Linux)
+{{ if ne .chezmoi.os "darwin" }}
+dot_config/aerospace/
+dot_config/karabiner/
+{{ end }}
+
+# WSL-only exclusions (no KeePassXC/encryption)
+{{ if and (eq .chezmoi.os "linux") (contains "microsoft" .chezmoi.kernel.osrelease) }}
+dot_config/private_chezmoi/
+{{ end }}
+
+# Linux-only (skip on macOS)
+{{ if ne .chezmoi.os "linux" }}
+dot_config/hypr/
+dot_config/gtk-3.0/
+dot_config/gtk-4.0/
+dot_config/Kvantum/
+dot_config/nwg-look/
+dot_config/qt5ct/
+dot_config/qt6ct/
+dot_config/rofi/
+dot_config/swaylock/
+dot_config/swaync/
+dot_config/wal/
+dot_config/wallust/
+dot_config/waybar/
+dot_config/waypaper/
+dot_config/wlogout/
+dot_config/wofi/
+dot_config/xsettingsd/
+dot_config/cava/
+dot_config/cliphist/
+dot_config/dconf/
+dot_config/dot_dmenurc
+dot_gtkrc-2.0
+dot_config/gtkrc
+dot_config/gtkrc-2.0
+dot_config/xdg-desktop-portal/
+{{ end }}

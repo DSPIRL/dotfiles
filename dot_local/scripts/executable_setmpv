@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+pkill -x mpvpaper
+pkill -x swww
+pkill -x wal
+nohup mpvpaper -o "no-audio --loop-file=inf" ALL $* &

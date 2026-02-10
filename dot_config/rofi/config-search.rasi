@@ -1,0 +1,12 @@
+@import "~/.config/rofi/config.rasi"  
+
+/* ---- Window ---- */
+window {
+    children: [ "entry", "message" ];
+}
+
+/* ---- Entry ---- */ 
+entry {
+	placeholder: " 🔎 Search";
+    placeholder-color: @scrollbar-filled;
+}
