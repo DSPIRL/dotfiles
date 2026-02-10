@@ -3,12 +3,12 @@ paginate = "never"
 default-command = "log"
 
 [user]
-{{- if .isWSL }}
-email = ""
-name = ""
-{{- else }}
+{{- if .useKeePassXC }}
 email = "{{ keepassxcAttribute "Chezmoi" "git_email" }}"
 name = "{{ keepassxcAttribute "Chezmoi" "git_name" }}"
+{{- else }}
+email = ""
+name = ""
 {{- end }}
 
 [init]

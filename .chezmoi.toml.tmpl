@@ -1,14 +1,20 @@
-{{ if not (and (eq .chezmoi.os "linux") (contains "microsoft" .chezmoi.kernel.osrelease)) -}}
+{{- $isWSL := and (eq .chezmoi.os "linux") (contains "microsoft" .chezmoi.kernel.osrelease) -}}
+{{- $keepassDB := joinPath .chezmoi.homeDir "Documents/Syncs/Phone Backup/KeePass/Passwords.kdbx" -}}
+{{- $useKeePassXC := and (not $isWSL) (stat $keepassDB) -}}
+
+{{ if $useKeePassXC -}}
 encryption = "age"
 {{ end }}
-[data]
-    isWSL = {{ if and (eq .chezmoi.os "linux") (contains "microsoft" .chezmoi.kernel.osrelease) }}true{{ else }}false{{ end }}
 
-{{ if not (and (eq .chezmoi.os "linux") (contains "microsoft" .chezmoi.kernel.osrelease)) }}
+[data]
+    isWSL = {{ $isWSL }}
+    useKeePassXC = {{ $useKeePassXC | not | not }}
+
+{{ if $useKeePassXC }}
 [age]
     identity = "~/.config/chezmoi/key.txt"
     recipient = "age1u8jpuvpt70q406l9j289jm8ayvn6ktmu67r8qru40492zkx4gufqfy6qwj"
 
 [keepassxc]
-    database = "~/Documents/Syncs/Phone Backup/KeePass/Passwords.kdbx"
+    database = {{ $keepassDB | quote }}
 {{ end }}
