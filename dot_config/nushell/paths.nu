@@ -1,45 +1,48 @@
-if ((sys host | get name | str contains --ignore-case "Linux")) {
-##### LINUX #####
-    # EDITOR #
-    $env.VISUAL = "/usr/bin/nvim"
+# Nushell PATH Configuration
 
-    # C# PATH #
-    if ("~/.dotnet" | path exists) {
-        $env.DOTNET_ROOT = "/usr/local/share/dotnet"
-        load-env {
-            "PATH": ($env.PATH | append $env.DOTNET_ROOT | append $"($env.HOME)/.dotnet/tools")
+# Helper to add paths (checks existence before adding)
+def --env add-path [path: string, --prepend] {
+    let expanded = ($path | path expand)
+    if ($expanded | path exists) {
+        if $prepend {
+            $env.PATH = ($env.PATH | prepend $expanded)
+        } else {
+            $env.PATH = ($env.PATH | append $expanded)
         }
     }
-
-    # EMACS #
-    if ("~/.config/emacs/bin" | path exists) {
-        $env.PATH = ($env.PATH | prepend $"($env.HOME)/.config/emacs/bin")
-    }
-
-    # XDG #
-    $env.XDG_CONFIG_HOME = $"($env.HOME)/.config"
-
-    $env.XDG_DATA_DIRS = $"($env.HOME)/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share"
-} else if ((sys host | get name | str contains --ignore-case "Darwin")) {
-##### MACOS #####
-    $env.VISUAL = "/opt/homebrew/bin/nvim"
-    $env.config.buffer_editor = "/opt/homebrew/bin/nvim"
-
 }
 
+##### PLATFORM-SPECIFIC #####
+if ((sys host | get name | str contains --ignore-case "Linux")) {
+    $env.VISUAL = "/usr/bin/nvim"
+
+    # DOTNET
+    if ($"($env.HOME)/.dotnet" | path exists) {
+        $env.DOTNET_ROOT = "/usr/local/share/dotnet"
+        add-path $env.DOTNET_ROOT
+        add-path $"($env.HOME)/.dotnet/tools"
+    }
+
+    # EMACS
+    add-path $"($env.HOME)/.config/emacs/bin" --prepend
+
+    # XDG
+    $env.XDG_CONFIG_HOME = $"($env.HOME)/.config"
+    $env.XDG_DATA_DIRS = $"($env.HOME)/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share"
+
+} else if ((sys host | get name | str contains --ignore-case "Darwin")) {
+    $env.VISUAL = "/opt/homebrew/bin/nvim"
+    $env.config.buffer_editor = "/opt/homebrew/bin/nvim"
+}
 
 ##### GLOBAL #####
-# MANPAGER #
 $env.MANPAGER = "nvim +Man!"
 
-# PATH + VARS #
-$env.PATH = ($env.PATH | prepend $"($env.HOME)/.local/bin")
-$env.PATH = ($env.PATH | prepend $"($env.HOME)/.local/scripts")
+add-path $"($env.HOME)/.local/bin" --prepend
+add-path $"($env.HOME)/.local/scripts" --prepend
 
-# RUST PATH #
-if ("~/.cargo" | path exists) {
+# RUST
+if ($"($env.HOME)/.cargo" | path exists) {
     $env.CARGO_HOME = $"($env.HOME)/.cargo"
-    load-env {
-        "PATH": ($env.PATH | prepend $"($env.CARGO_HOME)/bin")
-    }
+    add-path $"($env.CARGO_HOME)/bin" --prepend
 }

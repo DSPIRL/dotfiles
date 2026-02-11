@@ -1,4 +1,12 @@
-##### DOTNET #####
+##### CUSTOM ENVIRONMENT VARIABLES #####
+$env.DOTS = $"($env.HOME)/.local/share/chezmoi"
+$env.DOTS_CONFIG = $"($env.DOTS)/dot_config"
+
+##### CARAPACE #####
+# Cache is generated in env.nu
+$env.CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense'
+
+##### DOTNET COMPLETER #####
 let external_completer = { |spans|
     {
         dotnet: { ||
@@ -9,8 +17,7 @@ let external_completer = { |spans|
     } | get $spans.0 | each { || do $in }
 }
 
-
-##### NUSHELL ENV #####
+##### NUSHELL CONFIG #####
 $env.config = {
     filesize: {
         unit: "metric"
