@@ -1,35 +1,30 @@
 ##### CORE #####
 alias core-ls = ls
 alias core-cd = cd
-alias core-vim = vim
 
 ##### CUSTOM REDEFINITIONS #####
 def ls [] {
     core-ls -la | select name type mode user group size modified
 }
 
-alias cd = z
-
-
-##### CUSTOM FUNCTIONS #####
-#ef tms [] {
-#   tmux new-session -d -s GoodSesh
-#   tmux new-window -t GoodSesh:1 -n 'Terminal'
-#   tmux new-window -t GoodSesh:2 -n 'Neovim'
-#   tmux attach-session -t GoodSesh
-#
-
+# Use zoxide's z if available, otherwise fall back to core cd
+def --env cd [path?: string] {
+    if (which z | is-not-empty) {
+        if ($path == null) { z ~ } else { z $path }
+    } else {
+        if ($path == null) { core-cd ~ } else { core-cd $path }
+    }
+}
 
 ##### TESTING #####
 alias modhelp = cat ~/.local/share/chezmoi/shell/manpages/help_chmod.md
 
-def greet [...names] { 
+def greet [...names] {
     $names | each {
         |el|
-        (echo $"Hello ($el)") 
+        (echo $"Hello ($el)")
     }
 }
-
 
 ##### ALIAS #####
 alias cls = clear
@@ -51,13 +46,9 @@ alias pc = podman-compose
 alias d = docker
 alias dc = docker compose
 
-alias kanata-restart = nu ~/.config/nushell/scripts/mac-kanata-restart.nu
-alias kanata-start = nu ~/.config/nushell/scripts/mac-kanata-start.nu
-alias kanata-stop = nu ~/.config/nushell/scripts/mac-kanata-stop.nu
+alias mac-kanata = nu ~/.config/nushell/scripts/mac-kanata.nu
 
 alias modstat = nu ~/.config/nushell/scripts/modstat.nu
 alias flatpak-alias = nu ~/.config/nushell/scripts/flatpak-alias.nu
-
-#alias tmux-start = tmux new-session -d -s GoodSesh; tmux new-window -t GoodSesh::1 -n 'Terminal'; tmux new-window -t GoodSesh:2 -n 'Neovim'; tmux attach-session -t GoodSesh;
 
 alias glols = git log --graph --pretty="%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset" --stat
