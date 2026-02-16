@@ -28,27 +28,54 @@ def greet [...names] {
 
 ##### ALIAS #####
 alias cls = clear
-alias l = eza -lhAF --color=auto --icons=always
-alias exifall = exiftool -all=
-alias exifkeepicc = exiftool -all= --icc_profile:all
-alias safe-claude = claude
-alias claude = claude --allow-dangerously-skip-permissions
 
-alias vim = nvim
-alias nv = nvim
-alias n = nvim
-alias se = sudoedit
+# Conditional aliases — only defined if the underlying command exists
 
-alias k = kubectl
-alias p = podman
-alias pc = podman-compose
+if (which eza | is-not-empty) {
+    alias l = eza -lhAF --color=auto --icons=always
+}
 
-alias d = docker
-alias dc = docker compose
+if (which exiftool | is-not-empty) {
+    alias exifall = exiftool -all=
+    alias exifkeepicc = exiftool -all= --icc_profile:all
+}
+
+if (which claude | is-not-empty) {
+    alias safe-claude = claude
+    alias claude = claude --allow-dangerously-skip-permissions
+}
+
+if (which nvim | is-not-empty) {
+    alias vim = nvim
+    alias nv = nvim
+    alias n = nvim
+}
+
+if (which sudoedit | is-not-empty) {
+    alias se = sudoedit
+}
+
+if (which kubectl | is-not-empty) {
+    alias k = kubectl
+}
+
+if (which podman | is-not-empty) {
+    alias p = podman
+}
+
+if (which podman-compose | is-not-empty) {
+    alias pc = podman-compose
+}
+
+if (which docker | is-not-empty) {
+    alias d = docker
+    alias dc = docker compose
+}
+
+if (which git | is-not-empty) {
+    alias glols = git log --graph --pretty="%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset" --stat
+}
 
 alias mac-kanata = nu ~/.config/nushell/scripts/mac-kanata.nu
-
 alias modstat = nu ~/.config/nushell/scripts/modstat.nu
 alias flatpak-alias = nu ~/.config/nushell/scripts/flatpak-alias.nu
-
-alias glols = git log --graph --pretty="%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset" --stat
