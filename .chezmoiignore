@@ -2,6 +2,7 @@
 install_scripts/
 package_lists/
 assets/
+docs/
 
 # Non-deployed shell subdirs
 private_dot_shell/manpages/
