@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+# Usage: tmwux <directory-name>
+
+if [ -z "$1" ]; then
+    echo "Usage: tmwux <directory-name (optional)>"
+    exit 1
+fi
+
+SESSION_NAME=$1
+
+# Create new session with first window
+tmux new-session -d -s "$SESSION_NAME" -c "$PWD"
+
+# Create additional windows
+tmux new-window -t "$SESSION_NAME" -n editor -c "$PWD"
+tmux new-window -t "$SESSION_NAME" -n claude -c "$PWD"
+tmux new-window -t "$SESSION_NAME" -n terminal -c "$PWD"
+
+# Create panes in specific windows
+# In the first window (index 0), create a split pane
+tmux split-window -t "$SESSION_NAME:0" -h -c "$PWD"
+
+# Run commands in specific windows/panes
+tmux send-keys -t "$SESSION_NAME:1" "nvim" Enter
+tmux send-keys -t "$SESSION_NAME:2" "claude --allow-dangerously-skip-permissions" Enter
+
+# Attach to the session
+tmux attach-session -t "$SESSION_NAME"

@@ -1,0 +1,6 @@
+qemu
+virt-manager
+virt-viewer
+vde2
+openbsd-netcat
+libguestfs

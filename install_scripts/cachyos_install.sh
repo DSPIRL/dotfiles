@@ -10,8 +10,8 @@ DOTMODS="${DOTSCRIPTS}/modules"
 # Sudo access
 sudo echo "Sudo access granted for this script"
 while true; do
-  sudo -v
-  sleep 240
+    sudo -v
+    sleep 240
 done &
 
 # Store the PID of the background process for this install script
@@ -23,61 +23,51 @@ chassis=$(hostnamectl chassis)
 cachyOs="CachyOS"
 
 if [[ "$operatingSystem" == "$cachyOs" ]]; then
-  read -rp 'Do you want to install LazyVim? (Y/N): ' varLazyVimInstall
-  read -rp 'Do you want to install Syncthing? (Y/N): ' varSyncthingInstall
+    read -rp 'Do you want to install Syncthing? (Y/N): ' varSyncthingInstall
 
-  if [[ "${chassis}" == "laptop" ]]; then
-    read -rp 'Do you want to install Kanata for custom keyboard layouts? (Y/N): ' varKanataInstall
-  fi
+    if [[ "${chassis}" == "laptop" ]]; then
+        read -rp 'Do you want to install Kanata for custom keyboard layouts? (Y/N): ' varKanataInstall
+    fi
 
-  # Rust
-  # cd $HOME
-  # curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    # Rust
+    # cd $HOME
+    # curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-  # LazyVim
-  if [[ "${varLazyVimInstall^^}" == "Y" ]]; then
-    bash -c "${DOTMODS}/lazyvim.sh"
-  fi
+    # Default packages
+    cd $HOME
+    paru -S $(awk -v RS= '{$1=$1}1' ${DOTPKG}/cachyosPackages.txt) \
+        $([[ "{varSyncthingInstall^^}" == "Y" ]] && echo syncthing)
 
-  # Paru install
-  bash -c "${DOTMODS}/paru.sh"
+    # Syncthing setup
+    # if [[ "${varSyncthingInstall^^}" == "Y" ]]; then
+    #   systemctl --user enable syncthing.service
+    #   systemctl --user start syncthing.service
+    # fi
 
-  # Default packages
-  cd $HOME
-  paru -S $(awk -v RS= '{$1=$1}1' ${DOTPKG}/cachyosPackages.txt) \
-    $([[ "{varSyncthingInstall^^}" == "Y" ]] && echo syncthing) \
-    $(echo carapace-bin)
+    # Kanata install
+    if [[ "${varKanataInstall^^}" == "Y" ]]; then
+        ${HOME}/.cargo/bin/cargo install kanata
+    fi
 
-  # Syncthing setup
-  # if [[ "${varSyncthingInstall^^}" == "Y" ]]; then
-  #   systemctl --user enable syncthing.service
-  #   systemctl --user start syncthing.service
-  # fi
+    # Link breeze cursors
+    sudo ln -fvs "${DOTS}/assets/breeze_cursors" /usr/share/icons/
 
-  # Kanata install
-  if [[ "${varKanataInstall^^}" == "Y" ]]; then
-    ${HOME}/.cargo/bin/cargo install kanata
-  fi
+    # Zoxide setup
+    /usr/bin/zoxide init nushell >~/.zoxide.nu
 
-  # Link breeze cursors
-  sudo ln -fvs "${DOTS}/assets/breeze_cursors" /usr/share/icons/
+    # Change shell
+    chsh -s /usr/bin/zsh
 
-  # Zoxide setup
-  /usr/bin/zoxide init nushell >~/.zoxide.nu
+    # ohmyzsh install
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
-  # Change shell
-  chsh -s /usr/bin/zsh
+    # Apply dotfiles with chezmoi
+    chezmoi apply
+    bash -c "${DOTMODS}/gitignore_theming.sh"
 
-  # ohmyzsh install
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    # SSH config setup
+    bash -c "${DOTMODS}/ssh_config.sh"
 
-  # Apply dotfiles with chezmoi
-  chezmoi apply
-  bash -c "${DOTMODS}/gitignore_theming.sh"
-
-  # SSH config setup
-  bash -c "${DOTMODS}/ssh_config.sh"
-
-  # Kill process
-  kill $SUDO_KEEP_ALIVE_PID
+    # Kill process
+    kill $SUDO_KEEP_ALIVE_PID
 fi
