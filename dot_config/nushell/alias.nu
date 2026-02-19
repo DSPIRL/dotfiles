@@ -29,51 +29,126 @@ def greet [...names] {
 ##### ALIAS #####
 alias cls = clear
 
-# Conditional aliases — only defined if the underlying command exists
+# Command wrappers with runtime checks
 
-if (which eza | is-not-empty) {
-    alias l = eza -lhAF --color=auto --icons=always
+def --wrapped l [...rest] {
+    if (which eza | is-not-empty) {
+        ^eza -lhAF --color=auto --icons=always ...$rest
+    } else {
+        ^ls ...$rest
+    }
 }
 
-if (which exiftool | is-not-empty) {
-    alias exifall = exiftool -all=
-    alias exifkeepicc = exiftool -all= --icc_profile:all
+def --wrapped exifall [...rest] {
+    if (which exiftool | is-not-empty) {
+        ^exiftool -all= ...$rest
+    } else {
+        error make { msg: "exiftool is not installed" }
+    }
 }
 
-if (which claude | is-not-empty) {
-    alias safe-claude = claude
-    alias claude = claude --allow-dangerously-skip-permissions
+def --wrapped exifkeepicc [...rest] {
+    if (which exiftool | is-not-empty) {
+        ^exiftool -all= --icc_profile:all ...$rest
+    } else {
+        error make { msg: "exiftool is not installed" }
+    }
 }
 
-if (which nvim | is-not-empty) {
-    alias vim = nvim
-    alias nv = nvim
-    alias n = nvim
+def --wrapped safe-claude [...rest] {
+    if (which claude | is-not-empty) {
+        ^claude ...$rest
+    } else {
+        error make { msg: "claude is not installed" }
+    }
 }
 
-if (which sudoedit | is-not-empty) {
-    alias se = sudoedit
+def --wrapped claude [...rest] {
+    if (which claude | is-not-empty) {
+        ^claude --allow-dangerously-skip-permissions ...$rest
+    } else {
+        error make { msg: "claude is not installed" }
+    }
 }
 
-if (which kubectl | is-not-empty) {
-    alias k = kubectl
+def --wrapped vim [...rest] {
+    if (which nvim | is-not-empty) {
+        ^nvim ...$rest
+    } else {
+        error make { msg: "nvim is not installed" }
+    }
 }
 
-if (which podman | is-not-empty) {
-    alias p = podman
+def --wrapped nv [...rest] {
+    if (which nvim | is-not-empty) {
+        ^nvim ...$rest
+    } else {
+        error make { msg: "nvim is not installed" }
+    }
 }
 
-if (which podman-compose | is-not-empty) {
-    alias pc = podman-compose
+def --wrapped n [...rest] {
+    if (which nvim | is-not-empty) {
+        ^nvim ...$rest
+    } else {
+        error make { msg: "nvim is not installed" }
+    }
 }
 
-if (which docker | is-not-empty) {
-    alias d = docker
-    alias dc = docker compose
+def --wrapped se [...rest] {
+    if (which sudoedit | is-not-empty) {
+        ^sudoedit ...$rest
+    } else {
+        error make { msg: "sudoedit is not installed" }
+    }
 }
 
-if (which git | is-not-empty) {
-    alias glols = git log --graph --pretty="%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset" --stat
+def --wrapped k [...rest] {
+    if (which kubectl | is-not-empty) {
+        ^kubectl ...$rest
+    } else {
+        error make { msg: "kubectl is not installed" }
+    }
+}
+
+def --wrapped p [...rest] {
+    if (which podman | is-not-empty) {
+        ^podman ...$rest
+    } else {
+        error make { msg: "podman is not installed" }
+    }
+}
+
+def --wrapped pc [...rest] {
+    if (which podman-compose | is-not-empty) {
+        ^podman-compose ...$rest
+    } else {
+        error make { msg: "podman-compose is not installed" }
+    }
+}
+
+def --wrapped d [...rest] {
+    if (which docker | is-not-empty) {
+        ^docker ...$rest
+    } else {
+        error make { msg: "docker is not installed" }
+    }
+}
+
+def --wrapped dc [...rest] {
+    if (which docker | is-not-empty) {
+        ^docker compose ...$rest
+    } else {
+        error make { msg: "docker is not installed" }
+    }
+}
+
+def --wrapped glols [...rest] {
+    if (which git | is-not-empty) {
+        ^git log --graph '--pretty=%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --stat ...$rest
+    } else {
+        error make { msg: "git is not installed" }
+    }
 }
 
 alias mac-kanata = nu ~/.config/nushell/scripts/mac-kanata.nu
