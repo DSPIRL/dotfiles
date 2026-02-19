@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+# Usage: tmwux <session-name>
+
+if [ -z "$1" ]; then
+    echo "Usage: tmwux <session-name>"
+    exit 1
+fi
+
+SESSION_NAME=$1
+
+# Create new session with editor window
+tmux new-session -d -s "$SESSION_NAME" -n editor -c "$PWD"
+
+# Create additional windows
+tmux new-window -t "$SESSION_NAME" -n AI -c "$PWD"
+tmux new-window -t "$SESSION_NAME" -n nu -c "$PWD"
+
+# Run commands in specific windows
+tmux send-keys -t "$SESSION_NAME:editor" "nvim" Enter
+
+# Skip when KeePassXC not available (WSL or missing database)
+{{- if not (dig "useKeePassXC" false .) }}
+tmux send-keys -t "$SESSION_NAME:AI" "claude --allow-dangerously-skip-permissions" Enter
+{{- else }}
+tmux send-keys -t "$SESSION_NAME:AI" "opencode" Enter
+{{- end }}
+
+tmux send-keys -t "$SESSION_NAME:nu" "nu" Enter
+
+# Select first window and attach
+tmux select-window -t "$SESSION_NAME:editor"
+tmux attach-session -t "$SESSION_NAME"
