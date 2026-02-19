@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-# Usage: tmwux <directory-name>
+# Usage: tmwux <session-name>
 
 if [ -z "$1" ]; then
-    echo "Usage: tmwux <directory-name>"
+    echo "Usage: tmwux <session-name>"
     exit 1
 fi
 
