@@ -1,0 +1,7 @@
+com.discordapp.Discord
+com.github.tchx84.Flatseal
+io.github.flattool.Warehouse
+io.github.giantpinkrobots.flatsweep
+md.obsidian.Obsidian
+me.iepure.devtoolbox
+org.telegram.desktop
