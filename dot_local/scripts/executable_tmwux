@@ -9,21 +9,18 @@ fi
 
 SESSION_NAME=$1
 
-# Create new session with first window
-tmux new-session -d -s "$SESSION_NAME" -c "$PWD"
+# Create new session with editor window
+tmux new-session -d -s "$SESSION_NAME" -n editor -c "$PWD"
 
 # Create additional windows
-tmux new-window -t "$SESSION_NAME" -n editor -c "$PWD"
 tmux new-window -t "$SESSION_NAME" -n claude -c "$PWD"
+tmux new-window -t "$SESSION_NAME" -n nu -c "$PWD"
 
-# Create panes in specific windows
-# In the first window (index 0), create a split pane
-# tmux split-window -t "$SESSION_NAME:0" -h -c "$PWD"
+# Run commands in specific windows
+tmux send-keys -t "$SESSION_NAME:editor" "nvim" Enter
+tmux send-keys -t "$SESSION_NAME:claude" "claude --allow-dangerously-skip-permissions" Enter
+tmux send-keys -t "$SESSION_NAME:nu" "nu" Enter
 
-# Run commands in specific windows/panes
-tmux send-keys -t "$SESSION_NAME:0" "nu" Enter
-tmux send-keys -t "$SESSION_NAME:1" "nvim" Enter
-tmux send-keys -t "$SESSION_NAME:2" "claude --allow-dangerously-skip-permissions" Enter
-
-# Attach to the session
+# Select first window and attach
+tmux select-window -t "$SESSION_NAME:editor"
 tmux attach-session -t "$SESSION_NAME"
