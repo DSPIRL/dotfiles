@@ -21,7 +21,7 @@ tmux new-window -t "$SESSION_NAME" -n claude -c "$PWD"
 # tmux split-window -t "$SESSION_NAME:0" -h -c "$PWD"
 
 # Run commands in specific windows/panes
-tmux send-keys -t "$SESSION_NAME:0" "terminal" Enter
+tmux send-keys -t "$SESSION_NAME:0" "nu" Enter
 tmux send-keys -t "$SESSION_NAME:1" "nvim" Enter
 tmux send-keys -t "$SESSION_NAME:2" "claude --allow-dangerously-skip-permissions" Enter
 
