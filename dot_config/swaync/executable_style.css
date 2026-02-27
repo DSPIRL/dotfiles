@@ -1,7 +1,7 @@
 /* ----------- 💫 https://github.com/JaKooLit 💫 -------- */
-/* swaync colors - wallust from waybar.css */
+/* swaync colors - wallust-generated dedicated palette */
 
-@import '../waybar/wallust/colors-wallust.css';
+@import './wallust/colors-swaync.css';
 
 @define-color text-color @foreground;
 

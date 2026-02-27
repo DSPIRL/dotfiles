@@ -31,12 +31,15 @@ noto-fonts
 noto-fonts-emoji
 nwg-displays
 nwg-look
+pacman-contrib
 pamixer
 pavucontrol
+playerctl
 polkit-kde-agent
 qt5-wayland
 qt6-wayland
 qt6ct
+quickshell
 rofi
 slurp
 swappy
@@ -46,7 +49,6 @@ swaync
 swww
 uwsm
 wallust
-waybar
 waypaper
 wofi
 xdg-desktop-portal

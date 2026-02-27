@@ -93,7 +93,7 @@ dot_config/karabiner/
 # Skip on macOS (Linux only)
 {{ if ne .chezmoi.os "linux" }}
 dot_config/hypr/
-dot_config/waybar/
+dot_config/quickshell/
 {{ end }}
 ```
 

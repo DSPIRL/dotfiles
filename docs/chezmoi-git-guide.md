@@ -245,17 +245,18 @@ LICENSE
 
 # Generated theme files (managed by wallust)
 dot_config/alacritty/colors.toml
-dot_config/waybar/colors.css
+dot_config/quickshell/wallust/Colors.qml
+dot_config/swaync/wallust/colors-swaync.css
 ```
 
 For files already in the repo that are auto-generated (like theme files), use git's assume-unchanged:
 
 ```bash
 # Mark file as unchanged (stops tracking modifications)
-git update-index --assume-unchanged dot_config/waybar/colors.css
+git update-index --assume-unchanged dot_config/quickshell/wallust/Colors.qml
 
 # Undo if needed
-git update-index --no-assume-unchanged dot_config/waybar/colors.css
+git update-index --no-assume-unchanged dot_config/quickshell/wallust/Colors.qml
 ```
 
 ---

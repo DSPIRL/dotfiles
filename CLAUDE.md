@@ -40,7 +40,7 @@ chezmoi re-add                   # Re-add all modified files
 ### Platform Separation
 The `.chezmoiignore` file uses chezmoi templating to exclude platform-specific configs:
 - **macOS only**: `aerospace/`, `karabiner/`
-- **Linux only**: `hypr/`, `gtk-*`, `qt*ct/`, `rofi/`, `waybar/`, `wal/`, `wallust/`, and other desktop configs
+- **Linux only**: `hypr/`, `gtk-*`, `qt*ct/`, `quickshell/`, `rofi/`, `wal/`, `wallust/`, and other desktop configs
 
 ### Directory Structure
 - `dot_config/` - XDG config files (40+ applications)
@@ -63,7 +63,7 @@ The `.chezmoiignore` file uses chezmoi templating to exclude platform-specific c
 4. Sources platform-specific file (`shell/zsh/macos.zsh` or `shell/zsh/linux.zsh`)
 
 ### Theme System (Linux)
-Wallust generates dynamic colors for: Alacritty, Ghostty, Rofi, Waybar, Cava, GTK. The `install_scripts/modules/gitignore_theming.sh` script marks generated theme files as `--assume-unchanged` in git.
+Wallust generates dynamic colors for: Alacritty, Ghostty, Rofi, Quickshell, Swaync, Cava, GTK. The `install_scripts/modules/gitignore_theming.sh` script marks generated theme files as `--assume-unchanged` in git.
 
 ## Key Aliases
 - `nv` - nvim
