@@ -39,6 +39,8 @@ npm
 nushell
 nwg-displays
 nwg-look
+pacman-contrib
+quickshell
 ripgrep
 rofi
 silicon
@@ -47,6 +49,7 @@ swaylock-effects-git
 swaylock-fancy-git
 swaync
 swww
+playerctl
 tree
 ttf-hack-nerd
 ttf-jetbrains-mono
@@ -57,7 +60,6 @@ unzip
 uv
 uwsm
 wallust
-waybar
 waypaper
 wl-clipboard
 wob
