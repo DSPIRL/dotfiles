@@ -11,7 +11,6 @@ carapace-bin
 cava
 cliphist
 eza
-gddccontrol
 gnome-calculator
 gnome-calendar
 gnome-dictionary
@@ -59,7 +58,6 @@ ttf-nerd-fonts-symbols
 ttf-nerd-fonts-symbols-mono
 unzip
 uv
-uwsm
 wallust
 waypaper
 wl-clipboard
