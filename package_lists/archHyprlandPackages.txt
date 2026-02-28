@@ -3,7 +3,10 @@ bemenu
 blueman
 bluez
 bluez-utils
+breeze
+breeze-cursors
 breeze-gtk
+breeze-icons
 brightnessctl
 cachyos-hyprland-settings
 cava
@@ -24,6 +27,7 @@ hyprpicker
 hyprpolkitagent
 hyprshot
 hyprsunset
+kvantum
 lsof
 materia-gtk-theme
 ncspot
@@ -50,7 +54,6 @@ swww
 uwsm
 wallust
 waypaper
-wofi
 xdg-desktop-portal
 xdg-desktop-portal-gtk
 xdg-desktop-portal-hyprland
