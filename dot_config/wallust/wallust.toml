@@ -14,4 +14,5 @@ ghostty = { template = 'colors-ghostty.conf', target = '~/.config/ghostty/themes
 alacritty = { template = 'alacritty-colors.toml', target = '~/.config/alacritty/colors.toml' }
 hypr = { template = 'colors-hypr.conf', target = '~/.config/hypr/themes/wallust.conf' }
 rofi = { template = 'colors-rofi.rasi', target = '~/.config/rofi/wallust/colors-rofi.rasi' }
-waybar = { template = 'colors-waybar.css', target = '~/.config/waybar/wallust/colors-wallust.css' }
+swaync = { template = 'colors-swaync.css', target = '~/.config/swaync/wallust/colors-swaync.css' }
+quickshell = { template = 'colors-quickshell.qml', target = '~/.config/quickshell/wallust/Colors.qml' }

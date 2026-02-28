@@ -47,15 +47,14 @@ dot_config/Kvantum/
 dot_config/nwg-look/
 dot_config/qt5ct/
 dot_config/qt6ct/
+dot_config/quickshell/
 dot_config/rofi/
 dot_config/swaylock/
 dot_config/swaync/
 dot_config/wal/
 dot_config/wallust/
-dot_config/waybar/
 dot_config/waypaper/
 dot_config/wlogout/
-dot_config/wofi/
 dot_config/xsettingsd/
 dot_config/cava/
 dot_config/cliphist/
