@@ -41,6 +41,7 @@ nwg-displays
 nwg-look
 pacman-contrib
 quickshell
+qt6ct
 ripgrep
 rofi
 silicon
