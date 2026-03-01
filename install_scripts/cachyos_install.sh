@@ -24,27 +24,14 @@ chassis="$(hostnamectl chassis 2>/dev/null || true)"
 varSyncthingInstall="N"
 varKanataInstall="N"
 
-read -rp 'Do you want to install Syncthing? (Y/N): ' varSyncthingInstall
-
 if [[ "${chassis}" == "laptop" ]]; then
     read -rp 'Do you want to install Kanata for custom keyboard layouts? (Y/N): ' varKanataInstall
 fi
 
-# Sudo access
-sudo echo "Sudo access granted for this script"
-while true; do
-    sudo -v
-    sleep 240
-done &
-
-# Store the PID of the background process for this install script
-SUDO_KEEP_ALIVE_PID=$!
-trap 'kill "${SUDO_KEEP_ALIVE_PID}" >/dev/null 2>&1 || true' EXIT
-
 # Default packages
 cd "${HOME}"
 paru -S $(awk -v RS= '{$1=$1}1' "${DOTPKG}/cachyosBasePackages.txt") \
-    $([[ "${varSyncthingInstall^^}" == "Y" ]] && echo syncthing)
+    $([[ "${varSyncthingInstall^^}" == "Y" ]])
 
 # Syncthing setup
 if [[ "${varSyncthingInstall^^}" == "Y" ]]; then
@@ -64,9 +51,6 @@ fi
 
 # Zoxide setup
 /usr/bin/zoxide init nushell >"${HOME}/.zoxide.nu"
-
-# Apply dotfiles with chezmoi
-chezmoi apply
 
 # SSH config setup
 bash "${DOTMODS}/ssh_config.sh"
