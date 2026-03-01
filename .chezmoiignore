@@ -1,4 +1,4 @@
-{{- if (dig "isCachyOS" true .) }}
+{{- if not (dig "isCachyOS" false .) }}
 # HYPRLAND DEBUGGING
 dot_config/hypr/
 dot_config/qt6ct/
