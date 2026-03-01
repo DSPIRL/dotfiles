@@ -1,16 +1,16 @@
-{{- if eq .chezmoi.osRelease.id "cachyos" }}
+{{ if not (dig "isCachyOS" false .) }}
 # HYPRLAND DEBUGGING
-dot_config/hypr/
-dot_config/qt6ct/
-dot_config/qt5ct/
-dot_config/Kvantum/
-dot_config/gtkrc
-dot_config/gtkrc-2
-dot_config/gtk-3/
-dot_config/gtk-4/
-dot_config/xdg-desktop-portal/
-dot_config/xsettingsd/
-dot_config/dot_dmenurc
+.config/hypr/
+.config/qt6ct/
+.config/qt5ct/
+.config/Kvantum/
+.config/gtkrc
+.config/gtkrc-2
+.config/gtk-3/
+.config/gtk-4/
+.config/xdg-desktop-portal/
+.config/xsettingsd/
+.config/dot_dmenurc
 {{- end }}
 
 # Auxiliary directories (not deployed to ~)
@@ -36,47 +36,47 @@ private_dot_shell/.git-submodule-aliases.sh
 */nushell/history.sqlite3*
 
 # Neovim plugin lockfile (machine-specific)
-dot_config/nvim/lazy-lock.json
+.config/nvim/lazy-lock.json
 
 # Podman connections (machine-specific)
-dot_config/containers/podman-connections.json
+.config/containers/podman-connections.json
 
 # macOS-only (skip on Linux)
 {{ if ne .chezmoi.os "darwin" }}
-dot_config/aerospace/
-dot_config/karabiner/
+.config/aerospace/
+.config/karabiner/
 {{ end }}
 
 # Skip when KeePassXC not available (WSL or missing database)
 {{ if not (dig "useKeePassXC" false .) }}
-dot_config/private_chezmoi/
+.config/private_chezmoi/
 encrypted_dot_gitconfig.tmpl.age
 {{ end }}
 
 # Linux-only (skip on macOS)
 {{ if ne .chezmoi.os "linux" }}
-dot_config/hypr/
-dot_config/gtk-3.0/
-dot_config/gtk-4.0/
-dot_config/Kvantum/
-dot_config/nwg-look/
-dot_config/qt5ct/
-dot_config/qt6ct/
-dot_config/quickshell/
-dot_config/rofi/
-dot_config/swaylock/
-dot_config/swaync/
-dot_config/wal/
-dot_config/wallust/
-dot_config/waypaper/
-dot_config/wlogout/
-dot_config/xsettingsd/
-dot_config/cava/
-dot_config/cliphist/
-dot_config/dconf/
-dot_config/dot_dmenurc
-dot_gtkrc-2.0
-dot_config/gtkrc
-dot_config/gtkrc-2.0
-dot_config/xdg-desktop-portal/
+.config/hypr/
+.config/gtk-3.0/
+.config/gtk-4.0/
+.config/Kvantum/
+.config/nwg-look/
+.config/qt5ct/
+.config/qt6ct/
+.config/quickshell/
+.config/rofi/
+.config/swaylock/
+.config/swaync/
+.config/wal/
+.config/wallust/
+.config/waypaper/
+.config/wlogout/
+.config/xsettingsd/
+.config/cava/
+.config/cliphist/
+.config/dconf/
+.config/dot_dmenurc
+.gtkrc-2.0
+.config/gtkrc
+.config/gtkrc-2.0
+.config/xdg-desktop-portal/
 {{ end }}
