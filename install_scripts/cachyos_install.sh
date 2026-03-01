@@ -62,13 +62,6 @@ if [[ "${varKanataInstall^^}" == "Y" ]]; then
     fi
 fi
 
-# Link custom breeze cursors if available
-if [[ -d "${DOTS}/assets/breeze_cursors" ]]; then
-    sudo ln -fvs "${DOTS}/assets/breeze_cursors" /usr/share/icons/
-else
-    echo "Skipping custom breeze_cursors symlink (not found in assets/)."
-fi
-
 # Zoxide setup
 /usr/bin/zoxide init nushell >"${HOME}/.zoxide.nu"
 
