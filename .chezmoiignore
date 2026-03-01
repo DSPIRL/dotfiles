@@ -1,16 +1,23 @@
 {{ if and (hasKey .chezmoi.osRelease "id") (eq .chezmoi.osRelease.id "cachyos") }}
 # HYPRLAND DEBUGGING
-.config/hypr/
-.config/qt6ct/
-.config/qt5ct/
+.config/.dmenurc
 .config/Kvantum/
-.config/gtkrc
-.config/gtkrc-2.0
 .config/gtk-3.0/
 .config/gtk-4.0/
+.config/gtkrc
+.config/gtkrc-2.0
+.config/hypr/
+.config/qt5ct/
+.config/qt6ct/
+.config/quickshell/
+.config/rofi/
+.config/swaylock/
+.config/swaync/
+.config/wal/
+.config/wallust/
+.config/waypaper/
 .config/xdg-desktop-portal/
 .config/xsettingsd/
-.config/.dmenurc
 {{- end }}
 
 # Auxiliary directories (not deployed to ~)
