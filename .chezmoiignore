@@ -5,12 +5,12 @@
 .config/qt5ct/
 .config/Kvantum/
 .config/gtkrc
-.config/gtkrc-2
-.config/gtk-3/
-.config/gtk-4/
+.config/gtkrc-2.0
+.config/gtk-3.0/
+.config/gtk-4.0/
 .config/xdg-desktop-portal/
 .config/xsettingsd/
-.config/dot_dmenurc
+.config/.dmenurc
 {{- end }}
 
 # Auxiliary directories (not deployed to ~)
