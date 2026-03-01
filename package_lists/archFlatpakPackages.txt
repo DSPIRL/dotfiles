@@ -1,6 +1,8 @@
+app.zen_browser.zen
 com.brave.Browser
 com.discordapp.Discord
 com.github.tchx84.Flatseal
+com.github.wwmm.easyeffects
 com.obsproject.Studio
 com.protonvpn.www
 com.system76.Popsicle
@@ -8,6 +10,8 @@ com.vscodium.codium
 io.github.flattool.Warehouse
 io.github.giantpinkrobots.flatsweep
 io.github.giantpinkrobots.varia
+io.github.kolunmi.Bazaar
+io.podman_desktop.PodmanDesktop
 it.mijorus.smile
 md.obsidian.Obsidian
 me.iepure.devtoolbox
@@ -18,5 +22,3 @@ org.inkscape.Inkscape
 org.kde.gwenview
 org.kde.kdenlive
 org.telegram.desktop
-com.github.wwmm.easyeffects
-io.podman_desktop.PodmanDesktop

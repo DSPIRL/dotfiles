@@ -1,4 +1,5 @@
 {{- $isWSL := and (eq .chezmoi.os "linux") (contains "microsoft" .chezmoi.kernel.osrelease) -}}
+{{- $isCachyOS := and (eq .chezmoi.os "linux") (hasKey .chezmoi.osRelease "id") (eq .chezmoi.osRelease.id "cachyos") -}}
 {{- $keepassDB := joinPath .chezmoi.homeDir "Documents/Syncs/Phone Backup/KeePass/Passwords.kdbx" -}}
 {{- $useKeePassXC := and (not $isWSL) (stat $keepassDB) -}}
 
@@ -8,6 +9,7 @@ encryption = "age"
 
 [data]
     isWSL = {{ $isWSL }}
+    isCachyOS = {{ $isCachyOS }}
     useKeePassXC = {{ $useKeePassXC | not | not }}
 
 {{ if $useKeePassXC }}

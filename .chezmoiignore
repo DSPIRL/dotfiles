@@ -1,3 +1,4 @@
+{{- if (dig "isCachyOS" true .) }}
 # HYPRLAND DEBUGGING
 dot_config/hypr/
 dot_config/qt6ct/
@@ -10,8 +11,7 @@ dot_config/gtk-4/
 dot_config/xdg-desktop-portal/
 dot_config/xsettingsd/
 dot_config/dot_dmenurc
-
-
+{{- end }}
 
 # Auxiliary directories (not deployed to ~)
 install_scripts/
