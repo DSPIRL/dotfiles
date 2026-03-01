@@ -1,4 +1,4 @@
-{{- if dig "isCachyOS" false . }}
+{{- if eq .chezmoi.osRelease.id "cachyos" }}
 # HYPRLAND DEBUGGING
 dot_config/hypr/
 dot_config/qt6ct/
