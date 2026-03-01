@@ -22,6 +22,7 @@ nwg-look
 playerctl
 qt6ct
 quickshell
+rofi
 swappy
 swaylock-effects-git
 swaylock-fancy-git

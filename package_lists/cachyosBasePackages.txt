@@ -9,6 +9,7 @@ eza
 gnome-calculator
 gnome-calendar
 gnome-dictionary
+keepassxc
 lsof
 ncspot
 neovim
@@ -19,7 +20,6 @@ npm
 nushell
 pacman-contrib
 ripgrep
-rofi
 silicon
 tree
 ttf-hack-nerd
