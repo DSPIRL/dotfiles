@@ -1,4 +1,4 @@
-{{ if not (dig "isCachyOS" false .) }}
+{{ if and (hasKey .chezmoi.osRelease "id") (eq .chezmoi.osRelease.id "cachyos") }}
 # HYPRLAND DEBUGGING
 .config/hypr/
 .config/qt6ct/
@@ -55,10 +55,17 @@ encrypted_dot_gitconfig.tmpl.age
 
 # Linux-only (skip on macOS)
 {{ if ne .chezmoi.os "linux" }}
-.config/hypr/
+.config/.dmenurc
+.config/Kvantum/
+.config/cava/
+.config/cliphist/
+.config/dconf/
+.config/dot_dmenurc
 .config/gtk-3.0/
 .config/gtk-4.0/
-.config/Kvantum/
+.config/gtkrc
+.config/gtkrc-2.0
+.config/hypr/
 .config/nwg-look/
 .config/qt5ct/
 .config/qt6ct/
@@ -70,13 +77,7 @@ encrypted_dot_gitconfig.tmpl.age
 .config/wallust/
 .config/waypaper/
 .config/wlogout/
-.config/xsettingsd/
-.config/cava/
-.config/cliphist/
-.config/dconf/
-.config/dot_dmenurc
-.gtkrc-2.0
-.config/gtkrc
-.config/gtkrc-2.0
 .config/xdg-desktop-portal/
+.config/xsettingsd/
+.gtkrc-2.0
 {{ end }}
