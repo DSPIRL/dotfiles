@@ -1,0 +1,32 @@
+{{- if (dig "isCachyOS" false .) }}
+##### CACHYOS HISTORY #####
+export HISTCONTROL=ignoreboth
+export HISTORY_IGNORE="(\&|[bf]g|c|clear|history|exit|q|pwd|* --help)"
+export LESS_TERMCAP_md="$(tput bold 2> /dev/null; tput setaf 2 2> /dev/null)"
+export LESS_TERMCAP_me="$(tput sgr0 2> /dev/null)"
+setopt hist_ignore_space
+setopt inc_append_history
+
+##### CACHYOS PLUGINS #####
+[[ -f /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh ]] && \
+  source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
+[[ -f /usr/share/doc/pkgfile/command-not-found.zsh ]] && \
+  source /usr/share/doc/pkgfile/command-not-found.zsh
+
+##### CACHYOS ALIASES #####
+alias make="make -j$(nproc)"
+alias ninja="ninja -j$(nproc)"
+alias n="ninja"
+alias c="clear"
+alias rmpkg="sudo pacman -Rsn"
+alias cleanch="sudo pacman -Scc"
+alias fixpacman="sudo rm /var/lib/pacman/db.lck"
+alias update="sudo pacman -Syu"
+alias apt="man pacman"
+alias apt-get="man pacman"
+alias please="sudo"
+alias tb="nc termbin.com 9999"
+alias cleanup='sudo pacman -Rsn $(pacman -Qtdq)'
+alias jctl="journalctl -p 3 -xb"
+alias rip="expac --timefmt='%Y-%m-%d %T' '%l\t%n %v' | sort | tail -200 | nl"
+{{- end }}

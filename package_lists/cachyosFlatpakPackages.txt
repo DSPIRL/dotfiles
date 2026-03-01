@@ -1,7 +1,9 @@
+app.zen_browser.zen
 com.discordapp.Discord
 com.github.tchx84.Flatseal
 io.github.flattool.Warehouse
 io.github.giantpinkrobots.flatsweep
+io.github.kolunmi.Bazaar
 md.obsidian.Obsidian
 me.iepure.devtoolbox
 org.telegram.desktop

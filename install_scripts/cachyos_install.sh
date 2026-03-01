@@ -43,13 +43,12 @@ trap 'kill "${SUDO_KEEP_ALIVE_PID}" >/dev/null 2>&1 || true' EXIT
 
 # Default packages
 cd "${HOME}"
-paru -S $(awk -v RS= '{$1=$1}1' "${DOTPKG}/cachyosPackages.txt") \
+paru -S $(awk -v RS= '{$1=$1}1' "${DOTPKG}/cachyosBasePackages.txt") \
     $([[ "${varSyncthingInstall^^}" == "Y" ]] && echo syncthing)
 
 # Syncthing setup
 if [[ "${varSyncthingInstall^^}" == "Y" ]]; then
-    systemctl --user enable syncthing.service
-    systemctl --user start syncthing.service
+    bash "${DOTMODS}/syncthing.sh"
 fi
 
 # Kanata install
@@ -73,15 +72,8 @@ fi
 # Zoxide setup
 /usr/bin/zoxide init nushell >"${HOME}/.zoxide.nu"
 
-# Change shell
-chsh -s /usr/bin/zsh
-
-# ohmyzsh install
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
 # Apply dotfiles with chezmoi
 chezmoi apply
-bash "${DOTMODS}/gitignore_theming.sh"
 
 # SSH config setup
 bash "${DOTMODS}/ssh_config.sh"
