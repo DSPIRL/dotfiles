@@ -4,6 +4,7 @@
 .bashrc
 .config/.dmenurc
 .config/Kvantum/
+.config/cliphist/
 .config/gtk-3.0/
 .config/gtk-4.0/
 .config/gtkrc
@@ -15,7 +16,6 @@
 .config/rofi/
 .config/swaylock/
 .config/swaync/
-.config/wal/
 .config/wallust/
 .config/waypaper/
 .config/xdg-desktop-portal/
