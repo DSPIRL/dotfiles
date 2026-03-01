@@ -1,5 +1,7 @@
 {{ if and (hasKey .chezmoi.osRelease "id") (eq .chezmoi.osRelease.id "cachyos") }}
 # HYPRLAND DEBUGGING
+.bash_profile
+.bashrc
 .config/.dmenurc
 .config/Kvantum/
 .config/gtk-3.0/
@@ -18,12 +20,14 @@
 .config/waypaper/
 .config/xdg-desktop-portal/
 .config/xsettingsd/
+.profile
+.zshenv
+.zshrc
 {{- end }}
 
 # Auxiliary directories (not deployed to ~)
 install_scripts/
 package_lists/
-assets/
 docs/
 
 # Non-deployed shell subdirs
