@@ -1,3 +1,18 @@
+# HYPRLAND DEBUGGING
+dot_config/hypr/
+dot_config/qt6ct/
+dot_config/qt5ct/
+dot_config/Kvantum/
+dot_config/gtkrc
+dot_config/gtkrc-2
+dot_config/gtk-3/
+dot_config/gtk-4/
+dot_config/xdg-desktop-portal/
+dot_config/xsettingsd/
+dot_config/dot_dmenurc
+
+
+
 # Auxiliary directories (not deployed to ~)
 install_scripts/
 package_lists/
