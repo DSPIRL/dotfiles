@@ -4,20 +4,20 @@
 .bashrc
 .config/.dmenurc
 .config/Kvantum/
-.config/cliphist/
+# .config/cliphist/
 .config/gtk-3.0/
 .config/gtk-4.0/
 .config/gtkrc
 .config/gtkrc-2.0
-.config/hypr/
+# .config/hypr/
 .config/qt5ct/
 .config/qt6ct/
-.config/quickshell/
-.config/rofi/
-.config/swaylock/
-.config/swaync/
-.config/wallust/
-.config/waypaper/
+# .config/quickshell/
+# .config/rofi/
+# .config/swaylock/
+# .config/swaync/
+# .config/wallust/
+# .config/waypaper/
 .config/xdg-desktop-portal/
 .config/xsettingsd/
 .profile
