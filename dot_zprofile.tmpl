@@ -1,10 +1,5 @@
-##### XDG DIRECTORIES #####
-export XDG_CONFIG_HOME="${HOME}/.config"
-export XDG_DATA_HOME="${HOME}/.local/share"
-export XDG_CACHE_HOME="${HOME}/.cache"
-
 {{- if eq .chezmoi.os "linux" }}
-export XDG_DATA_DIRS="${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+export XDG_DATA_DIRS="${XDG_DATA_DIRS:-/usr/local/share:/usr/share:$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share}"
 {{- end }}
 
 ##### PATH #####
@@ -31,7 +26,6 @@ fi
 [[ -d "${HOME}/.lmstudio" ]] && export PATH="${PATH}:${HOME}/.lmstudio/bin"
 
 {{- if eq .chezmoi.os "darwin" }}
-
 ##### JAVA/ANDROID (macOS) #####
 if [[ -d "/Applications/Android Studio.app" ]]; then
   export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
@@ -47,7 +41,7 @@ fi
 ##### RUBY (macOS) #####
 if [[ -d "/opt/homebrew/opt/ruby" ]]; then
   export PATH="/opt/homebrew/opt/ruby/bin:${PATH}"
-  export PATH="/opt/homebrew/lib/ruby/gems/3.4.0/bin:${PATH}"
+  export PATH="$(/opt/homebrew/opt/ruby/bin/ruby -e 'puts Gem.bindir'):${PATH}"
   export GEM_HOME="${HOME}/.gem"
 fi
 
@@ -63,6 +57,8 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 [ -s "${NVM_DIR}/bash_completion" ] && \. "${NVM_DIR}/bash_completion"
 
 {{- else if eq .chezmoi.os "linux" }}
+##### PATH #####
+export PATH="/usr/bin:/bin:/var/lib/flatpak/exports/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl:${PATH}"
 
 ##### JAVA/ANDROID (Linux) #####
 if [[ -d "/opt/android-studio" ]]; then
@@ -82,12 +78,12 @@ fi
 {{- end }}
 
 ##### EDITOR #####
+{{- if eq .chezmoi.os "linux" }}
 if command -v alacritty &>/dev/null; then
   export USER_TERMINAL=alacritty
-{{- if eq .chezmoi.os "linux" }}
-  export TERM=alacritty
-{{- end }}
+  # export TERM=alacritty
 fi
+{{- end }}
 
 if command -v nvim &>/dev/null; then
   export NVIM_PATH="$(command -v nvim)"
@@ -96,6 +92,6 @@ if command -v nvim &>/dev/null; then
 fi
 
 {{- if eq .chezmoi.os "linux" }}
-export QT_QPA_PLATFORMTHEME="qt6ct"
-export QT_STYLE_OVERRIDE="kvantum"
+# export QT_QPA_PLATFORMTHEME="qt6ct"
+# export QT_STYLE_OVERRIDE="kvantum"
 {{- end }}

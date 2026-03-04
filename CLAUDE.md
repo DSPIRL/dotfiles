@@ -27,13 +27,9 @@ chezmoi re-add                   # Re-add all modified files
 
 # Minimal server setup
 ./install_scripts/server_install.sh
-
-# Individual modules (in install_scripts/modules/)
-./install_scripts/modules/lazyvim.sh      # Clean LazyVim install
-./install_scripts/modules/paru.sh         # Paru AUR helper
-./install_scripts/modules/setup_git.sh    # Interactive git config
-./install_scripts/modules/syncthing.sh    # Syncthing service setup
 ```
+
+Individual component modules live under `install_scripts/modules/` and can be run independently.
 
 ## Architecture
 
@@ -44,9 +40,7 @@ The `.chezmoiignore` file uses chezmoi templating to exclude platform-specific c
 
 ### Directory Structure
 - `dot_config/` - XDG config files (40+ applications)
-- `shell/` - Shared shell infrastructure (not deployed, sourced by shell configs)
-  - `aliases.sh`, `custom_functions.sh`, `shellrc.sh` - Core shell setup
-  - `zsh/macos.zsh`, `zsh/linux.zsh` - Platform-specific shell config
+- `private_dot_shell/` - Shared shell infrastructure deployed to `~/.shell/`; contains aliases, functions, and platform-specific shell snippets
 - `install_scripts/` - OS-specific installation scripts
 - `package_lists/` - Package lists for different distros/setups
 
@@ -57,13 +51,13 @@ The `.chezmoiignore` file uses chezmoi templating to exclude platform-specific c
 - `private_` prefix → sensitive config (e.g., karabiner)
 
 ### Shell Configuration Chain
-1. `.zshrc`/`.bashrc` sets `DOTS`, `DOTS_CONFIG`, `DOTS_SHELL` variables
-2. Sources `shell/shellrc.sh` for environment variables and PATH
-3. Sources `shell/aliases.sh` and `shell/custom_functions.sh`
-4. Sources platform-specific file (`shell/zsh/macos.zsh` or `shell/zsh/linux.zsh`)
+1. `.zshrc`/`.bashrc` sources shared environment variables and PATH setup from `~/.shell/`
+2. Sources shared aliases and functions from `~/.shell/`
+3. Sources a platform-specific snippet (macOS or Linux) from `~/.shell/`
+4. Sources any per-machine ZSH snippets from `~/.config/zsh/rc.d/`
 
 ### Theme System (Linux)
-Wallust generates dynamic colors for: Alacritty, Ghostty, Rofi, Quickshell, Swaync, Cava, GTK. The `install_scripts/modules/gitignore_theming.sh` script marks generated theme files as `--assume-unchanged` in git.
+Wallust generates dynamic colors for: Alacritty, Ghostty, Rofi, Quickshell, Swaync, Cava, GTK. Generated theme files are marked `--assume-unchanged` in git so they are not tracked as changes.
 
 ## Key Aliases
 - `nv` - nvim
