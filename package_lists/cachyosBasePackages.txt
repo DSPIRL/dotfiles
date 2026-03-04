@@ -6,6 +6,7 @@ btop
 carapace-bin
 cava
 eza
+flatpak
 gnome-calculator
 gnome-calendar
 gnome-dictionary

@@ -21,17 +21,20 @@ if [[ "${ID:-}" != "cachyos" ]]; then
 fi
 
 chassis="$(hostnamectl chassis 2>/dev/null || true)"
-varSyncthingInstall="N"
+varSyncthingInstall="Y"
+varHyprlandInstall="N"
 varKanataInstall="N"
 
 if [[ "${chassis}" == "laptop" ]]; then
     read -rp 'Do you want to install Kanata for custom keyboard layouts? (Y/N): ' varKanataInstall
 fi
 
+read -rp 'Do you want to install Hyprland packages? (Y/N): ' varHyprlandInstall
+
 # Default packages
 cd "${HOME}"
 paru -S $(awk -v RS= '{$1=$1}1' "${DOTPKG}/cachyosBasePackages.txt") \
-    $([[ "${varSyncthingInstall^^}" == "Y" ]])
+    $([[ "${varHyprlandInstall^^}" == "Y" ]] && $(awk -v RS= '{$1=$1}1' "${DOTPKG}/cachyosHyprlandPackages.txt"))
 
 # Syncthing setup
 if [[ "${varSyncthingInstall^^}" == "Y" ]]; then
