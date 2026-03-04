@@ -1,29 +1,29 @@
 #!/bin/bash
 # Ralph Loop - Generic iterative Claude automation
 #
-# Usage: ralphloop [OPTIONS]
+# Usage: raphloop [OPTIONS]
 #
 # Options:
 #   -t, --task NAME        Task name used for log/done file naming (default: "task")
 #   -p, --prompt FILE      File containing the Claude prompt
-#                          (default: .ralphloop_prompt in current dir)
-#   -l, --log FILE         Log file path (default: ralphloop-<task>.log)
-#   -d, --done FILE        Done file path (default: .ralphloop-done)
+#                          (default: .raphloop_prompt in current dir)
+#   -l, --log FILE         Log file path (default: raphloop-<task>.log)
+#   -d, --done FILE        Done file path (default: .raphloop-done)
 #   -s, --sleep SECONDS    Delay between iterations (default: 2)
 #   -h, --help             Show this help
 #
-# The prompt file can contain placeholders. Create a .ralphloop_prompt
+# The prompt file can contain placeholders. Create a .raphloop_prompt
 # file in your project directory with the Claude instructions for your task.
 # At the end of your prompt, instruct Claude to create the done file when
-# finished (default: .ralphloop-done).
+# finished (default: .raphloop-done).
 
 set -euo pipefail
 
 # Defaults
 TASK_NAME="task"
-PROMPT_FILE=".ralphloop_prompt"
+PROMPT_FILE=".raphloop_prompt"
 LOG_FILE=""
-DONE_FILE=".ralphloop-done"
+DONE_FILE=".raphloop-done"
 SLEEP_SECONDS=2
 
 usage() {
@@ -46,7 +46,7 @@ done
 
 # Default log file name uses task name
 if [[ -z "$LOG_FILE" ]]; then
-    LOG_FILE="ralphloop-${TASK_NAME}.log"
+    LOG_FILE="raphloop-${TASK_NAME}.log"
 fi
 
 # Resolve paths relative to current working directory (not script location)

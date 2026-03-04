@@ -1,6 +1,96 @@
-# Ralph Loop (`ralphloop.sh`)
+# Ralph Loop
 
-A generic wrapper that runs Claude in a loop until it signals completion by creating a done file. Useful for any long, iterative task — bug fixing, refactoring, writing tests, documentation passes, etc.
+Ralph Loop runs Claude iteratively until all tasks are complete. There are two ways
+to use it depending on your context:
+
+| | **Skills** (Claude Code session) | **Bash script** (terminal / headless) |
+|---|---|---|
+| How | `/raphloop` slash command | `raphloop.sh` in your shell |
+| Setup | `/raphloop-setup` interviews you | Write `.raphloop_prompt` manually |
+| Task tracking | `TASKS.md` with status + logs | Done file only |
+| Best for | Interactive projects in Claude Code | CI, tmux, cron, non-interactive use |
+
+---
+
+## Skills Workflow (Claude Code)
+
+The skills approach runs entirely inside a Claude Code session. A coordinator loop
+in the main conversation spawns a fresh subagent for each task iteration, then checks
+`TASKS.md` to decide whether to continue.
+
+### Skills available
+
+| Command | What it does |
+|---------|-------------|
+| `/raphloop-setup` | Interview → create `TASKS.md` + `.raphloop_prompt` (fresh start) |
+| `/raphloop-update-tasks` | Add new tasks to an existing `TASKS.md` |
+| `/raphloop-update-prompt` | Re-interview and rewrite `.raphloop_prompt` only |
+| `/raphloop` | Run the loop until all tasks are resolved |
+
+### Typical flow
+
+```
+# 1. Set up the project (one-time)
+/raphloop-setup
+
+# 2. Run the loop
+/raphloop
+
+# 3. Add more tasks any time (loop will pick them up on next run)
+/raphloop-update-tasks
+/raphloop
+```
+
+### TASKS.md format
+
+Each task is a card with status tracking and an agent log:
+
+```markdown
+# Tasks
+
+## Summary
+| Priority | Open | In Progress | Resolved | Ignored |
+|----------|------|-------------|----------|---------|
+| Critical | 0    | 0           | 0        | 0       |
+| High     | 1    | 0           | 0        | 0       |
+| Medium   | 0    | 0           | 0        | 0       |
+| Low      | 0    | 0           | 0        | 0       |
+
+---
+
+### TASK-001 | High | Open
+**Title:** Fix login redirect
+**Description:** Users are redirected to /home instead of /dashboard after login.
+**Status:** Open
+**Last Updated:** 2026-03-04 14:23
+**Agent Log:**
+- [2026-03-04 14:23] Task created during setup
+```
+
+**Status values:** `Open` → `In Progress` → `Resolved` or `Ignored`  
+**Priority order:** `Critical > High > Medium > Low`
+
+Subagents always pick the highest-priority `Open` task. If a task is left `In Progress`
+for more than 10 minutes (e.g. from a crashed session), it is automatically reset to
+`Open`.
+
+### `.gitignore` recommendations (skills workflow)
+
+```gitignore
+.raphloop-done
+.raphloop_prompt
+TASKS.md
+```
+
+Whether to commit `TASKS.md` is up to you — it can serve as a useful project record.
+
+---
+
+## Bash Script Workflow (`raphloop.sh`)
+
+A generic bash wrapper that runs `claude --print` in a loop until a done file is
+created. Best for headless environments, tmux sessions, CI pipelines, or when you
+want to run the loop outside of an active Claude Code session.
 
 ---
 
@@ -8,7 +98,7 @@ A generic wrapper that runs Claude in a loop until it signals completion by crea
 
 ```
 ┌─────────────────────────────────────────┐
-│  Read .ralphloop_prompt from project dir │
+│  Read .raphloop_prompt from project dir │
 └────────────────────┬────────────────────┘
                      │
              ┌───────▼────────┐
@@ -32,27 +122,27 @@ A generic wrapper that runs Claude in a loop until it signals completion by crea
 Each iteration Claude receives the same prompt. It is Claude's responsibility to:
 1. Determine what work remains
 2. Do one unit of work
-3. Create the done file (`.ralphloop-done`) when everything is finished
+3. Create the done file (`.raphloop-done`) when everything is finished
 
 ---
 
 ## Prerequisites
 
 - [`claude`](https://claude.ai/code) CLI installed and authenticated
-- `ralphloop.sh` on your `$PATH` (see [Installation](#installation))
+- `raphloop.sh` on your `$PATH` (see [Installation](#installation))
 
 ---
 
 ## Installation
 
-The script lives in your dotfiles and is deployed by chezmoi. To make it available as `ralphloop`:
+The script lives in your dotfiles and is deployed by chezmoi. To make it available as `raphloop`:
 
 ```bash
 # Option A: symlink into a bin directory on your PATH
-ln -s ~/.local/share/chezmoi/private_dot_shell/scripts/ralph_loop/ralphloop.sh ~/bin/ralphloop
+ln -s ~/.local/share/chezmoi/private_dot_shell/scripts/ralph_loop/raphloop.sh ~/bin/raphloop
 
 # Option B: add an alias in your shell config
-alias ralphloop="~/.shell/scripts/ralph_loop/ralphloop.sh"
+alias raphloop="~/.shell/scripts/ralph_loop/raphloop.sh"
 ```
 
 ---
@@ -64,13 +154,13 @@ alias ralphloop="~/.shell/scripts/ralph_loop/ralphloop.sh"
 cd ~/projects/my-project
 
 # 2. Create the prompt file
-cat > .ralphloop_prompt << 'EOF'
+cat > .raphloop_prompt << 'EOF'
 You are part of an automated loop. Your task:
 
 1. <describe what Claude should do each iteration>
 2. <be specific about what files to read, what to change, etc.>
 
-When ALL work is complete, create a file named ".ralphloop-done"
+When ALL work is complete, create a file named ".raphloop-done"
 with the content "Done". Otherwise just finish — the loop will
 call you again.
 
@@ -78,7 +168,7 @@ Only do ONE unit of work per run to keep context manageable.
 EOF
 
 # 3. Run the loop
-ralphloop --task my-task
+raphloop --task my-task
 ```
 
 ---
@@ -88,9 +178,9 @@ ralphloop --task my-task
 | Flag | Short | Default | Description |
 |------|-------|---------|-------------|
 | `--task NAME` | `-t` | `task` | Label used for display and log file naming |
-| `--prompt FILE` | `-p` | `.ralphloop_prompt` | Path to the Claude prompt file |
-| `--log FILE` | `-l` | `ralphloop-<task>.log` | Path to the log file |
-| `--done FILE` | `-d` | `.ralphloop-done` | Path to the done file |
+| `--prompt FILE` | `-p` | `.raphloop_prompt` | Path to the Claude prompt file |
+| `--log FILE` | `-l` | `raphloop-<task>.log` | Path to the log file |
+| `--done FILE` | `-d` | `.raphloop-done` | Path to the done file |
 | `--sleep SECONDS` | `-s` | `2` | Delay between iterations |
 | `--help` | `-h` | — | Show usage |
 
@@ -102,7 +192,7 @@ Relative file paths are resolved from the **current working directory** (not the
 
 **Always include the done file instruction.** Claude must know what file to create and when:
 ```
-When ALL tasks are complete, create ".ralphloop-done" with content "All done".
+When ALL tasks are complete, create ".raphloop-done" with content "All done".
 If work remains, just end — the loop will call you again.
 ```
 
@@ -129,7 +219,7 @@ Work on the highest priority item first (Critical > High > Medium > Low).
 
 This is the original use case that inspired Ralph Loop.
 
-**`.ralphloop_prompt`:**
+**`.raphloop_prompt`:**
 ```
 You are running as part of an automated bug-fix loop. Your task:
 
@@ -147,7 +237,7 @@ You are running as part of an automated bug-fix loop. Your task:
    - Update the summary table counts
 
 5. CHECK if all bugs are now resolved:
-   - If YES: create file ".ralphloop-done" with content "All bugs resolved"
+   - If YES: create file ".raphloop-done" with content "All bugs resolved"
    - If NO: just end (the loop will call you again)
 
 Only fix ONE bug per run to keep context manageable.
@@ -155,7 +245,7 @@ Only fix ONE bug per run to keep context manageable.
 
 **Run it:**
 ```bash
-ralphloop --task bug-fix
+raphloop --task bug-fix
 ```
 
 ---
@@ -164,8 +254,8 @@ ralphloop --task bug-fix
 
 | Method | When to use |
 |--------|-------------|
-| Claude creates `.ralphloop-done` | Normal — task is complete |
-| `touch .ralphloop-done` | Manual — stop after current iteration finishes |
+| Claude creates `.raphloop-done` | Normal — task is complete |
+| `touch .raphloop-done` | Manual — stop after current iteration finishes |
 | `Ctrl+C` | Immediate — kills mid-iteration |
 
 ---
@@ -175,10 +265,10 @@ ralphloop --task bug-fix
 For tasks that may run for hours, consider running inside `tmux` so the loop survives terminal disconnects:
 
 ```bash
-tmux new-session -s ralphloop
-ralphloop --task refactor --sleep 5
+tmux new-session -s raphloop
+raphloop --task refactor --sleep 5
 # Detach with Ctrl+B, D
-# Reattach later: tmux attach -t ralphloop
+# Reattach later: tmux attach -t raphloop
 ```
 
 ---
@@ -189,8 +279,8 @@ You can run different loops for different concerns in the same project:
 
 ```bash
 # Different prompt files, different logs
-ralphloop --task tests    --prompt .ralphloop_tests
-ralphloop --task docs     --prompt .ralphloop_docs
+raphloop --task tests    --prompt .raphloop_tests
+raphloop --task docs     --prompt .raphloop_docs
 ```
 
 ---
@@ -200,9 +290,9 @@ ralphloop --task docs     --prompt .ralphloop_docs
 Add the following to your project's `.gitignore`:
 
 ```gitignore
-.ralphloop-done
-.ralphloop_prompt
-ralphloop-*.log
+.raphloop-done
+.raphloop_prompt
+raphloop-*.log
 ```
 
 The prompt file often contains project-specific instructions you may not want committed. The log files can grow large.
@@ -212,13 +302,13 @@ The prompt file often contains project-specific instructions you may not want co
 ## Troubleshooting
 
 **Loop runs forever / never stops**
-Claude is not creating the done file. Check your prompt — make sure the instruction to create `.ralphloop-done` is explicit and unambiguous. Verify the path matches (the done file is resolved relative to `pwd`).
+Claude is not creating the done file. Check your prompt — make sure the instruction to create `.raphloop-done` is explicit and unambiguous. Verify the path matches (the done file is resolved relative to `pwd`).
 
 **`Error: Prompt file not found`**
-You either haven't created `.ralphloop_prompt` yet, or you're running `ralphloop` from the wrong directory. The prompt file is looked up in your **current working directory**.
+You either haven't created `.raphloop_prompt` yet, or you're running `raphloop` from the wrong directory. The prompt file is looked up in your **current working directory**.
 
 **Iterations complete instantly without doing anything**
-Check the log file (`ralphloop-<task>.log`) for Claude's output. Claude may be miscounting remaining work and creating the done file prematurely — tighten the completion condition in your prompt.
+Check the log file (`raphloop-<task>.log`) for Claude's output. Claude may be miscounting remaining work and creating the done file prematurely — tighten the completion condition in your prompt.
 
 **Claude crashes or returns an error mid-loop**
 The loop will not die. If Claude exits with a non-zero status, a warning is printed to both the terminal and the log file, and the loop continues to the next iteration after the sleep delay. Check the log to diagnose what went wrong.
