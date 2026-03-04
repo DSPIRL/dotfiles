@@ -68,6 +68,20 @@ fi
 
 {{- else }}
 
+##### FZF #####
+if command -v fzf &>/dev/null; then
+  export FZF_DEFAULT_OPTS="--extended --multi --preview 'cat {}'"
+  export FZF_CTRL_T_COMMAND="find . -printf '%P\\n'"
+  export FZF_CTRL_T_OPTS="--preview='less {}' --bind shift-up:preview-page-up,shift-down:preview-page-down"
+fi
+
+##### ZOXIDE #####
+if command -v zoxide &>/dev/null; then
+  eval "$(zoxide init bash)"
+  export _ZO_DATA_DIR="${HOME}/.config/zoxide"
+  export _ZO_ECHO=1
+fi
+
 ##### SHELL PROMPT #####
 PS1='[\u@\h \W]\$ '
 

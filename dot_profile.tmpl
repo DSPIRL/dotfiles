@@ -45,7 +45,7 @@ fi
 ##### RUBY (macOS) #####
 if [ -d "/opt/homebrew/opt/ruby" ]; then
   export PATH="/opt/homebrew/opt/ruby/bin:${PATH}"
-  export PATH="/opt/homebrew/lib/ruby/gems/3.4.0/bin:${PATH}"
+  export PATH="$(/opt/homebrew/opt/ruby/bin/ruby -e 'puts Gem.bindir'):${PATH}"
   export GEM_HOME="${HOME}/.gem"
 fi
 
@@ -58,7 +58,7 @@ fi
 {{- else if eq .chezmoi.os "linux" }}
 
 ##### XDG DATA DIRS (Linux) #####
-export XDG_DATA_DIRS="${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+export XDG_DATA_DIRS="${XDG_DATA_DIRS:-/usr/local/share:/usr/share:$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share}"
 
 ##### JAVA/ANDROID (Linux) #####
 if [ -d "/opt/android-studio" ]; then
@@ -78,10 +78,10 @@ fi
 ##### TERMINAL (Linux) #####
 if command -v alacritty >/dev/null 2>&1; then
   export USER_TERMINAL=alacritty
-  export TERM=alacritty
+  # export TERM=alacritty
 fi
-export QT_QPA_PLATFORMTHEME="qt6ct"
-export QT_STYLE_OVERRIDE="kvantum"
+# export QT_QPA_PLATFORMTHEME="qt6ct"
+# export QT_STYLE_OVERRIDE="kvantum"
 
 {{- end }}
 

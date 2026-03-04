@@ -8,8 +8,8 @@
 
 ##### FZF #####
 if command -v fzf &>/dev/null; then
-  export FZF_DEFAULT_OPS="--extended --multi --preview 'cat {}'"
-  export FZF_CTRL_COMMAND="find . -printf '%P\\n'"
+  export FZF_DEFAULT_OPTS="--extended --multi --preview 'cat {}'"
+  export FZF_CTRL_T_COMMAND="find . -printf '%P\\n'"
   export FZF_CTRL_T_OPTS="--preview='less {}' --bind shift-up:preview-page-up,shift-down:preview-page-down"
 fi
 
@@ -86,12 +86,6 @@ fi
 ##### PROMPT #####
 if command -v oh-my-posh &>/dev/null && [ "${TERM_PROGRAM}" != "Apple_Terminal" ]; then
   eval "$(oh-my-posh init zsh --config ${HOME}/.config/oh-my-posh/default.omp.json)"
-{{- if $isCachyOS }}
-else
-  [[ -f /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme ]] && \
-    source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
-  [[ -f "${HOME}/.p10k.zsh" ]] && source "${HOME}/.p10k.zsh"
-{{- end }}
 fi
 
 ##### COMPLETERS #####
@@ -125,8 +119,8 @@ bindkey '^O' edit-command-line
 
 ##### HISTORY #####
 HISTFILE="${HOME}/.zhistory"
-SAVEHIST=1000
-HISTSIZE=999
+SAVEHIST=10000
+HISTSIZE=10000
 setopt share_history
 setopt hist_expire_dups_first
 setopt hist_ignore_dups
