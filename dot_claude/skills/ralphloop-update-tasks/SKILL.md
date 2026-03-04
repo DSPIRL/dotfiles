@@ -1,6 +1,6 @@
 ---
-name: raphloop-update-tasks
-description: Add new tasks to an existing TASKS.md for the current Ralph Loop project. Does not touch .raphloop_prompt.
+name: ralphloop-update-tasks
+description: Add new tasks to an existing TASKS.md for the current Ralph Loop project. Does not touch .ralphloop_prompt.
 disable-model-invocation: true
 allowed-tools: Read, Write
 ---
@@ -12,7 +12,7 @@ Add new tasks to the existing `TASKS.md` in the current working directory.
 ## Step 1 — Check prerequisites
 
 Read `TASKS.md`. If it does not exist, stop and tell the user:
-"No `TASKS.md` found in the current directory. Run `/raphloop-setup` first."
+"No `TASKS.md` found in the current directory. Run `/ralphloop-setup` first."
 
 ## Step 2 — Interview the user
 
@@ -43,12 +43,12 @@ using this exact format:
 **Status:** Open
 **Last Updated:** <YYYY-MM-DD HH:MM>
 **Agent Log:**
-- [<timestamp>] Task added via /raphloop-update-tasks
+- [<timestamp>] Task added via /ralphloop-update-tasks
 
 ---
 ```
 
-Refer to `~/.claude/skills/raphloop-setup/task-format.md` for full format rules
+Refer to `~/.claude/skills/ralphloop-setup/task-format.md` for full format rules
 (ID formatting, valid status/priority values, timestamp format, etc.).
 
 ## Step 5 — Update the summary table

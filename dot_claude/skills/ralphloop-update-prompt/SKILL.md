@@ -1,19 +1,19 @@
 ---
-name: raphloop-update-prompt
-description: Re-interview the user and rewrite .raphloop_prompt for the current Ralph Loop project. Does not touch TASKS.md.
+name: ralphloop-update-prompt
+description: Re-interview the user and rewrite .ralphloop_prompt for the current Ralph Loop project. Does not touch TASKS.md.
 disable-model-invocation: true
 allowed-tools: Read, Write
 ---
 
 # Update Prompt
 
-Re-interview the user and rewrite `.raphloop_prompt` in the current working directory.
+Re-interview the user and rewrite `.ralphloop_prompt` in the current working directory.
 Does not modify `TASKS.md`.
 
 ## Step 1 — Check prerequisites
 
-Check that `.raphloop_prompt` exists. If it does not, stop and tell the user:
-"No `.raphloop_prompt` found in the current directory. Run `/raphloop-setup` first."
+Check that `.ralphloop_prompt` exists. If it does not, stop and tell the user:
+"No `.ralphloop_prompt` found in the current directory. Run `/ralphloop-setup` first."
 
 ## Step 2 — Interview the user
 
@@ -29,9 +29,9 @@ Ask the following questions one at a time:
    be completed? (coding conventions, tools to use, files to avoid, etc.)
    Optional — if none, record "None."
 
-## Step 3 — Rewrite .raphloop_prompt
+## Step 3 — Rewrite .ralphloop_prompt
 
-Read the prompt template from `~/.claude/skills/raphloop-setup/prompt-template.md`.
+Read the prompt template from `~/.claude/skills/ralphloop-setup/prompt-template.md`.
 
 Copy the content between the `<!-- START TEMPLATE -->` and `<!-- END TEMPLATE -->`
 markers. Fill in the placeholders:
@@ -40,10 +40,10 @@ markers. Fill in the placeholders:
   (one file per line, prefixed with `- `)
 - `{{PROJECT_SPECIFIC_INSTRUCTIONS}}` — answer from question 3, or "None."
 
-Write the completed content to `.raphloop_prompt`, replacing the existing file.
+Write the completed content to `.ralphloop_prompt`, replacing the existing file.
 
 ## Step 4 — Confirm
 
 Tell the user:
-- "`.raphloop_prompt` updated."
-- Next step: run `/raphloop` to start the loop with the updated instructions.
+- "`.ralphloop_prompt` updated."
+- Next step: run `/ralphloop` to start the loop with the updated instructions.
