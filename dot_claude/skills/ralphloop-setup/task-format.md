@@ -116,8 +116,8 @@ All three parts must be present and match the values in the card body.
   - Created (bug): `Bug logged during setup`
   - Created by agent (task): `Task created by agent during TASK-NNN`
   - Created by agent (bug): `Bug logged by agent during TASK-NNN` or `Bug logged by agent during BUG-NNN`
-  - Created via update (task): `Task added via /ralphloop-update-tasks`
-  - Created via update (bug): `Bug added via /ralphloop-update-bugs`
+  - Created via update (task): `Task added via /ralphloop-add-tasks`
+  - Created via update (bug): `Bug added via /ralphloop-add-bugs`
   - Started: `Starting task` / `Starting bug fix`
   - Stale reset: `Reset from In Progress to Open (stale — previous session likely crashed)`
   - Resolved: `Resolved: <one-line summary of what was done>`

@@ -1,6 +1,6 @@
 ---
 name: ralphloop-setup
-description: Set up a Ralph Loop for the current project. Interviews you to create TASKS.md and .ralphloop_prompt from scratch. Always starts fresh — use /ralphloop-update-tasks, /ralphloop-update-bugs, or /ralphloop-update-prompt to modify existing files.
+description: Set up a Ralph Loop for the current project. Interviews you to create TASKS.md and .ralphloop_prompt from scratch. Always starts fresh — use /ralphloop-add-tasks, /ralphloop-add-bugs, or /ralphloop-update-prompt to modify existing files.
 disable-model-invocation: true
 allowed-tools: Read, Write
 ---
@@ -11,8 +11,8 @@ Set up the Ralph Loop for the current project by creating two files in the curre
 working directory: `TASKS.md` and `.ralphloop_prompt`.
 
 **This is a fresh setup — it overwrites any existing `TASKS.md` and `.ralphloop_prompt`.**
-To add tasks to an existing setup, use `/ralphloop-update-tasks`.
-To add bugs to an existing setup, use `/ralphloop-update-bugs`.
+To add tasks to an existing setup, use `/ralphloop-add-tasks`.
+To add bugs to an existing setup, use `/ralphloop-add-bugs`.
 To update the prompt only, use `/ralphloop-update-prompt`.
 
 ## Step 1 — Interview the user
@@ -27,19 +27,32 @@ questions have been answered.
    understand the project? (e.g. README.md, ARCHITECTURE.md, src/index.ts). List as
    many as needed.
 
-3. **Initial tasks**: What tasks need to be completed? Collect as many as the user
-   provides. For each task, ask for:
-   - A short title
-   - A detailed description of what needs to be done
-   - Priority: Critical / High / Medium / Low
-   Keep asking "Any more tasks to add?" until the user says no.
+3. **Initial tasks**: What tasks need to be completed? For each task:
+   a. Ask for a short title, a detailed description, and priority (Critical / High / Medium / Low)
+   b. **Analyze for split** — before recording the task, evaluate it using these criteria:
+      - Does it involve multiple independent systems, components, or files?
+      - Does it have distinct deliverables that could each stand alone?
+      - Does it combine unrelated concerns joined by "and"?
+      - Could different parts warrant different priorities?
+      - Would a subagent plausibly need multiple sessions to finish it alone?
+      If two or more criteria apply, propose a split: present the suggested sub-tasks
+      (each with a title, description, and priority) and ask the user: "Should I create
+      these as separate tasks, keep it as one, or would you like to adjust the split?"
+      Accept the user's decision — split, keep, or modify — before moving on.
+   c. Ask "Any more tasks to add?" and repeat until the user says no.
 
-4. **Initial bugs**: Are there any known bugs to fix? Collect as many as the user
-   provides. For each bug, ask for:
-   - A short title
-   - A description of what is broken, how to reproduce it, and expected behavior
-   - Priority: Critical / High / Medium / Low
-   Keep asking "Any more bugs to add?" until the user says no.
+4. **Initial bugs**: Are there any known bugs to fix? For each bug:
+   a. Ask for a short title, a description of what is broken, how to reproduce it,
+      expected behavior, and priority (Critical / High / Medium / Low)
+   b. **Analyze for split** — before recording the bug, evaluate it using these criteria:
+      - Does it describe multiple separate failure modes rather than one?
+      - Does it affect multiple independent areas of the codebase?
+      - Could different parts warrant different priorities?
+      If two or more criteria apply, propose a split: present the suggested sub-bugs
+      (each with a title, description, and priority) and ask the user: "Should I create
+      these as separate bugs, keep it as one, or would you like to adjust the split?"
+      Accept the user's decision before moving on.
+   c. Ask "Any more bugs to add?" and repeat until the user says no.
    This is optional — if none, the Bugs section will be created empty.
 
 5. **Project-specific instructions**: Are there specific instructions for how tasks
@@ -88,4 +101,4 @@ After writing both files, report:
 - The files created and their locations
 - The number of tasks added and their priorities
 - The number of bugs added and their priorities
-- Next step: run `/ralphloop` to start the loop
+- Next step: run `/ralphloop-start` to start the loop

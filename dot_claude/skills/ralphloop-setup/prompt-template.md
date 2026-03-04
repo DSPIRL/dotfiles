@@ -88,7 +88,30 @@ Update the card in TASKS.md:
   `- [<timestamp>] Ignored: <reason>`
 - Update that section's summary table counts
 
-### Step 7 — Log any new issues discovered
+### Step 7 — Review your work for bugs
+
+Re-read every file you created or modified during Step 5. For each changed file,
+actively look for:
+
+- **Null / undefined / empty input handling** — are all edge cases covered?
+- **Error handling** — are errors caught, logged, and handled gracefully?
+- **Off-by-one errors** — are loop bounds, array indices, and counts correct?
+- **Logic errors** — does the code do what the description intended in all cases?
+- **Security issues** — unvalidated input, exposed secrets, unsafe operations?
+- **Unintended side effects** — does this change break anything it touches?
+- **Missing cases** — are there code paths that were left incomplete?
+
+For each bug you find, append it immediately to the Bugs section of TASKS.md
+(see Step 8 for the format). Do not attempt to fix bugs found during this review —
+log them and let the loop handle them in future iterations.
+
+If no bugs are found, note this in the current item's Agent Log:
+`- [<timestamp>] Post-work review complete — no bugs found`
+
+If bugs were found and logged, note it:
+`- [<timestamp>] Post-work review complete — logged N bug(s): BUG-NNN, BUG-NNN`
+
+### Step 8 — Log any new issues discovered
 
 **New follow-up tasks** (feature work, improvements): add to the Tasks section
 - Assign the next sequential `TASK-NNN` ID
@@ -99,7 +122,8 @@ Update the card in TASKS.md:
   `- [<timestamp>] Task created by agent during BUG-NNN`
 - Update the Tasks summary table counts
 
-**New bugs discovered** (broken behavior, regressions): add to the Bugs section
+**New bugs discovered** — both from the Step 7 review and any noticed during the
+work itself — add to the Bugs section:
 - Assign the next sequential `BUG-NNN` ID
 - Set an appropriate priority: Critical / High / Medium / Low
 - Set `Status` to `Open`
@@ -108,7 +132,7 @@ Update the card in TASKS.md:
   `- [<timestamp>] Bug logged by agent during BUG-NNN`
 - Update the Bugs summary table counts
 
-### Step 8 — Stop
+### Step 9 — Stop
 
 You are done for this iteration. Do not attempt to work on any other items.
 The loop will call you again.
