@@ -1,11 +1,11 @@
 ---
-name: ralphloop-update-bugs
+name: ralphloop-add-bugs
 description: Add new bugs to the Bugs section of an existing TASKS.md for the current Ralph Loop project. Does not touch Tasks or .ralphloop_prompt.
 disable-model-invocation: true
 allowed-tools: Read, Write
 ---
 
-# Update Bugs
+# Add Bugs
 
 Add new bugs to the Bugs section of the existing `TASKS.md` in the current working
 directory. Does not modify the Tasks section or `.ralphloop_prompt`.
@@ -15,17 +15,31 @@ directory. Does not modify the Tasks section or `.ralphloop_prompt`.
 Read `TASKS.md`. If it does not exist, stop and tell the user:
 "No `TASKS.md` found in the current directory. Run `/ralphloop-setup` first."
 
-## Step 2 — Interview the user
+## Step 2 — Collect and analyze each bug
 
-Ask for new bugs one at a time. For each bug, collect:
+For each bug, follow this sequence:
+
+**a. Collect details**
+Ask for:
 - **Title** — a short description of the bug
+- **Description** — what is broken, how to reproduce it, and what the expected behavior is
 - **Priority** — Critical / High / Medium / Low
-- **Description** — what is broken, how to reproduce it, and what the expected
-  behavior is
 
-After each bug, ask: "Any more bugs to add?"
+**b. Analyze for split**
+Before recording, evaluate the bug against these criteria:
+- Does it describe multiple separate failure modes rather than one root cause?
+- Does it affect multiple independent areas of the codebase?
+- Could different parts warrant different priorities?
 
-Continue until the user says no.
+If two or more criteria apply, propose a split. Present the suggested sub-bugs (each
+with a title, description, and priority) and ask:
+"Should I create these as separate bugs, keep it as one, or would you like to adjust
+the split?"
+
+Accept the user's decision — split, keep, or modify — before moving on.
+
+**c. Continue**
+Ask: "Any more bugs to add?" Repeat until the user says no.
 
 ## Step 3 — Determine next bug ID
 
@@ -45,7 +59,7 @@ format:
 **Status:** Open
 **Last Updated:** <YYYY-MM-DD HH:MM>
 **Agent Log:**
-- [<timestamp>] Bug added via /ralphloop-update-bugs
+- [<timestamp>] Bug added via /ralphloop-add-bugs
 
 ---
 ```

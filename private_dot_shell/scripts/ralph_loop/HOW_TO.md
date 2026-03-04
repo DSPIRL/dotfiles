@@ -5,7 +5,7 @@ to use it depending on your context:
 
 | | **Skills** (Claude Code session) | **Bash script** (terminal / headless) |
 |---|---|---|
-| How | `/ralphloop` slash command | `ralphloop.sh` in your shell |
+| How | `/ralphloop-start` slash command | `ralphloop.sh` in your shell |
 | Setup | `/ralphloop-setup` interviews you | Write `.ralphloop_prompt` manually |
 | Task tracking | `TASKS.md` with status + logs | Done file only |
 | Best for | Interactive projects in Claude Code | CI, tmux, cron, non-interactive use |
@@ -23,10 +23,10 @@ in the main conversation spawns a fresh subagent for each task iteration, then c
 | Command | What it does |
 |---------|-------------|
 | `/ralphloop-setup` | Interview → create `TASKS.md` + `.ralphloop_prompt` (fresh start) |
-| `/ralphloop-update-tasks` | Add new tasks to an existing `TASKS.md` |
-| `/ralphloop-update-bugs` | Add new bugs to an existing `TASKS.md` |
+| `/ralphloop-add-tasks` | Add new tasks to an existing `TASKS.md` |
+| `/ralphloop-add-bugs` | Add new bugs to an existing `TASKS.md` |
 | `/ralphloop-update-prompt` | Re-interview and rewrite `.ralphloop_prompt` only |
-| `/ralphloop` | Run the loop until all tasks and bugs are resolved |
+| `/ralphloop-start` | Run the loop until all tasks and bugs are resolved |
 
 ### Typical flow
 
@@ -35,12 +35,12 @@ in the main conversation spawns a fresh subagent for each task iteration, then c
 /ralphloop-setup
 
 # 2. Run the loop (works through Tasks first, then Bugs)
-/ralphloop
+/ralphloop-start
 
 # 3. Add more tasks or bugs any time (loop will pick them up on next run)
-/ralphloop-update-tasks
-/ralphloop-update-bugs
-/ralphloop
+/ralphloop-add-tasks
+/ralphloop-add-bugs
+/ralphloop-start
 ```
 
 ### TASKS.md format

@@ -1,6 +1,6 @@
 ---
-name: ralphloop
-description: Run the Ralph Loop for the current project. Spawns a subagent for each task iteration until all tasks in TASKS.md are resolved or ignored. Requires /ralphloop-setup to have been run first.
+name: ralphloop-start
+description: Run the Ralph Loop for the current project. Spawns a subagent for each iteration until all tasks and bugs in TASKS.md are resolved or ignored. Requires /ralphloop-setup to have been run first.
 disable-model-invocation: true
 argument-hint: [session-label]
 allowed-tools: Bash, Agent

@@ -1,11 +1,11 @@
 ---
-name: ralphloop-update-tasks
+name: ralphloop-add-tasks
 description: Add new tasks to an existing TASKS.md for the current Ralph Loop project. Does not touch .ralphloop_prompt.
 disable-model-invocation: true
 allowed-tools: Read, Write
 ---
 
-# Update Tasks
+# Add Tasks
 
 Add new tasks to the existing `TASKS.md` in the current working directory.
 
@@ -14,16 +14,33 @@ Add new tasks to the existing `TASKS.md` in the current working directory.
 Read `TASKS.md`. If it does not exist, stop and tell the user:
 "No `TASKS.md` found in the current directory. Run `/ralphloop-setup` first."
 
-## Step 2 — Interview the user
+## Step 2 — Collect and analyze each task
 
-Ask for new tasks one at a time. For each task, collect:
+For each task, follow this sequence:
+
+**a. Collect details**
+Ask for:
 - **Title** — a short descriptive title
-- **Priority** — Critical / High / Medium / Low
 - **Description** — a detailed description of what needs to be done
+- **Priority** — Critical / High / Medium / Low
 
-After each task, ask: "Any more tasks to add?"
+**b. Analyze for split**
+Before recording, evaluate the task against these criteria:
+- Does it involve multiple independent systems, components, or files?
+- Does it have distinct deliverables that could each stand alone?
+- Does it combine unrelated concerns joined by "and"?
+- Could different parts warrant different priorities?
+- Would a subagent plausibly need multiple sessions to finish it alone?
 
-Continue until the user says no.
+If two or more criteria apply, propose a split. Present the suggested sub-tasks (each
+with a title, description, and priority) and ask:
+"Should I create these as separate tasks, keep it as one, or would you like to adjust
+the split?"
+
+Accept the user's decision — split, keep, or modify — before moving on.
+
+**c. Continue**
+Ask: "Any more tasks to add?" Repeat until the user says no.
 
 ## Step 3 — Determine next task ID
 
@@ -43,7 +60,7 @@ using this exact format:
 **Status:** Open
 **Last Updated:** <YYYY-MM-DD HH:MM>
 **Agent Log:**
-- [<timestamp>] Task added via /ralphloop-update-tasks
+- [<timestamp>] Task added via /ralphloop-add-tasks
 
 ---
 ```

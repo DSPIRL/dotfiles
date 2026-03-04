@@ -46,4 +46,4 @@ Write the completed content to `.ralphloop_prompt`, replacing the existing file.
 
 Tell the user:
 - "`.ralphloop_prompt` updated."
-- Next step: run `/ralphloop` to start the loop with the updated instructions.
+- Next step: run `/ralphloop-start` to start the loop with the updated instructions.
