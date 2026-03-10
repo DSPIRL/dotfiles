@@ -64,6 +64,7 @@ mouse-hide-while-typing = true
 # === CURSOR ===
 cursor-style = block
 cursor-click-to-move = true
+custom-shader = ~/.config/ghostty/shaders/cursor-smear.glsl
 
 # === WINDOWS & TABS ===
 background-opacity = 0.93
