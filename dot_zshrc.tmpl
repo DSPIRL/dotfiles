@@ -74,6 +74,7 @@ if command -v oh-my-posh &>/dev/null && [ "${TERM_PROGRAM}" != "Apple_Terminal" 
 fi
 
 ##### KEYBINDS #####
+bindkey -e                        # Force emacs key bindings (EDITOR/VISUAL containing 'vi' triggers vi mode)
 autoload -U edit-command-line
 zle -N edit-command-line
 bindkey '^O' edit-command-line
