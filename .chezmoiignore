@@ -63,6 +63,36 @@ private_dot_shell/.git-submodule-aliases.sh
 .config/private_chezmoi/
 encrypted_dot_gitconfig.tmpl.age
 {{ end }}
+# Skip when in WSL
+{{ if .isWSL }}
+.config/.dmenurc
+.config/Kvantum/
+.config/aerospace/
+.config/cava/
+.config/dconf/
+.config/dot_dmenurc
+.config/gtk-3.0/
+.config/gtk-4.0/
+.config/gtkrc
+.config/gtkrc-2.0
+.config/hypr/
+.config/kanata/
+.config/karabiner/
+.config/nwg-look/
+.config/qt5ct/
+.config/qt6ct/
+.config/quickshell/
+.config/rofi/
+.config/swaylock/
+.config/swaync/
+.config/wal/
+.config/wallust/
+.config/waypaper/
+.config/wlogout/
+.config/xdg-desktop-portal/
+.config/xsettingsd/
+.gtkrc-2.0
+{{ end }}
 
 # Linux-only (skip on macOS)
 {{ if ne .chezmoi.os "linux" }}
