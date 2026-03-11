@@ -9,13 +9,13 @@ alias modhelp="cat ${HOME}/.shell/manpages/help_chmod.md"
 alias glols='git log --graph --pretty="%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset" --stat'
 
 if command -v eza >/dev/null 2>&1; then
-  alias ls="eza -lhAF --color=auto --icons=always"
+    alias ls="eza -lhAF --color=auto --icons=always"
 else
-  alias ls="ls -lAFh --color=auto"
+    alias ls="ls -lAFh --color=auto"
 fi
 
 if command -v zoxide >/dev/null 2>&1; then
-  alias cd="z"
+    alias cd="z"
 fi
 
 {{- if eq .chezmoi.os "darwin" }}
@@ -32,44 +32,44 @@ Hex values: %a"'
 
 ##### EXIFTOOL #####
 if command -v exiftool >/dev/null 2>&1; then
-  alias exifall="exiftool -all="
-  alias exifkeepicc="exiftool -all= --icc_profile:all"
+    alias exifall="exiftool -all="
+    alias exifkeepicc="exiftool -all= --icc_profile:all"
 fi
 
 ##### EDITOR #####
 if command -v nvim >/dev/null 2>&1; then
-  alias nv="nvim"
+    alias nv="nvim"
+fi
+
+##### OKTA #####
+if command -v okta-aws-cli >/dev/null 2>&1; then
+    alias okta='okta-aws-cli'
 fi
 
 ##### CLAUDE #####
 if command -v claude >/dev/null 2>&1; then
-  alias safe-claude="claude"
-  alias claude="claude --allow-dangerously-skip-permissions"
+    alias safe-claude="claude"
+    alias claude="claude --allow-dangerously-skip-permissions"
 fi
 
 ##### CARGO #####
 if [[ -d $HOME/.cargo ]]; then
-  alias cr="cargo run"
-  alias ct="cargo test"
-  alias cb="cargo build"
-fi
-
-##### TMUX #####
-if command -v tmux >/dev/null 2>&1; then
-  alias tms="tmux new-session -d -s GoodSesh; tmux new-window -t GoodSesh::1 -n 'Terminal'; tmux new-window -t GoodSesh:2 -n 'Neovim'; tmux attach-session -t GoodSesh;"
+    alias cr="cargo run"
+    alias ct="cargo test"
+    alias cb="cargo build"
 fi
 
 ##### EMACS #####
 if command -v emacsclient >/dev/null 2>&1; then
-  alias emacs="emacsclient -c -a 'emacs'"
+    alias emacs="emacsclient -c -a 'emacs'"
 fi
 
 {{- if eq .chezmoi.os "darwin" }}
 
 ##### PYTHON (macOS) #####
 if command -v python3 >/dev/null 2>&1; then
-  alias python="python3"
-  alias pip="pip3"
+    alias python="python3"
+    alias pip="pip3"
 fi
 
 ##### RUBY (macOS) #####
