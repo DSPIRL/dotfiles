@@ -22,7 +22,7 @@
 .config/xsettingsd/
 .profile
 .zshenv
-.zshrc
+ .zshrc
 {{- end }}
 
 # Auxiliary directories (not deployed to ~)
