@@ -1,6 +1,7 @@
 // Cursor Smear Effect for Ghostty
 // Renders a hue-gradient fading trail when the cursor moves.
-// Duration: 150ms | Peak opacity: ~50%
+// Supports horizontal, vertical, and diagonal cursor movement.
+// Duration: 250ms | Peak opacity: ~70%
 
 // --- Color helpers ---
 
@@ -30,7 +31,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     if (iCursorVisible.x < 0.5) return;
 
     float timeSince = iTime - iTimeCursorChange;
-    float duration  = 0.25; // 150ms
+    float duration  = 0.25;
 
     if (timeSince < 0.0 || timeSince >= duration) return;
 
@@ -44,43 +45,44 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     // No smear if the cursor hasn't actually moved
     if (distance(curr, prev) < 1.0) return;
 
-    // Only smear along same row or same column — no diagonal trails
-    bool sameRow = abs(curr.y - prev.y) < currSz.y * 0.5;
-    bool sameCol = abs(curr.x - prev.x) < currSz.x * 0.5;
-    if (!sameRow && !sameCol) return;
+    // Compute centers of current and previous cursor positions
+    vec2 currCenter = vec2(curr.x + currSz.x * 0.5, curr.y - currSz.y * 0.5);
+    vec2 prevCenter = vec2(prev.x + prevSz.x * 0.5, prev.y - prevSz.y * 0.5);
 
-    // Bounding box covering both cursor positions
-    float xMin = min(curr.x, prev.x);
-    float xMax = max(curr.x + currSz.x, prev.x + prevSz.x);
-    float yMin = min(curr.y - currSz.y, prev.y - prevSz.y);
-    float yMax = max(curr.y, prev.y);
+    // Direction vector from current to previous cursor position
+    vec2 dir = prevCenter - currCenter;
+    float totalDist = length(dir);
+    if (totalDist < 0.5) return;
 
-    if (fragCoord.x < xMin || fragCoord.x > xMax ||
-        fragCoord.y < yMin || fragCoord.y > yMax) return;
+    // Normalized direction and perpendicular
+    vec2 dirNorm  = dir / totalDist;
+    vec2 perpNorm = vec2(-dirNorm.y, dirNorm.x);
+
+    // Project fragment position onto the trail line
+    vec2 fragRel   = fragCoord - currCenter;
+    float projAlong = dot(fragRel, dirNorm);
+    float projPerp  = abs(dot(fragRel, perpNorm));
+
+    // Corridor half-width based on cursor size
+    float halfWidth = max(currSz.x, currSz.y) * 0.5;
+
+    // Discard fragments outside the trail corridor
+    if (projPerp > halfWidth) return;
+    if (projAlong < 0.0 || projAlong > totalDist + halfWidth) return;
 
     // smearT: 0.0 = at current cursor, 1.0 = at previous cursor end
-    float smearT = 0.0;
-    if (sameRow) {
-        float cx   = curr.x + currSz.x * 0.5;
-        float px   = prev.x + prevSz.x * 0.5;
-        float span = abs(px - cx);
-        if (span > 0.5)
-            smearT = clamp(sign(px - cx) * (fragCoord.x - cx) / span, 0.0, 1.0);
-    } else {
-        float cy   = curr.y - currSz.y * 0.5;
-        float py   = prev.y - prevSz.y * 0.5;
-        float span = abs(py - cy);
-        if (span > 0.5)
-            smearT = clamp(sign(py - cy) * (fragCoord.y - cy) / span, 0.0, 1.0);
-    }
+    float smearT = clamp(projAlong / totalDist, 0.0, 1.0);
+
+    // Soften edges of the corridor with perpendicular falloff
+    float edgeFade = 1.0 - smoothstep(halfWidth * 0.5, halfWidth, projPerp);
 
     // Fade over time (smoothstep ease-out) and taper toward the trail end
     float timeFade  = 1.0 - smoothstep(0.0, duration, timeSince);
-    float alpha     = timeFade * (1.0 - smearT) * 0.7; // ~50% peak opacity
+    float alpha     = timeFade * (1.0 - smearT) * edgeFade * 0.7;
 
-    // Gradient: rotate hue 120° from cursor color toward the trail end
+    // Gradient: rotate hue 120 degrees from cursor color toward the trail end
     vec3 hsv        = rgb2hsv(iCursorColor);
-    hsv.x           = fract(hsv.x + smearT * 0.333); // 0° at cursor → ~120° at tail
+    hsv.x           = fract(hsv.x + smearT * 0.333);
     vec3 smearColor = hsv2rgb(hsv);
 
     fragColor.rgb = mix(fragColor.rgb, smearColor, alpha);

@@ -63,6 +63,7 @@ mouse-hide-while-typing = true
 
 # === CURSOR ===
 cursor-style = block
+cursor-color = #5BAFF9
 cursor-click-to-move = true
 custom-shader = ~/.config/ghostty/shaders/cursor-smear.glsl
 
