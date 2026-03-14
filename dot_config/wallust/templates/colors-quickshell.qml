@@ -22,13 +22,13 @@ QtObject {
   readonly property color color14: "{{color14}}"
   readonly property color color15: "{{color15}}"
 
-  readonly property color barBackground: "rgba({{background | rgb}},0.18)"
+  readonly property color barBackground: "#2E{{background | strip}}"
   readonly property color barBorder: "{{color2}}"
   readonly property color barText: "{{foreground}}"
   readonly property color barMutedText: "{{color8}}"
   readonly property color barAccentText: "{{cursor}}"
-  readonly property color barHover: "rgba({{color7 | rgb}},0.20)"
-  readonly property color barActive: "rgba({{cursor | rgb}},0.25)"
-  readonly property color barSeparator: "rgba({{foreground | rgb}},0.25)"
+  readonly property color barHover: "#33{{color7 | strip}}"
+  readonly property color barActive: "#40{{cursor | strip}}"
+  readonly property color barSeparator: "#40{{foreground | strip}}"
   readonly property color barCritical: "{{color1}}"
 }
