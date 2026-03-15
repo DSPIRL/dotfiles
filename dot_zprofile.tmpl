@@ -5,6 +5,9 @@ export XDG_CACHE_HOME="${HOME}/.cache"
 
 {{- if eq .chezmoi.os "linux" }}
 export XDG_DATA_DIRS="${XDG_DATA_DIRS:-/usr/local/share:/usr/share:$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share}"
+
+##### SSH AUTH SOCKET (Linux) #####
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 {{- end }}
 
 ##### PATH #####

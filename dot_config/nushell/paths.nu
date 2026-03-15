@@ -16,6 +16,9 @@ def --env add-path [path: string, --prepend] {
 if ((sys host | get name | str contains --ignore-case "Linux")) {
     $env.VISUAL = "/usr/bin/nvim"
 
+    ##### SSH AUTH SOCKET (Linux) #####
+    $env.SSH_AUTH_SOCK = $"($env.XDG_RUNTIME_DIR)/ssh-agent.socket"
+
     # DOTNET
     if ($"($env.HOME)/.dotnet" | path exists) {
         $env.DOTNET_ROOT = "/usr/local/share/dotnet"
