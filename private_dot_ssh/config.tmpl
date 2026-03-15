@@ -1,7 +1,8 @@
 SetEnv TERM=xterm-256color
 {{ if (dig "useKeePassXC" false .) }}
 Host gitea
-    HostName 192.168.86.202:30009
+    HostName 192.168.86.202
+    Port 30009
     IdentityFile ~/.ssh/gitea
     User git
 {{- end }}
