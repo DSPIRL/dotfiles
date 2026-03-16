@@ -1,16 +1,28 @@
 return {
+    -- Hide snacks terminal buffers from bufferline
+    {
+        "akinsho/bufferline.nvim",
+        optional = true,
+        opts = {
+            options = {
+                custom_filter = function(buf)
+                    return vim.bo[buf].filetype ~= "snacks_terminal"
+                end,
+            },
+        },
+    },
+
     {
         "nickjvandyke/opencode.nvim",
-        version = "*", -- Latest stable release
+        version = "*",
         dependencies = {
             {
-                -- `snacks.nvim` integration is recommended, but optional
-                ---@module "snacks" <- Loads `snacks.nvim` types for configuration intellisense
                 "folke/snacks.nvim",
                 optional = true,
+                ---@module "snacks"
                 opts = {
-                    input = {}, -- Enhances `ask()`
-                    picker = { -- Enhances `select()`
+                    input = {},
+                    picker = {
                         actions = {
                             opencode_send = function(...)
                                 return require("opencode").snacks_picker_send(...)
@@ -27,42 +39,124 @@ return {
                 },
             },
         },
-        config = function()
-            ---@type opencode.Opts
-            vim.g.opencode_opts = {
-                -- Your configuration, if any; goto definition on the type or field for details
+        init = function()
+            vim.o.autoread = true
+        end,
+        ---@return opencode.Opts
+        opts = function()
+            local ok, terminal = pcall(require, "snacks.terminal")
+            if not ok then
+                return {}
+            end
+
+            local opencode_cmd = "opencode --port"
+            ---@type snacks.terminal.Opts
+            local terminal_opts = {
+                start_insert = false,
+                auto_insert = false,
+                auto_close = false,
+                interactive = false,
+                win = {
+                    position = "right",
+                    width = 0.35,
+                    height = 0,
+                    relative = "editor",
+                    enter = false,
+                    bo = {
+                        buflisted = false,
+                        filetype = "snacks_terminal",
+                    },
+                    wo = {
+                        winbar = "",
+                    },
+                    keys = {
+                        -- Window navigation from terminal mode
+                        nav_h = { "<C-h>", "<C-\\><C-n><C-w>h", mode = "t", desc = "Go to left window" },
+                        nav_j = { "<C-j>", "<C-\\><C-n><C-w>j", mode = "t", desc = "Go to lower window" },
+                        nav_k = { "<C-k>", "<C-\\><C-n><C-w>k", mode = "t", desc = "Go to upper window" },
+                        nav_l = { "<C-l>", "<C-\\><C-n><C-w>l", mode = "t", desc = "Go to right window" },
+                        -- Hide with q in normal mode
+                        q = "hide",
+                    },
+                    on_win = function(win)
+                        require("opencode.terminal").setup(win.win)
+                    end,
+                },
             }
 
-            vim.o.autoread = true -- Required for `opts.events.reload`
-
-            -- Recommended/example keymaps
-            vim.keymap.set({ "n", "x" }, "<C-a>", function()
-                require("opencode").ask("@this: ", { submit = true })
-            end, { desc = "Ask opencode…" })
-            vim.keymap.set({ "n", "x" }, "<C-x>", function()
-                require("opencode").select()
-            end, { desc = "Execute opencode action…" })
-            vim.keymap.set({ "n", "t" }, "<C-.>", function()
-                require("opencode").toggle()
-            end, { desc = "Toggle opencode" })
-
-            vim.keymap.set({ "n", "x" }, "go", function()
-                return require("opencode").operator("@this ")
-            end, { desc = "Add range to opencode", expr = true })
-            vim.keymap.set("n", "goo", function()
-                return require("opencode").operator("@this ") .. "_"
-            end, { desc = "Add line to opencode", expr = true })
-
-            vim.keymap.set("n", "<S-C-u>", function()
-                require("opencode").command("session.half.page.up")
-            end, { desc = "Scroll opencode up" })
-            vim.keymap.set("n", "<S-C-d>", function()
-                require("opencode").command("session.half.page.down")
-            end, { desc = "Scroll opencode down" })
-
-            -- You may want these if you use the opinionated `<C-a>` and `<C-x>` keymaps above — otherwise consider `<leader>o…` (and remove terminal mode from the `toggle` keymap)
-            vim.keymap.set("n", "+", "<C-a>", { desc = "Increment under cursor", noremap = true })
-            vim.keymap.set("n", "-", "<C-x>", { desc = "Decrement under cursor", noremap = true })
+            return {
+                server = {
+                    start = function()
+                        terminal.open(opencode_cmd, terminal_opts)
+                    end,
+                    stop = function()
+                        terminal.get(opencode_cmd, terminal_opts):close()
+                    end,
+                    toggle = function()
+                        terminal.toggle(opencode_cmd, terminal_opts)
+                    end,
+                },
+            }
         end,
+        keys = {
+            {
+                "<leader>aa",
+                function()
+                    require("opencode").ask("@this: ", { submit = true })
+                end,
+                mode = { "n", "x" },
+                desc = "Ask opencode...",
+            },
+            {
+                "<leader>ae",
+                function()
+                    require("opencode").select()
+                end,
+                mode = { "n", "x" },
+                desc = "Execute opencode action...",
+            },
+            {
+                "<leader>ai",
+                function()
+                    require("opencode").toggle()
+                end,
+                mode = "n",
+                desc = "Toggle opencode",
+            },
+            {
+                "<leader>ar",
+                function()
+                    return require("opencode").operator("@this ")
+                end,
+                mode = { "n", "x" },
+                expr = true,
+                desc = "Add range to opencode",
+            },
+            {
+                "<leader>al",
+                function()
+                    return require("opencode").operator("@this ") .. "_"
+                end,
+                mode = "n",
+                expr = true,
+                desc = "Add line to opencode",
+            },
+            {
+                "<leader>ak",
+                function()
+                    require("opencode").command("session.half.page.up")
+                end,
+                mode = "n",
+                desc = "Scroll opencode up",
+            },
+            {
+                "<leader>aj",
+                function()
+                    require("opencode").command("session.half.page.down")
+                end,
+                mode = "n",
+                desc = "Scroll opencode down",
+            },
+        },
     },
 }
