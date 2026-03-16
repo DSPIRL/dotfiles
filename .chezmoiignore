@@ -60,8 +60,11 @@ private_dot_shell/.git-submodule-aliases.sh
 
 # Skip when KeePassXC not available (WSL or missing database)
 {{ if not (dig "useKeePassXC" false .) }}
-.config/private_chezmoi/
 encrypted_dot_gitconfig.tmpl.age
+.config/private_chezmoi/
+.ssh/
+.gitconfig
+
 {{ end }}
 # Skip when in WSL
 {{ if .isWSL }}
