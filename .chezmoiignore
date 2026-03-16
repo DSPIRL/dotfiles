@@ -26,16 +26,16 @@
 {{- end }}
 
 # Auxiliary directories (not deployed to ~)
+docs/
 install_scripts/
 package_lists/
-docs/
 
 # Non-deployed shell subdirs
+private_dot_shell/.git-submodule-aliases.sh
+private_dot_shell/dink.sh
+private_dot_shell/kdeshortcuts.kksrc
 private_dot_shell/manpages/
 private_dot_shell/scripts/
-private_dot_shell/kdeshortcuts.kksrc
-private_dot_shell/dink.sh
-private_dot_shell/.git-submodule-aliases.sh
 
 # Git/Stow artifacts
 .git
@@ -81,6 +81,8 @@ encrypted_dot_gitconfig.tmpl.age
 .config/hypr/
 .config/kanata/
 .config/karabiner/
+.config/nvim/lua/plugins/opencode.lua
+.config/nvim/lua/plugins/silicon.lua
 .config/nwg-look/
 .config/qt5ct/
 .config/qt6ct/
