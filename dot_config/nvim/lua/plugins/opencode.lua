@@ -1,12 +1,12 @@
 return {
-    -- Hide snacks terminal buffers from bufferline
+    -- Hide opencode terminal buffers from bufferline
     {
         "akinsho/bufferline.nvim",
         optional = true,
         opts = {
             options = {
                 custom_filter = function(buf)
-                    return vim.bo[buf].filetype ~= "snacks_terminal"
+                    return vim.bo[buf].filetype ~= "opencode"
                 end,
             },
         },
@@ -64,7 +64,8 @@ return {
                     enter = false,
                     bo = {
                         buflisted = false,
-                        filetype = "snacks_terminal",
+                        bufhidden = "hide",
+                        filetype = "opencode",
                     },
                     wo = {
                         winbar = "",
@@ -80,6 +81,9 @@ return {
                     },
                     on_win = function(win)
                         require("opencode.terminal").setup(win.win)
+                        -- Ensure terminal buffer stays unlisted after setup
+                        local buf = vim.api.nvim_win_get_buf(win.win)
+                        vim.bo[buf].buflisted = false
                     end,
                 },
             }
