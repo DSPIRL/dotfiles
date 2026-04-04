@@ -3,8 +3,24 @@ alias core-ls = ls
 alias core-cd = cd
 
 ##### CUSTOM REDEFINITIONS #####
-def ls [] {
-    core-ls -la | select name type mode user group size modified
+def --wrapped ls [...rest] {
+    let listing = if ($rest | is-empty) {
+        core-ls -la
+    } else {
+        core-ls ...$rest
+    }
+    let preferred_columns = [name type mode user group size modified]
+    let available_columns = if ($listing | is-empty) {
+        []
+    } else {
+        $listing | columns | where {|column| $column in $preferred_columns }
+    }
+
+    if ($available_columns | is-empty) {
+        $listing
+    } else {
+        $listing | select ...$available_columns
+    }
 }
 
 # Use zoxide's z if available, otherwise fall back to core cd
