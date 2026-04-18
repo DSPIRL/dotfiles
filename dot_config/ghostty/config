@@ -78,6 +78,17 @@ macos-titlebar-style = tabs
 # macos-titlebar-style = hidden
 # gtk-titlebar = false
 
+# === QUICK TERMINAL ===
+# The global keybind — works even when Ghostty isn't focused
+# keybind = global:cmd+grave_accent=toggle_quick_terminal
+keybind = global:cmd+grave_accent=toggle_quick_terminal
+quick-terminal-position = center
+quick-terminal-animation-duration = 0
+quick-terminal-size = 100%,100%
+quick-terminal-autohide = true
+quick-terminal-screen = main
+initial-window = false
+
 # === KEYBINDS ===
 # WINDOW
 # keybind = ctrl+enter=toggle_fullscreen
@@ -120,9 +131,6 @@ macos-titlebar-style = tabs
 
 # keybind = ctrl+tab=next_tab
 # keybind = ctrl+shift+tab=previous_tab
-
-# QUICK TERMINAL
-# keybind = ctrl+alt+space=toggle_quick_terminal
 
 # CLIPBOARD
 # keybind = ctrl+shift+v=paste_from_clipboard

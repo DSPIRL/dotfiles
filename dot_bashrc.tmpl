@@ -3,6 +3,24 @@
 
 source "${HOME}/.shell/aliases.sh"
 
+if command -v nvim >/dev/null 2>&1; then
+    nvim-env() {
+        # Usage:
+        # nvim-env nvim-scratch
+        # nvim-env nvim-lazy    # another test config
+        NVIM_APPNAME="$1" nvim "${@:2}"
+    }
+
+    # Tab completion for nvim-env
+    _nvim_env_complete() {
+        local cur="${COMP_WORDS[COMP_CWORD]}"
+        local configs
+        configs=$(ls ~/.config | grep nvim)
+        COMPREPLY=($(compgen -W "$configs" -- "$cur"))
+    }
+    complete -F _nvim_env_complete nvim-env
+fi
+
 {{- if .isWSL }}
 
 ##### WSL CONFIGURATION #####
