@@ -126,6 +126,21 @@ fi
 source "${HOME}/.shell/aliases.sh"
 source "${HOME}/.shell/functions.sh"
 
+##### NVIM #####
+# Switch between named Neovim configs
+nvim-env() {
+  NVIM_APPNAME="${1:-nvim}" nvim "${@:2}"
+}
+
+# Tab completion for nvim-env
+_nvim_env_complete() {
+  local configs
+  configs=(~/.config/nvim*(/:t))
+  _describe 'nvim configs' configs
+}
+
+compdef _nvim_env_complete nvim-env
+
 ##### SOURCE ZSH SNIPPETS #####
 for zshrc_file in "${XDG_CONFIG_HOME:-$HOME/.config}"/zsh/rc.d/*.zsh(N); do
   source "${zshrc_file}"
