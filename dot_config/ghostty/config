@@ -105,20 +105,22 @@ initial-window = false
 # keybind = ctrl+alt+enter=toggle_split_zoom
 
 # tmux stuff
-keybind = ctrl+b>h=goto_split:left
-keybind = ctrl+b>j=goto_split:bottom
-keybind = ctrl+b>k=goto_split:top
-keybind = ctrl+b>l=goto_split:right
-
-keybind = ctrl+b>percent=new_split:down
-keybind = ctrl+b>pipe=new_split:right
-keybind = ctrl+b>z=toggle_split_zoom
-
-keybind = ctrl+alt+equal=equalize_splits
-keybind = ctrl+alt+shift+k=resize_split:up,20
-keybind = ctrl+alt+shift+j=resize_split:down,20
-keybind = ctrl+alt+shift+h=resize_split:left,20
-keybind = ctrl+alt+shift+l=resize_split:right,20
+# keybind = ctrl+b>h=goto_split:left
+# keybind = ctrl+b>j=goto_split:bottom
+# keybind = ctrl+b>k=goto_split:top
+# keybind = ctrl+b>l=goto_split:right
+# keybind = ctrl+b>x=close_surface
+#
+# keybind = ctrl+b>shift+5=new_split:down
+# keybind = ctrl+b>shift+quote=new_split:right
+# keybind = ctrl+b>z=toggle_split_zoom
+#
+# keybind = ctrl+alt+equal=equalize_splits
+# keybind = ctrl+alt+shift+k=resize_split:up,20
+# keybind = ctrl+alt+shift+j=resize_split:down,20
+# keybind = ctrl+alt+shift+h=resize_split:left,20
+# keybind = ctrl+alt+shift+l=resize_split:right,20
+# end tmux stuff
 
 # keybind = ctrl+shift+l=new_split:right
 # keybind = ctrl+shift+h=new_split:left
