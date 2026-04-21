@@ -1,11 +1,12 @@
-alacritty
 btop
 eza
 fzf
+ghostty
 htop
 jj
 neovim
 nushell
+raycast
 silicon
 ttf-jetbrains-mono
 ttf-jetbrains-mono-nerd
