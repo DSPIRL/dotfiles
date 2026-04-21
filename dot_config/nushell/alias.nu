@@ -71,17 +71,17 @@ def --wrapped exifkeepicc [...rest] {
     }
 }
 
-def --wrapped safe-claude [...rest] {
+def --wrapped claude-unsafe [...rest] {
     if (which claude | is-not-empty) {
-        ^claude ...$rest
+        ^claude --allow-dangerously-skip-permissions ...$rest
     } else {
         error make { msg: "claude is not installed" }
     }
 }
 
-def --wrapped claude [...rest] {
-    if (which claude | is-not-empty) {
-        ^claude --allow-dangerously-skip-permissions ...$rest
+def --wrapped okta [...rest] {
+    if (which okta-aws-cli | is-not-empty) {
+        ^okta-aws-cli ...$rest
     } else {
         error make { msg: "claude is not installed" }
     }

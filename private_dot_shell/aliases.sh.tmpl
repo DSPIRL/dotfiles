@@ -48,8 +48,7 @@ fi
 
 ##### CLAUDE #####
 if command -v claude >/dev/null 2>&1; then
-    alias safe-claude="claude"
-    alias claude="claude --allow-dangerously-skip-permissions"
+    alias claude-unsafe="claude --allow-dangerously-skip-permissions"
 fi
 
 ##### CARGO #####
