@@ -38,6 +38,7 @@ private_dot_shell/manpages/
 private_dot_shell/scripts/
 
 # Git/Stow artifacts
+.gitconfig
 .git
 .gitignore
 .stow-local-ignore
@@ -63,7 +64,6 @@ private_dot_shell/scripts/
 encrypted_dot_gitconfig.tmpl.age
 .config/private_chezmoi/
 .ssh/
-.gitconfig
 
 {{ end }}
 # Skip when in WSL
