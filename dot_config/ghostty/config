@@ -88,7 +88,7 @@ quick-terminal-animation-duration = 0
 quick-terminal-size = 100%,100%
 quick-terminal-autohide = true
 quick-terminal-screen = main
-initial-window = false
+initial-window = true
 
 # === KEYBINDS ===
 # WINDOW
