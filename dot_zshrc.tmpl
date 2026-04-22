@@ -8,9 +8,13 @@
 
 ##### FZF #####
 if command -v fzf &>/dev/null; then
-  export FZF_DEFAULT_OPTS="--extended --multi --preview 'cat {}'"
-  export FZF_CTRL_T_COMMAND="find . -printf '%P\\n'"
+  # Set up fzf key bindings and fuzzy completion
+  source <(fzf --zsh)
+  export FZF_DEFAULT_OPTS_FILE="${HOME}/.config/fzf/.fzfrc"
+  # export FZF_DEFAULT_OPTS="--style full --height 80% --popup center,40% --layout reverse --border top --extended --multi --preview 'cat {}'"
   export FZF_CTRL_T_OPTS="--preview='less {}' --bind shift-up:preview-page-up,shift-down:preview-page-down"
+  export FZF_CTRL_T_COMMAND="fd --hidden --ignore-case"
+  export FZF_ALT_C_COMMAND=""
 fi
 
 ##### ZOXIDE #####
@@ -62,11 +66,9 @@ if command -v chezmoi &>/dev/null; then
   eval "$(chezmoi completion zsh)"
 fi
 
-{{- if $isCachyOS }}
 # FZF key bindings and completions
-[[ -f /usr/share/fzf/key-bindings.zsh ]] && source /usr/share/fzf/key-bindings.zsh
-[[ -f /usr/share/fzf/completion.zsh ]] && source /usr/share/fzf/completion.zsh
-{{- end }}
+# [[ -f /usr/share/fzf/key-bindings.zsh ]] && source /usr/share/fzf/key-bindings.zsh
+# [[ -f /usr/share/fzf/completion.zsh ]] && source /usr/share/fzf/completion.zsh
 
 ##### PROMPT #####
 if command -v oh-my-posh &>/dev/null && [ "${TERM_PROGRAM}" != "Apple_Terminal" ]; then
