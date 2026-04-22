@@ -79,11 +79,17 @@ def --wrapped claude-unsafe [...rest] {
     }
 }
 
-def --wrapped okta [...rest] {
+def --wrapped okta [--profile(-p): string@"nu-complete okta profiles", ...rest] {
     if (which okta-aws-cli | is-not-empty) {
-        ^okta-aws-cli ...$rest
+        let profile_args = if $profile == null {
+            []
+        } else {
+            [--profile $profile]
+        }
+
+        ^okta-aws-cli ...$profile_args ...$rest
     } else {
-        error make { msg: "claude is not installed" }
+        error make { msg: "okta-aws-cli is not installed" }
     }
 }
 

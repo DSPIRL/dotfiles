@@ -1,0 +1,20 @@
+#compdef okta okta-aws-cli
+
+_okta() {
+  local -a profiles
+  profiles=("${(@f)$(_call_program profiles okta-aws-cli list-profiles 2>/dev/null)}")
+  profiles=(${profiles:#Profiles:})
+  profiles=(${profiles:#})
+
+  if [[ "${words[CURRENT-1]}" == "--profile" || "${words[CURRENT-1]}" == "-p" ]]; then
+    _describe -t profiles 'Okta profile' profiles
+    return
+  fi
+
+  if [[ "${words[CURRENT]}" == --profile=* ]]; then
+    compadd -Q -S '' -P '--profile=' -- ${profiles}
+    return
+  fi
+}
+
+compdef _okta okta okta-aws-cli

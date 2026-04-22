@@ -6,6 +6,7 @@ source ~/.config/nushell/keybinds.nu
 source ~/.zoxide.nu
 source ~/.cache/carapace/init.nu
 
+source ~/.config/nushell/okta-completions.nu
 source ~/.config/nushell/alias.nu
 source ~/.config/nushell/login.nu
 source ~/.config/nushell/prompt.nu

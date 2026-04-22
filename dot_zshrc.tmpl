@@ -30,6 +30,9 @@ if type brew &>/dev/null; then
   FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
 fi
 {{- end }}
+if [[ -d "${HOME}/.shell/zsh/completers" ]]; then
+  FPATH="${HOME}/.shell/zsh/completers:${FPATH}"
+fi
 autoload -Uz compinit && compinit
 
 {{- if $isDarwin }}
