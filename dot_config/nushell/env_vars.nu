@@ -57,5 +57,5 @@ if (which fzf | is-not-empty) {
   # $env.FZF_DEFAULT_OPTS = "--style full --height 80% --popup center,40% --layout reverse --border top --extended --multi --preview 'cat {}'"
   $env.FZF_CTRL_T_OPTS = "--preview='less {}' --bind shift-up:preview-page-up,shift-down:preview-page-down"
   $env.FZF_CTRL_T_COMMAND = "fd --hidden --ignore-case"
-  $env.FZF_ALT_C_COMMAND = ""
+  # $env.FZF_ALT_C_COMMAND = ""
 }

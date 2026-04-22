@@ -1,1 +1,1 @@
---style full --height 80% --popup center,40% --layout reverse --border top --extended --multi --preview 'cat {}'
+--style full --height 80% --popup center,40% --layout reverse --border top --extended --multi --preview 'bat --color=always {}' --bind alt-k:preview-page-up,alt-j:preview-page-down
