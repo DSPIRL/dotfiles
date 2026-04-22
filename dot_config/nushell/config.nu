@@ -1,5 +1,5 @@
 source ~/.config/nushell/env_config.nu
-source ~/.config/nushell/paths.nu
+source ~/.config/nushell/env_vars.nu
 source ~/.config/nushell/keybinds.nu
 
 # Cache files are generated in env.nu before this file is parsed
