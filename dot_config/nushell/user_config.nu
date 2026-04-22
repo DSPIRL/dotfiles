@@ -50,7 +50,6 @@ if ($"($env.HOME)/.cargo" | path exists) {
     add-path $"($env.CARGO_HOME)/bin" --prepend
 }
 
-
 # FZF
 if (which fzf | is-not-empty) {
   $env.FZF_DEFAULT_OPTS_FILE = $"($env.HOME)/.config/fzf/.fzfrc"
@@ -59,3 +58,12 @@ if (which fzf | is-not-empty) {
   $env.FZF_CTRL_T_COMMAND = "fd --hidden --ignore-case"
   # $env.FZF_ALT_C_COMMAND = ""
 }
+
+# MISE-EN-PLACE
+if (which mise | is-not-empty) {
+  let mise_activation = $"($env.HOME)/.cache/nushell/mise.nu"
+  if (not ($mise_activation | path exists)) {
+    mise activate nu | save -f ~/.cache/nushell/mise.nu
+  }
+}
+
