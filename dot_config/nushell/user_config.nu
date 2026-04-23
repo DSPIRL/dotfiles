@@ -59,11 +59,3 @@ if (which fzf | is-not-empty) {
   # $env.FZF_ALT_C_COMMAND = ""
 }
 
-# MISE-EN-PLACE
-if (which mise | is-not-empty) {
-  let mise_activation = $"($env.HOME)/.cache/nushell/mise.nu"
-  if (not ($mise_activation | path exists)) {
-    mise activate nu | save -f ~/.cache/nushell/mise.nu
-  }
-}
-
