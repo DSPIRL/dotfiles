@@ -26,3 +26,16 @@ if (which zoxide | is-not-empty) {
     zoxide init nushell | save --force $zoxide_cache
   }
 }
+
+# MISE-EN-PLACE
+if (which mise | is-not-empty) {
+  let mise_dir = $"($env.HOME)/.cache/nushell"
+  if (not ($mise_dir | path exists)) {
+    mkdir $mise_dir
+  }
+
+  let mise_activation = $"($env.HOME)/.cache/nushell/mise.nu"
+  if (not ($mise_activation | path exists)) {
+    mise activate nu | save --force $mise_activation
+  }
+}
