@@ -13,7 +13,7 @@ if command -v fzf &>/dev/null; then
   # export FZF_DEFAULT_OPTS="--style full --height 80% --popup center,40% --layout reverse --border top --extended --multi --preview 'cat {}'"
   export FZF_CTRL_T_OPTS="--preview='less {}' --bind shift-up:preview-page-up,shift-down:preview-page-down"
   export FZF_CTRL_T_COMMAND="fd --hidden --ignore-case"
-  # export FZF_ALT_C_COMMAND=""
+  export FZF_ALT_C_COMMAND=""
   source <(fzf --zsh)
 fi
 
