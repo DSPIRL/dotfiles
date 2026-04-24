@@ -23,6 +23,14 @@ if command -v wt &>/dev/null; then
     source <(wt config shell init zsh)
 fi
 
+{{- if $isDarwin }}
+##### CLAUDE #####
+# export AWS_REGION="us-east-1"
+# export AWS_PROFILE="twl-srd"
+# export ANTHROPIC_MODEL="us.anthropic.claude-sonnet-4-20250514-v1:0"
+# export CLAUDE_CODE_USE_BEDROCK="1"
+{{- end }}
+
 ##### ZOXIDE #####
 if command -v zoxide &>/dev/null; then
   eval "$(zoxide init zsh)"
