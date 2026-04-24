@@ -18,6 +18,11 @@ if command -v fzf &>/dev/null; then
   source <(fzf --zsh)
 fi
 
+##### WORKTRUNK #####
+if command -v wt &>/dev/null; then
+    source <(wt config shell init zsh)
+fi
+
 ##### ZOXIDE #####
 if command -v zoxide &>/dev/null; then
   eval "$(zoxide init zsh)"
