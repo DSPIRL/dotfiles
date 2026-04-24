@@ -16,11 +16,13 @@ pmset -g batt | perl -ne '
     $state eq "charging" ? "CHG" :
     $state eq "charged" ? "FULL" :
     $state eq "discharging" ? "BAT" :
+    $state =~ /not charging/ ? "AC" :
+    $state =~ /ac attached/ ? "AC" :
     uc $state;
 
   print $label, " ", $percent;
 
-  if ($eta ne "" && $eta ne "(no estimate)" && $eta ne "no estimate" && $state ne "charged") {
+  if ($eta ne "" && $eta ne "(no estimate)" && $eta ne "no estimate" && $eta ne "not charging" && $state ne "charged") {
     print " ", $eta;
   }
 
