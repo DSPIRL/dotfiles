@@ -1,1 +1,9 @@
---style full --height 80% --popup center,40% --layout reverse --border top --extended --multi --preview 'bat --color=always {}' --bind alt-k:preview-page-up,alt-j:preview-page-down
+--style full
+--height 80%
+--popup center,40%
+--layout reverse
+--border top
+--extended
+--multi
+--preview 'p="{}"; if [ -d "$p" ]; then eza --tree --level=2 --color=always --icons=always "$p" 2>/dev/null || tree -C -L 2 "$p"; elif [ -f "$p" ]; then bat --color=always --style=plain "$p"; fi'
+--bind alt-k:preview-page-up,alt-j:preview-page-down

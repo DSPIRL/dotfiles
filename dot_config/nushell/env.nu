@@ -39,3 +39,16 @@ if (which mise | is-not-empty) {
     mise activate nu | save --force $mise_activation
   }
 }
+
+# WORKTRUNK
+if (which wt | is-not-empty) {
+  let worktrunk_dir = $"($env.HOME)/.cache/nushell"
+  if (not ($worktrunk_dir | path exists)) {
+    mkdir $worktrunk_dir
+  }
+
+  let worktrunk_integration = $"($env.HOME)/.cache/nushell/mise.nu"
+  if (not ($worktrunk_integration | path exists)) {
+    wt config shell init nu | save --force $worktrunk_integration
+  }
+}
