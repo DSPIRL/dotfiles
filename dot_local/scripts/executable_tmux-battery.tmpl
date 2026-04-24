@@ -1,0 +1,30 @@
+#!/bin/sh
+
+{{ if eq .chezmoi.os "darwin" }}
+pmset -g batt | perl -ne '
+  next unless /(\d+)%;\s*([^;]+);\s*([^\n]+)/;
+
+  my $percent = "$1%";
+  my $state = lc $2;
+  my $eta = $3;
+
+  $eta =~ s/\s*present:.*$//;
+  $eta =~ s/\s*remaining$//;
+  $eta =~ s/^\s+|\s+$//g;
+
+  my $label =
+    $state eq "charging" ? "CHG" :
+    $state eq "charged" ? "FULL" :
+    $state eq "discharging" ? "BAT" :
+    uc $state;
+
+  print $label, " ", $percent;
+
+  if ($eta ne "" && $eta ne "(no estimate)" && $eta ne "no estimate" && $state ne "charged") {
+    print " ", $eta;
+  }
+
+  print "\n";
+  exit;
+'
+{{ end }}
