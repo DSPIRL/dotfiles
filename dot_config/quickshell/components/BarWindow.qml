@@ -530,7 +530,7 @@ PanelWindow {
 
       Item {
         Layout.fillWidth: true
-        implicitHeight: centerRow.implicitHeight
+        implicitHeight: spotifyPill.implicitHeight
 
         Row {
           id: centerRow
@@ -604,43 +604,6 @@ PanelWindow {
                   barWindow.spotifyPlayer.previous();
                 }
               }
-            }
-          }
-
-          Rectangle {
-            id: centerPill
-
-            implicitWidth: clockLabel.implicitWidth + 18
-            implicitHeight: 30
-            radius: implicitHeight / 2
-            color: clockMouse.containsMouse ? wallust.barHover : wallust.barBackground
-            border.width: 1
-            border.color: wallust.barBorder
-
-            Behavior on color {
-              ColorAnimation {
-                duration: 120
-              }
-            }
-
-            Text {
-              id: clockLabel
-
-              anchors.centerIn: parent
-              text: "󰥔 " + Qt.formatDateTime(clock.date, "HH:mm | d MMM")
-              color: wallust.barText
-              font.family: "JetBrainsMono Nerd Font"
-              font.pixelSize: 15
-            }
-
-            MouseArea {
-              id: clockMouse
-
-              anchors.fill: parent
-              hoverEnabled: true
-              cursorShape: Qt.PointingHandCursor
-
-              onClicked: barWindow.runCommand(["gnome-calendar"])
             }
           }
         }
@@ -1192,7 +1155,10 @@ PanelWindow {
               acceptedButtons: Qt.LeftButton
               cursorShape: Qt.PointingHandCursor
 
-              onClicked: barWindow.runCommand(["swaync-client", "-t", "-sw"])
+
+              // TODO: replace swaync with quickshell notification panel
+              onClicked: barWindow.runCommand([])
+              // onClicked: barWindow.runCommand(["swaync-client", "-t", "-sw"])
             }
           }
 
@@ -1237,6 +1203,44 @@ PanelWindow {
               onClicked: barWindow.runCommand(["wlogout"])
             }
           }
+        }
+      }
+
+      Rectangle {
+        id: centerPill
+
+        anchors.centerIn: parent
+        implicitWidth: clockLabel.implicitWidth + 18
+        implicitHeight: 30
+        radius: implicitHeight / 2
+        color: clockMouse.containsMouse ? wallust.barHover : wallust.barBackground
+        border.width: 1
+        border.color: wallust.barBorder
+
+        Behavior on color {
+          ColorAnimation {
+            duration: 120
+          }
+        }
+
+        Text {
+          id: clockLabel
+
+          anchors.centerIn: parent
+          text: "󰥔 " + Qt.formatDateTime(clock.date, "HH:mm | d MMM")
+          color: wallust.barText
+          font.family: "JetBrainsMono Nerd Font"
+          font.pixelSize: 15
+        }
+
+        MouseArea {
+          id: clockMouse
+
+          anchors.fill: parent
+          hoverEnabled: true
+          cursorShape: Qt.PointingHandCursor
+
+          onClicked: barWindow.runCommand(["gnome-calendar"])
         }
       }
     }

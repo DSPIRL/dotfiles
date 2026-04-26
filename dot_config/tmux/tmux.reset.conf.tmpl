@@ -17,6 +17,7 @@ set -g status-left '#[fg=white,bg=black]#(~/.local/scripts/tmux-battery) '
 set -g status-right '#[fg=white,bg=black]%a %d %H:%M #[default]'
 {{- else }}
 set -g status-left '#[default]'
+set -g status-right '#[fg=white,bg=black]%a %d %H:%M #[default]'
 {{- end }}
 
 # Improve pane splitting shortcuts

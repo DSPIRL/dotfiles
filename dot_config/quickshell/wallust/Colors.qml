@@ -1,34 +1,34 @@
 import QtQuick
 
 QtObject {
-  readonly property color foreground: "#d8dee9"
-  readonly property color background: "#2e3440"
-  readonly property color cursor: "#88c0d0"
+  readonly property color foreground: "#F9E7CF"
+  readonly property color background: "#131314"
+  readonly property color cursor: "#EEB0C0"
 
-  readonly property color color0: "#3b4252"
-  readonly property color color1: "#bf616a"
-  readonly property color color2: "#a3be8c"
-  readonly property color color3: "#ebcb8b"
-  readonly property color color4: "#81a1c1"
-  readonly property color color5: "#b48ead"
-  readonly property color color6: "#88c0d0"
-  readonly property color color7: "#e5e9f0"
-  readonly property color color8: "#4c566a"
-  readonly property color color9: "#bf616a"
-  readonly property color color10: "#a3be8c"
-  readonly property color color11: "#ebcb8b"
-  readonly property color color12: "#81a1c1"
-  readonly property color color13: "#b48ead"
-  readonly property color color14: "#8fbcbb"
-  readonly property color color15: "#eceff4"
+  readonly property color color0: "#3B3A3B"
+  readonly property color color1: "#E57B96"
+  readonly property color color2: "#E379B1"
+  readonly property color color3: "#ED8336"
+  readonly property color color4: "#71A6DA"
+  readonly property color color5: "#7FC0EB"
+  readonly property color color6: "#EEB976"
+  readonly property color color7: "#EED4B2"
+  readonly property color color8: "#A7947D"
+  readonly property color color9: "#E57B96"
+  readonly property color color10: "#E379B1"
+  readonly property color color11: "#ED8336"
+  readonly property color color12: "#71A6DA"
+  readonly property color color13: "#7FC0EB"
+  readonly property color color14: "#EEB976"
+  readonly property color color15: "#EED4B2"
 
-  readonly property color barBackground: Qt.rgba(46 / 255, 52 / 255, 64 / 255, 0.18)
-  readonly property color barBorder: "#a3be8c"
-  readonly property color barText: foreground
-  readonly property color barMutedText: color8
-  readonly property color barAccentText: cursor
-  readonly property color barHover: Qt.rgba(229 / 255, 233 / 255, 240 / 255, 0.20)
-  readonly property color barActive: Qt.rgba(136 / 255, 192 / 255, 208 / 255, 0.25)
-  readonly property color barSeparator: Qt.rgba(216 / 255, 222 / 255, 233 / 255, 0.25)
-  readonly property color barCritical: color1
+  readonly property color barBackground: "#2E131314"
+  readonly property color barBorder: "#E379B1"
+  readonly property color barText: "#F9E7CF"
+  readonly property color barMutedText: "#A7947D"
+  readonly property color barAccentText: "#EEB0C0"
+  readonly property color barHover: "#33EED4B2"
+  readonly property color barActive: "#40EEB0C0"
+  readonly property color barSeparator: "#40F9E7CF"
+  readonly property color barCritical: "#E57B96"
 }
