@@ -165,6 +165,13 @@ _nvim_env_complete() {
 
 compdef _nvim_env_complete nvim-env
 
+##### MANPAGER #####
+if command -v bat &>/dev/null; then
+    export MANROFFOPT="-c"
+    export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+fi
+
+
 ##### SOURCE ZSH SNIPPETS #####
 for zshrc_file in "${XDG_CONFIG_HOME:-$HOME/.config}"/zsh/rc.d/*.zsh(N); do
   source "${zshrc_file}"

@@ -1,7 +1,7 @@
 {{ if and (hasKey .chezmoi.osRelease "id") (eq .chezmoi.osRelease.id "cachyos") }}
 # HYPRLAND DEBUGGING
-.bash_profile
-.bashrc
+# .bash_profile
+# .bashrc
 .config/.dmenurc
 .config/Kvantum/
 # .config/cliphist/
@@ -20,9 +20,9 @@
 # .config/waypaper/
 .config/xdg-desktop-portal/
 .config/xsettingsd/
-.profile
-.zshenv
- .zshrc
+# .profile
+# .zshenv
+ # .zshrc
 {{- end }}
 
 # Auxiliary directories (not deployed to ~)
