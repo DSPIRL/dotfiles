@@ -12,8 +12,8 @@ export PATH="${HOME}/.local/scripts:${PATH}"
 
 ##### RUST #####
 if [ -d "${HOME}/.cargo" ]; then
-    . "${HOME}/.cargo/env"
     export CARGO_HOME="${HOME}/.cargo"
+    [ -f "${CARGO_HOME}/env" ] && . "${CARGO_HOME}/env"
     export PATH="${CARGO_HOME}/bin:${PATH}"
 fi
 

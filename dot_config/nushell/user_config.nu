@@ -39,7 +39,14 @@ if ((sys host | get name | str contains --ignore-case "Linux")) {
 }
 
 ##### GLOBAL #####
-$env.MANPAGER = "nvim +Man!"
+
+if (which carapace | is-not-empty) {
+    $env.MANROFFOPT = "-c"
+    $env.MANPAGER = "sh -c 'col -bx | bat -l man -p'"
+} else {
+    $env.MANPAGER = "nvim +Man!"
+}
+
 
 add-path $"($env.HOME)/.local/bin" --prepend
 add-path $"($env.HOME)/.local/scripts" --prepend
@@ -52,10 +59,10 @@ if ($"($env.HOME)/.cargo" | path exists) {
 
 # FZF
 if (which fzf | is-not-empty) {
-  $env.FZF_DEFAULT_OPTS_FILE = $"($env.HOME)/.config/fzf/.fzfrc"
-  # $env.FZF_DEFAULT_OPTS = "--style full --height 80% --popup center,40% --layout reverse --border top --extended --multi --preview 'cat {}'"
-  $env.FZF_CTRL_T_OPTS = "--preview='less {}' --bind shift-up:preview-page-up,shift-down:preview-page-down"
-  $env.FZF_CTRL_T_COMMAND = "fd --hidden --ignore-case"
-  # $env.FZF_ALT_C_COMMAND = ""
+    $env.FZF_DEFAULT_OPTS_FILE = $"($env.HOME)/.config/fzf/.fzfrc"
+    # $env.FZF_DEFAULT_OPTS = "--style full --height 80% --popup center,40% --layout reverse --border top --extended --multi --preview 'cat {}'"
+    $env.FZF_CTRL_T_OPTS = "--preview='less {}' --bind shift-up:preview-page-up,shift-down:preview-page-down"
+    $env.FZF_CTRL_T_COMMAND = "fd --hidden --ignore-case"
+    # $env.FZF_ALT_C_COMMAND = ""
 }
 
