@@ -15,5 +15,8 @@ vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.wrap = true
+
+-- Disable autoformat
+vim.g.autoformat = false
 -- vim.opt.foldmethod = "indent"
 -- USER EDITS END --
