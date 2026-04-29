@@ -58,17 +58,17 @@ fi
 if [ -n "$in_tokens" ] && [ -n "$out_tokens" ]; then
     total_tokens=$((in_tokens + out_tokens))
 
-    if [ "$total_tokens" -le 50000 ]; then
-        total_color=$green
-    elif [ "$total_tokens" -le 80000 ]; then
-        total_color=$yellow
-    elif [ "$total_tokens" -le 99999 ]; then
-        total_color=$orange
+    if [ "$in_tokens" -le 50000 ]; then
+        input_color=$green
+    elif [ "$in_tokens" -le 80000 ]; then
+        input_color=$yellow
+    elif [ "$in_tokens" -le 99999 ]; then
+        input_color=$orange
     else
-        total_color=$red
+        input_color=$red
     fi
 
-    token_part="Tokens: ${in_tokens} in / ${out_tokens} out | ${total_color}${total_tokens}${reset} total"
+    token_part="Tokens: ${input_color}${in_tokens}${reset} in / ${out_tokens} out (${total_tokens} total)"
     if [ -n "$parts" ]; then
         parts="$parts | $token_part"
     else
