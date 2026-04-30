@@ -118,6 +118,11 @@ if command -v carapace &>/dev/null; then
     source <(carapace _carapace)
 fi
 
+# AWSM
+if command -v awsm &>/dev/null; then
+    source <(awsm completions zsh)
+fi
+
 if command -v chezmoi &>/dev/null; then
     eval "$(chezmoi completion bash)"
 fi

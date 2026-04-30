@@ -79,6 +79,11 @@ if command -v carapace &>/dev/null; then
   zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
 fi
 
+# AWSM
+if command -v awsm &>/dev/null; then
+    source <(awsm completions zsh)
+fi
+
 if command -v chezmoi &>/dev/null; then
   eval "$(chezmoi completion zsh)"
 fi
