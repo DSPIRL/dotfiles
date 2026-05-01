@@ -17,7 +17,7 @@ tmux new-window -t "$SESSION_NAME" -n AI -c "$PWD"
 tmux new-window -t "$SESSION_NAME" -n nu -c "$PWD"
 
 # Run commands in specific windows
-tmux send-keys -t "$SESSION_NAME:editor" "nvim" Enter
+tmux send-keys -t "$SESSION_NAME:Editor" "nvim" Enter
 
 # Skip when KeePassXC not available (WSL or missing database)
 {{- if not (dig "useKeePassXC" false .) }}
@@ -26,7 +26,7 @@ tmux send-keys -t "$SESSION_NAME:AI" "claude --allow-dangerously-skip-permission
 tmux send-keys -t "$SESSION_NAME:AI" "opencode" Enter
 {{- end }}
 
-tmux send-keys -t "$SESSION_NAME:nu" "nu" Enter
+# tmux send-keys -t "$SESSION_NAME:Term" "nu" Enter
 
 # Select first window and attach
 tmux select-window -t "$SESSION_NAME:editor"
