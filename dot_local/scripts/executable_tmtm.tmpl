@@ -10,11 +10,11 @@ fi
 SESSION_NAME=$1
 
 # Create new session with editor window
-tmux new-session -d -s "$SESSION_NAME" -n editor -c "$PWD"
+tmux new-session -d -s "$SESSION_NAME" -n Editor -c "$PWD"
 
 # Create additional windows
 tmux new-window -t "$SESSION_NAME" -n AI -c "$PWD"
-tmux new-window -t "$SESSION_NAME" -n nu -c "$PWD"
+tmux new-window -t "$SESSION_NAME" -n Term -c "$PWD"
 
 # Run commands in specific windows
 tmux send-keys -t "$SESSION_NAME:Editor" "nvim" Enter
@@ -29,5 +29,5 @@ tmux send-keys -t "$SESSION_NAME:AI" "opencode" Enter
 # tmux send-keys -t "$SESSION_NAME:Term" "nu" Enter
 
 # Select first window and attach
-tmux select-window -t "$SESSION_NAME:editor"
+tmux select-window -t "$SESSION_NAME:Editor"
 tmux attach-session -t "$SESSION_NAME"
