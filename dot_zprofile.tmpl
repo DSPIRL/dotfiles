@@ -87,16 +87,17 @@ fi
 
 ##### EDITOR #####
 {{- if eq .chezmoi.os "linux" }}
-if command -v alacritty &>/dev/null; then
-  export USER_TERMINAL=alacritty
-  # export TERM=alacritty
+if command -v ghostty &>/dev/null; then
+    export USER_TERMINAL=ghostty
+else if command -v alacritty &>/dev/null;
+    export USER_TERMINAL=alacritty
 fi
 {{- end }}
 
 if command -v nvim &>/dev/null; then
-  export NVIM_PATH="$(command -v nvim)"
-  export VISUAL="${NVIM_PATH}"
-  export EDITOR="${NVIM_PATH}"
+    export NVIM_PATH="$(command -v nvim)"
+    export VISUAL="${NVIM_PATH}"
+    export EDITOR="${NVIM_PATH}"
 fi
 
 {{- if eq .chezmoi.os "linux" }}
