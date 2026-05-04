@@ -131,6 +131,14 @@ fi
 # Bind Ctrl+O to edit command in vim
 bind '"\C-o": edit-and-execute-command'
 
+if command -v fzf &>/dev/null && command -v tmux &>/dev/null; then
+    __tmux_session_fzf() {
+        "${HOME}/.local/scripts/tmux-session-fzf"
+    }
+
+    bind -x '"\es":__tmux_session_fzf'
+fi
+
 ##### SOURCE SHELL FILES #####
 source "${HOME}/.shell/aliases.sh"
 source "${HOME}/.shell/functions.sh"

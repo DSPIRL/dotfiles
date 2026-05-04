@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+if ! command -v tmux >/dev/null 2>&1 || ! command -v fzf >/dev/null 2>&1; then
+    exit 0
+fi
+
+session="$(tmux list-sessions -F '#{session_name}' 2>/dev/null | \
+    fzf --prompt='tmux sessions> ' --height=40% --reverse --border --exit-0)"
+
+if [ -z "$session" ]; then
+    exit 0
+fi
+
+if [ -n "$TMUX" ]; then
+    tmux switch-client -t "$session"
+else
+    tmux attach-session -t "$session"
+fi
