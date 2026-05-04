@@ -108,6 +108,15 @@ autoload -U edit-command-line
 zle -N edit-command-line
 bindkey '^O' edit-command-line
 
+if command -v fzf &>/dev/null && command -v tmux &>/dev/null; then
+  tmux-session-fzf() {
+    "${HOME}/.local/scripts/tmux-session-fzf"
+  }
+
+  zle -N tmux-session-fzf-widget tmux-session-fzf
+  bindkey '^[s' tmux-session-fzf-widget
+fi
+
 ##### ZSH PLUGINS #####
 {{- if $isDarwin }}
 [[ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && \
