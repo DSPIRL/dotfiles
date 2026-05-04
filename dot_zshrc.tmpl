@@ -113,8 +113,8 @@ if command -v fzf &>/dev/null && command -v tmux &>/dev/null; then
     "${HOME}/.local/scripts/tmux-session-fzf"
   }
 
-  zle -N tmux-session-fzf-widget tmux-session-fzf
-  bindkey '^[s' tmux-session-fzf-widget
+  bindkey -s '^[s' 'tmux-session-fzf
+'
 fi
 
 ##### ZSH PLUGINS #####
