@@ -111,10 +111,11 @@ bindkey '^O' edit-command-line
 if command -v fzf &>/dev/null && command -v tmux &>/dev/null; then
   tmux-session-fzf() {
     "${HOME}/.local/scripts/tmux-session-fzf"
+    zle reset-prompt
   }
 
-  bindkey -s '^[s' 'tmux-session-fzf
-'
+  zle -N tmux-session-fzf
+  bindkey '^[s' tmux-session-fzf
 fi
 
 ##### ZSH PLUGINS #####
