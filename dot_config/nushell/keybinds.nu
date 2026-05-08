@@ -9,10 +9,21 @@ if (which fzf | is-not-empty) {
               {
                   send:executehostcommand
                   cmd: "
-                      let fzf_ctrl_t_command = \"fd --type=file | fzf --preview 'bat --color=always --style=full --line-range=:500 {}'\";
-                      let result = nu -c $fzf_ctrl_t_command;
-                      commandline edit --append $result;
-                      commandline set-cursor --end
+                      let line = (commandline)
+                      let cursor = (commandline get-cursor)
+                      let before = if $cursor == 0 { '' } else { $line | str substring 0..($cursor - 1) }
+                      let after = if $cursor >= ($line | str length) { '' } else { $line | str substring $cursor..-1 }
+                      let token = ($before | str replace --regex '^.*\\s' '')
+                      let prefix_len = (($before | str length) - ($token | str length))
+                      let prefix = if $prefix_len == 0 { '' } else { $before | str substring 0..($prefix_len - 1) }
+                      let script = ($env.HOME | path join '.local' 'scripts' 'fzf-path-widget')
+                      let fzf = (^$script $token | complete)
+                      let result = ($fzf.stdout | lines | str join ' ')
+
+                      if $fzf.exit_code == 0 and ($result | is-not-empty) {
+                          commandline edit --replace $'($prefix)($result)($after)'
+                          commandline set-cursor (($prefix | str length) + ($result | str length))
+                      }
                   "
               }
           ]

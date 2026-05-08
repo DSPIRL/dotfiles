@@ -16,6 +16,27 @@ if command -v fzf &>/dev/null; then
   export FZF_ALT_C_COMMAND=""
 
   source <(fzf --zsh)
+
+  fzf-path-widget() {
+    local token prefix output selected quoted selection
+    token="${LBUFFER##*[[:space:]]}"
+    prefix="${LBUFFER[1,$(( ${#LBUFFER} - ${#token} ))]}"
+    output="$(${HOME}/.local/scripts/fzf-path-widget "$token")" || return
+    [[ -n "$output" ]] || return
+    selected=("${(@f)output}")
+    (( ${#selected} )) || return
+
+    quoted=()
+    for selection in "${selected[@]}"; do
+      quoted+=("${(q)selection}")
+    done
+
+    LBUFFER="${prefix}${(j: :)quoted}"
+    zle reset-prompt
+  }
+
+  zle -N fzf-path-widget
+  bindkey '^T' fzf-path-widget
 fi
 
 ##### WORKTRUNK #####
@@ -110,7 +131,8 @@ bindkey '^O' edit-command-line
 
 if command -v fzf &>/dev/null && command -v tmux &>/dev/null; then
   tmux-session-fzf() {
-    "${HOME}/.local/scripts/tmux-session-fzf"
+    zle -I
+    "${HOME}/.local/scripts/tmux-session-fzf" </dev/tty >/dev/tty 2>/dev/tty
     zle reset-prompt
   }
 

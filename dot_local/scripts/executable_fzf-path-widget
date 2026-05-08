@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+token=${1-}
+search_root=.
+query=$token
+
+if [[ $token == */* ]]; then
+  if [[ $token == */ ]]; then
+    raw_root=${token%/}
+    query=
+  else
+    raw_root=${token%/*}
+    query=${token##*/}
+  fi
+
+  [[ -z $raw_root ]] && raw_root=/
+
+  case $raw_root in
+    '~') search_root=$HOME ;;
+    '~/'*) search_root=${HOME}/${raw_root#~/} ;;
+    *) search_root=$raw_root ;;
+  esac
+
+  if [[ ! -d $search_root ]]; then
+    search_root=.
+    query=$token
+  fi
+fi
+
+if command -v fd >/dev/null 2>&1; then
+  fd --hidden --ignore-case --type=file --type=directory . "$search_root" | sed 's#^\./##'
+else
+  find "$search_root" \( -type f -o -type d \) 2>/dev/null | sed 's#^\./##'
+fi | fzf --query "$query"
