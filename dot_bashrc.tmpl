@@ -95,6 +95,28 @@ if command -v fzf &>/dev/null; then
     export FZF_DEFAULT_OPTS="--extended --multi --preview 'cat {}'"
     export FZF_CTRL_T_COMMAND="find . -printf '%P\\n'"
     export FZF_CTRL_T_OPTS="--preview='less {}' --bind shift-up:preview-page-up,shift-down:preview-page-down"
+
+    __fzf_path_widget() {
+        local before after token prefix selected quoted selection replacement
+        before=${READLINE_LINE:0:READLINE_POINT}
+        after=${READLINE_LINE:READLINE_POINT}
+        token=${before##*[[:space:]]}
+        prefix=${before:0:${#before}-${#token}}
+        selected=$("${HOME}/.local/scripts/fzf-path-widget" "$token") || return
+        [[ -n $selected ]] || return
+
+        quoted=()
+        while IFS= read -r selection; do
+            printf -v selection '%q' "$selection"
+            quoted+=("$selection")
+        done <<< "$selected"
+
+        replacement=${quoted[*]}
+        READLINE_LINE="${prefix}${replacement}${after}"
+        READLINE_POINT=$((${#prefix} + ${#replacement}))
+    }
+
+    bind -x '"\C-t":__fzf_path_widget'
 fi
 
 ##### ZOXIDE #####

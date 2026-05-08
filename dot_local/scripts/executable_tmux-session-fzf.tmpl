@@ -11,8 +11,9 @@ if [ -z "$session" ]; then
     exit 0
 fi
 
-if [ -n "$TMUX" ]; then
+if [ -n "${TMUX:-}" ] && tmux display-message -p '#{client_tty}' >/dev/null 2>&1; then
     tmux switch-client -t "$session"
 else
-    tmux attach-session -t "$session"
+    unset TMUX
+    exec tmux attach-session -t "$session"
 fi
