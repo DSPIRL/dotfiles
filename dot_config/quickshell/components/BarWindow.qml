@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.DBusMenu
 import Quickshell.Bluetooth
 import Quickshell.Hyprland
 import Quickshell.Io
@@ -640,6 +641,10 @@ PanelWindow {
               radius: 10
               color: trayMouse.containsMouse ? wallust.barHover : "transparent"
 
+              function openMenu() {
+                trayMenu.open();
+              }
+
               Behavior on color {
                 ColorAnimation {
                   duration: 120
@@ -650,6 +655,18 @@ PanelWindow {
                 anchors.centerIn: parent
                 implicitSize: 16
                 source: trayItem.icon
+              }
+
+              QsMenuAnchor {
+                id: trayMenu
+
+                menu: trayItem.menu
+
+                anchor {
+                  item: trayButton
+                  edges: Edges.Bottom | Edges.Left
+                  gravity: Edges.Bottom | Edges.Right
+                }
               }
 
               MouseArea {
@@ -663,8 +680,7 @@ PanelWindow {
                 onClicked: function(mouse) {
                   if (mouse.button === Qt.LeftButton) {
                     if (trayItem.onlyMenu && trayItem.hasMenu) {
-                      const point = barWindow.contentItem.mapFromItem(trayButton, trayButton.width / 2, trayButton.height);
-                      trayItem.display(barWindow, point.x, point.y);
+                      trayButton.openMenu();
                     } else {
                       trayItem.activate();
                     }
@@ -677,8 +693,7 @@ PanelWindow {
                   }
 
                   if (trayItem.hasMenu) {
-                    const point = barWindow.contentItem.mapFromItem(trayButton, trayButton.width / 2, trayButton.height);
-                    trayItem.display(barWindow, point.x, point.y);
+                    trayButton.openMenu();
                   } else {
                     trayItem.secondaryActivate();
                   }
