@@ -22,13 +22,13 @@ QtObject {
   readonly property color color14: "#AEDBF4"
   readonly property color color15: "#CEE4F1"
 
-  readonly property color barBackground: Qt.rgba(15 / 255, 16 / 255, 23 / 255, 0.18)
+  readonly property color barBackground: "#C00F1017"
   readonly property color barBorder: "#F3A4D4"
   readonly property color barText: "#E2F2FB"
   readonly property color barMutedText: "#90A0A9"
   readonly property color barAccentText: "#EBCBE7"
-  readonly property color barHover: Qt.rgba(206 / 255, 228 / 255, 241 / 255, 0.20)
-  readonly property color barActive: Qt.rgba(235 / 255, 203 / 255, 231 / 255, 0.25)
-  readonly property color barSeparator: Qt.rgba(226 / 255, 242 / 255, 251 / 255, 0.25)
+  readonly property color barHover: "#4DCEE4F1"
+  readonly property color barActive: "#66EBCBE7"
+  readonly property color barSeparator: "#66E2F2FB"
   readonly property color barCritical: "#E2A7D7"
 }
