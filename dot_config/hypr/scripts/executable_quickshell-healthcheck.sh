@@ -29,7 +29,7 @@ check_cmd playerctl
 
 check_file "$HOME/.config/quickshell/shell.qml"
 check_file "$HOME/.config/quickshell/components/BarWindow.qml"
-check_file "$HOME/.config/quickshell/wallust/Colors.qml"
+check_file "$HOME/.config/quickshell/default/wallust/Colors.qml"
 # check_file "$HOME/.config/swaync/wallust/colors-swaync.css"
 check_file "$HOME/.config/hypr/scripts/quickshell-reload.sh"
 check_file "$HOME/.config/hypr/scripts/colorpicker.sh"

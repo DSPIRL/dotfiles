@@ -6,6 +6,7 @@ import Quickshell.Bluetooth
 import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Services.Mpris
+import Quickshell.Services.Notifications
 import Quickshell.Services.Pipewire
 import Quickshell.Services.SystemTray
 import Quickshell.Services.UPower
@@ -45,6 +46,22 @@ PanelWindow {
   }
 
   property var hyprMonitor: Hyprland.monitorFor(screen)
+  property var notifications
+  property int notificationToggleGeneration: 0
+  property var focusedHyprMonitor
+  property bool notificationPanelOpen: false
+  property var toastNotification
+  property bool toastVisible: false
+  readonly property int notificationCount: notifications ? notifications.trackedNotifications.values.length : 0
+
+  onNotificationToggleGenerationChanged: {
+    const focused = isFocusedMonitor();
+    notificationPanelOpen = focused ? !notificationPanelOpen : false;
+  }
+
+  onNotificationPanelOpenChanged: if (notificationPanelOpen) {
+    toastVisible = false;
+  }
 
   readonly property var workspaceGlyphs: ({
     "1": "一",
@@ -210,6 +227,84 @@ PanelWindow {
   function workspaceText(workspace) {
     const key = workspace.name && workspace.name.length > 0 ? workspace.name : String(workspace.id);
     return workspaceGlyphs[key] || key;
+  }
+
+  function isFocusedMonitor() {
+    if (!focusedHyprMonitor || !hyprMonitor) {
+      return true;
+    }
+
+    return focusedHyprMonitor.id === hyprMonitor.id;
+  }
+
+  function notificationAccent(notification) {
+    if (notification && notification.urgency === NotificationUrgency.Critical) {
+      return wallust.barCritical;
+    }
+
+    if (notification && notification.urgency === NotificationUrgency.Low) {
+      return wallust.barMutedText;
+    }
+
+    return wallust.color3;
+  }
+
+  function notificationIcon(notification) {
+    if (notification && notification.appIcon && notification.appIcon.length > 0) {
+      return notification.appIcon;
+    }
+
+    return "";
+  }
+
+  function notificationToastDuration(notification) {
+    if (notification && notification.urgency === NotificationUrgency.Critical) {
+      return 9000;
+    }
+
+    if (notification && notification.urgency === NotificationUrgency.Low) {
+      return 3500;
+    }
+
+    return 5500;
+  }
+
+  function showNotificationToast(notification) {
+    if (!notification || !isFocusedMonitor()) {
+      return;
+    }
+
+    toastNotification = notification;
+    toastVisible = true;
+    toastTimer.interval = notificationToastDuration(notification);
+    toastTimer.restart();
+  }
+
+  function clearNotifications() {
+    if (!notifications) {
+      return;
+    }
+
+    const trackedNotifications = notifications.trackedNotifications.values;
+    for (let i = trackedNotifications.length - 1; i >= 0; i -= 1) {
+      trackedNotifications[i].dismiss();
+    }
+  }
+
+  Connections {
+    target: barWindow.notifications || null
+    ignoreUnknownSignals: true
+
+    function onNotification(notification) {
+      barWindow.showNotificationToast(notification);
+    }
+  }
+
+  Timer {
+    id: toastTimer
+
+    repeat: false
+    onTriggered: barWindow.toastVisible = false
   }
 
   function volumeIcon(volume, muted) {
@@ -511,8 +606,8 @@ PanelWindow {
                 anchors.centerIn: parent
                 text: barWindow.workspaceText(workspace)
                 color: workspace.active ? wallust.barAccentText : wallust.barMutedText
-                font.family: "JetBrainsMono Nerd Font"
-                font.pixelSize: 15
+                font.family: "Hack Nerd Font"
+                font.pixelSize: 16
               }
 
               MouseArea {
@@ -565,8 +660,8 @@ PanelWindow {
               horizontalAlignment: Text.AlignHCenter
               text: barWindow.spotifyDisplay
               color: wallust.barText
-              font.family: "JetBrainsMono Nerd Font"
-              font.pixelSize: 14
+              font.family: "Hack Nerd Font"
+              font.pixelSize: 16
             }
 
             MouseArea {
@@ -729,8 +824,8 @@ PanelWindow {
               anchors.centerIn: parent
               text: barWindow.toolsExpanded ? "" : ""
               color: wallust.barText
-              font.family: "JetBrainsMono Nerd Font"
-              font.pixelSize: 14
+              font.family: "Hack Nerd Font"
+              font.pixelSize: 16
             }
 
             MouseArea {
@@ -781,8 +876,8 @@ PanelWindow {
                   anchors.centerIn: parent
                   text: ""
                   color: wallust.barText
-                  font.family: "JetBrainsMono Nerd Font"
-                  font.pixelSize: 14
+                  font.family: "Hack Nerd Font"
+                  font.pixelSize: 16
                 }
 
                 MouseArea {
@@ -815,8 +910,8 @@ PanelWindow {
                   anchors.centerIn: parent
                   text: "󰅢 " + (utilityState.updatesCount >= 0 ? utilityState.updatesCount : "?")
                   color: wallust.barText
-                  font.family: "JetBrainsMono Nerd Font"
-                  font.pixelSize: 14
+                  font.family: "Hack Nerd Font"
+                  font.pixelSize: 16
                 }
 
                 MouseArea {
@@ -856,8 +951,8 @@ PanelWindow {
                   anchors.centerIn: parent
                   text: ""
                   color: utilityState.hyprsunsetActive ? wallust.color3 : wallust.barText
-                  font.family: "JetBrainsMono Nerd Font"
-                  font.pixelSize: 14
+                  font.family: "Hack Nerd Font"
+                  font.pixelSize: 16
                 }
 
                 MouseArea {
@@ -900,8 +995,8 @@ PanelWindow {
                   anchors.centerIn: parent
                   text: " " + utilityState.cpuUsage + "%"
                   color: wallust.barText
-                  font.family: "JetBrainsMono Nerd Font"
-                  font.pixelSize: 14
+                  font.family: "Hack Nerd Font"
+                  font.pixelSize: 16
                 }
 
                 MouseArea {
@@ -934,8 +1029,8 @@ PanelWindow {
                   anchors.centerIn: parent
                   text: " " + utilityState.memoryUsage + "%"
                   color: wallust.barText
-                  font.family: "JetBrainsMono Nerd Font"
-                  font.pixelSize: 14
+                  font.family: "Hack Nerd Font"
+                  font.pixelSize: 16
                 }
 
                 MouseArea {
@@ -964,8 +1059,8 @@ PanelWindow {
                   anchors.centerIn: parent
                   text: utilityState.hasTemperature ? " " + utilityState.temperature + "C" : " --"
                   color: wallust.barText
-                  font.family: "JetBrainsMono Nerd Font"
-                  font.pixelSize: 14
+                  font.family: "Hack Nerd Font"
+                  font.pixelSize: 16
                 }
 
                 MouseArea {
@@ -1006,7 +1101,7 @@ PanelWindow {
               anchors.centerIn: parent
               text: barWindow.defaultAudioSink ? barWindow.volumeIcon(barWindow.sinkVolume, barWindow.sinkMuted) + " " + Math.round(barWindow.sinkVolume * 100) + "%" : "󰝟 --"
               color: wallust.barText
-              font.family: "JetBrainsMono Nerd Font"
+              font.family: "Hack Nerd Font"
               font.pixelSize: 14
             }
 
@@ -1059,7 +1154,7 @@ PanelWindow {
               anchors.centerIn: parent
               text: barWindow.bluetoothLabel.length > 0 ? barWindow.bluetoothIcon + " " + barWindow.bluetoothLabel : barWindow.bluetoothIcon
               color: wallust.barText
-              font.family: "JetBrainsMono Nerd Font"
+              font.family: "Hack Nerd Font"
               font.pixelSize: 14
             }
 
@@ -1093,7 +1188,7 @@ PanelWindow {
               anchors.centerIn: parent
               text: networkState.icon
               color: wallust.barText
-              font.family: "JetBrainsMono Nerd Font"
+              font.family: "Hack Nerd Font"
               font.pixelSize: 14
             }
 
@@ -1128,7 +1223,7 @@ PanelWindow {
               anchors.centerIn: parent
               text: barWindow.batteryIcon(barWindow.batteryPercent, barWindow.displayBattery.state) + " " + barWindow.batteryPercent + "%"
               color: barWindow.batteryTextColor
-              font.family: "JetBrainsMono Nerd Font"
+              font.family: "Hack Nerd Font"
               font.pixelSize: 14
             }
 
@@ -1141,6 +1236,8 @@ PanelWindow {
           }
 
           Rectangle {
+            id: notificationButton
+
             implicitWidth: notificationLabel.implicitWidth + 12
             implicitHeight: 24
             radius: 10
@@ -1156,9 +1253,9 @@ PanelWindow {
               id: notificationLabel
 
               anchors.centerIn: parent
-              text: ""
+              text: barWindow.notificationCount > 0 ? " " + barWindow.notificationCount : ""
               color: wallust.barText
-              font.family: "JetBrainsMono Nerd Font"
+              font.family: "Hack Nerd Font"
               font.pixelSize: 14
             }
 
@@ -1171,9 +1268,7 @@ PanelWindow {
               cursorShape: Qt.PointingHandCursor
 
 
-              // TODO: replace swaync with quickshell notification panel
-              onClicked: barWindow.runCommand([])
-              // onClicked: barWindow.runCommand(["swaync-client", "-t", "-sw"])
+              onClicked: barWindow.notificationPanelOpen = !barWindow.notificationPanelOpen
             }
           }
 
@@ -1203,7 +1298,7 @@ PanelWindow {
               anchors.centerIn: parent
               text: "󰐥"
               color: wallust.barText
-              font.family: "JetBrainsMono Nerd Font"
+              font.family: "Hack Nerd Font"
               font.pixelSize: 14
             }
 
@@ -1220,43 +1315,489 @@ PanelWindow {
           }
         }
       }
+    }
+
+    PopupWindow {
+      id: notificationToast
+
+      visible: barWindow.toastVisible && barWindow.toastNotification && !barWindow.notificationPanelOpen
+      implicitWidth: 390
+      implicitHeight: toastContent.implicitHeight
+      color: "transparent"
+
+      anchor {
+        window: barWindow
+        adjustment: PopupAdjustment.Slide | PopupAdjustment.Resize
+
+        rect {
+          x: Math.round((barWindow.width - notificationToast.width) / 2)
+          y: Math.round(barWindow.height + 12)
+          width: notificationToast.width
+          height: notificationToast.height
+        }
+      }
+
+      onVisibleChanged: if (!visible) {
+        toastTimer.stop();
+      }
 
       Rectangle {
-        id: centerPill
+        id: toastContent
 
-        anchors.centerIn: parent
-        implicitWidth: clockLabel.implicitWidth + 18
-        implicitHeight: 30
-        radius: implicitHeight / 2
-        color: clockMouse.containsMouse ? wallust.barHover : wallust.barBackground
+        implicitHeight: toastColumn.implicitHeight + 20
+        anchors.fill: parent
+        radius: 18
+        color: wallust.barBackground
         border.width: 1
-        border.color: wallust.barBorder
-
-        Behavior on color {
-          ColorAnimation {
-            duration: 120
-          }
-        }
-
-        Text {
-          id: clockLabel
-
-          anchors.centerIn: parent
-          text: "󰥔 " + Qt.formatDateTime(clock.date, "HH:mm | d MMM")
-          color: wallust.barText
-          font.family: "JetBrainsMono Nerd Font"
-          font.pixelSize: 15
-        }
+        border.color: barWindow.notificationAccent(barWindow.toastNotification)
 
         MouseArea {
-          id: clockMouse
+          id: toastMouse
 
           anchors.fill: parent
           hoverEnabled: true
           cursorShape: Qt.PointingHandCursor
 
-          onClicked: barWindow.runCommand(["gnome-calendar"])
+          onClicked: {
+            barWindow.toastVisible = false;
+            barWindow.notificationPanelOpen = true;
+          }
         }
+
+        Column {
+          id: toastColumn
+
+          anchors.left: parent.left
+          anchors.right: parent.right
+          anchors.top: parent.top
+          anchors.margins: 10
+          spacing: 8
+
+          Row {
+            width: parent.width
+            spacing: 10
+
+            IconImage {
+              width: 28
+              height: 28
+              implicitSize: 22
+              source: barWindow.notificationIcon(barWindow.toastNotification)
+            }
+
+            Column {
+              width: parent.width - 28 - toastDismissButton.width - parent.spacing * 2
+              spacing: 2
+
+              Text {
+                width: parent.width
+                text: barWindow.toastNotification ? (barWindow.toastNotification.summary && barWindow.toastNotification.summary.length > 0 ? barWindow.toastNotification.summary : barWindow.toastNotification.appName) : ""
+                color: wallust.barText
+                elide: Text.ElideRight
+                font.family: "Hack Nerd Font"
+                font.pixelSize: 14
+                font.bold: true
+              }
+
+              Text {
+                visible: Boolean(barWindow.toastNotification && barWindow.toastNotification.appName && barWindow.toastNotification.appName.length > 0)
+                width: parent.width
+                text: barWindow.toastNotification ? barWindow.toastNotification.appName : ""
+                color: wallust.barMutedText
+                elide: Text.ElideRight
+                font.family: "Hack Nerd Font"
+                font.pixelSize: 12
+              }
+            }
+
+            Rectangle {
+              id: toastDismissButton
+
+              width: 24
+              height: 24
+              radius: 12
+              color: toastDismissMouse.containsMouse ? wallust.barHover : "transparent"
+
+              Text {
+                anchors.centerIn: parent
+                text: "󰅖"
+                color: wallust.barMutedText
+                font.family: "Hack Nerd Font"
+                font.pixelSize: 13
+              }
+
+              MouseArea {
+                id: toastDismissMouse
+
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+
+                onClicked: barWindow.toastVisible = false
+              }
+            }
+          }
+
+          Text {
+            visible: Boolean(barWindow.toastNotification && barWindow.toastNotification.body && barWindow.toastNotification.body.length > 0)
+            width: parent.width
+            text: barWindow.toastNotification ? barWindow.toastNotification.body : ""
+            color: wallust.barText
+            textFormat: Text.StyledText
+            wrapMode: Text.Wrap
+            maximumLineCount: 3
+            elide: Text.ElideRight
+            font.family: "Hack Nerd Font"
+            font.pixelSize: 13
+          }
+        }
+      }
+    }
+
+    PopupWindow {
+      id: notificationPanel
+
+      visible: barWindow.notificationPanelOpen
+      implicitWidth: 390
+      implicitHeight: Math.min(520, notificationPanelContent.implicitHeight)
+      color: "transparent"
+      grabFocus: false
+
+      anchor {
+        window: barWindow
+        adjustment: PopupAdjustment.Slide | PopupAdjustment.Resize
+
+        rect {
+          x: Math.round((barWindow.width - notificationPanel.width) / 2)
+          y: Math.round(barWindow.height + 12)
+          width: notificationPanel.width
+          height: notificationPanel.height
+        }
+      }
+
+      onClosed: barWindow.notificationPanelOpen = false
+      onVisibleChanged: if (visible) {
+        notificationPanelContent.forceActiveFocus();
+      }
+
+      Rectangle {
+        id: notificationPanelContent
+
+        anchors.fill: parent
+        focus: true
+        implicitHeight: notificationPanelColumn.implicitHeight + 24
+        radius: 18
+        color: wallust.barBackground
+        border.width: 1
+        border.color: wallust.barBorder
+
+        Keys.onEscapePressed: barWindow.notificationPanelOpen = false
+
+        Column {
+          id: notificationPanelColumn
+
+          x: 12
+          y: 12
+          width: parent.width - 24
+          spacing: 10
+
+          Row {
+            width: parent.width
+            height: 28
+            spacing: 8
+
+            Text {
+              width: parent.width - clearAllButton.width - parent.spacing
+              anchors.verticalCenter: parent.verticalCenter
+              text: barWindow.notificationCount === 1 ? "1 notification" : barWindow.notificationCount + " notifications"
+              color: wallust.barText
+              font.family: "Hack Nerd Font"
+              font.pixelSize: 15
+              font.bold: true
+            }
+
+            Rectangle {
+              id: clearAllButton
+
+              visible: barWindow.notificationCount > 0
+              width: clearAllLabel.implicitWidth + 16
+              height: 26
+              radius: 13
+              color: clearAllMouse.containsMouse ? wallust.barHover : "transparent"
+              border.width: 1
+              border.color: wallust.barBorder
+
+              Text {
+                id: clearAllLabel
+
+                anchors.centerIn: parent
+                text: "Clear"
+                color: wallust.barText
+                font.family: "Hack Nerd Font"
+                font.pixelSize: 13
+              }
+
+              MouseArea {
+                id: clearAllMouse
+
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+
+                onClicked: barWindow.clearNotifications()
+              }
+            }
+          }
+
+          Rectangle {
+            visible: barWindow.notificationCount === 0
+            width: parent.width
+            height: 104
+            radius: 14
+            color: "transparent"
+            border.width: 1
+            border.color: wallust.barBorder
+
+            Column {
+              anchors.centerIn: parent
+              spacing: 8
+
+              Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "󰂚"
+                color: wallust.barMutedText
+                font.family: "Hack Nerd Font"
+                font.pixelSize: 24
+              }
+
+              Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "No notifications"
+                color: wallust.barMutedText
+                font.family: "Hack Nerd Font"
+                font.pixelSize: 14
+              }
+            }
+          }
+
+          Flickable {
+            visible: barWindow.notificationCount > 0
+            width: parent.width
+            height: Math.min(430, notificationList.implicitHeight)
+            contentWidth: width
+            contentHeight: notificationList.implicitHeight
+            clip: true
+
+            Column {
+              id: notificationList
+
+              width: parent.width
+              spacing: 8
+
+              Repeater {
+                model: barWindow.notifications ? barWindow.notifications.trackedNotifications : null
+
+                Rectangle {
+                  required property var modelData
+                  readonly property var notification: modelData
+
+                  width: notificationList.width
+                  implicitHeight: notificationCardContent.implicitHeight + 20
+                  radius: 14
+                  color: notificationMouse.containsMouse ? wallust.barHover : "transparent"
+                  border.width: 1
+                  border.color: barWindow.notificationAccent(notification)
+
+                  MouseArea {
+                    id: notificationMouse
+
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    acceptedButtons: Qt.NoButton
+                  }
+
+                  Column {
+                    id: notificationCardContent
+
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.margins: 10
+                    spacing: 8
+
+                    Row {
+                      width: parent.width
+                      spacing: 10
+
+                      IconImage {
+                        width: 28
+                        height: 28
+                        implicitSize: 22
+                        source: barWindow.notificationIcon(notification)
+                      }
+
+                      Column {
+                        width: parent.width - 28 - dismissButton.width - parent.spacing * 2
+                        spacing: 2
+
+                        Text {
+                          width: parent.width
+                          text: notification.summary && notification.summary.length > 0 ? notification.summary : notification.appName
+                          color: wallust.barText
+                          elide: Text.ElideRight
+                          font.family: "Hack Nerd Font"
+                          font.pixelSize: 14
+                          font.bold: true
+                        }
+
+                        Text {
+                          visible: notification.appName && notification.appName.length > 0
+                          width: parent.width
+                          text: notification.appName
+                          color: wallust.barMutedText
+                          elide: Text.ElideRight
+                          font.family: "Hack Nerd Font"
+                          font.pixelSize: 12
+                        }
+                      }
+
+                      Rectangle {
+                        id: dismissButton
+
+                        width: 24
+                        height: 24
+                        radius: 12
+                        color: dismissMouse.containsMouse ? wallust.barHover : "transparent"
+
+                        Text {
+                          anchors.centerIn: parent
+                          text: "󰅖"
+                          color: wallust.barMutedText
+                          font.family: "Hack Nerd Font"
+                          font.pixelSize: 13
+                        }
+
+                        MouseArea {
+                          id: dismissMouse
+
+                          anchors.fill: parent
+                          hoverEnabled: true
+                          cursorShape: Qt.PointingHandCursor
+
+                          onClicked: notification.dismiss()
+                        }
+                      }
+                    }
+
+                    Text {
+                      visible: notification.body && notification.body.length > 0
+                      width: parent.width
+                      text: notification.body
+                      color: wallust.barText
+                      textFormat: Text.StyledText
+                      wrapMode: Text.Wrap
+                      maximumLineCount: 6
+                      elide: Text.ElideRight
+                      font.family: "Hack Nerd Font"
+                      font.pixelSize: 13
+                    }
+
+                    Image {
+                      visible: notification.image && notification.image.length > 0
+                      width: parent.width
+                      height: visible ? Math.min(160, implicitHeight) : 0
+                      source: notification.image
+                      fillMode: Image.PreserveAspectCrop
+                      clip: true
+                    }
+
+                    Row {
+                      visible: notification.actions.length > 0
+                      width: parent.width
+                      spacing: 6
+
+                      Repeater {
+                        model: notification.actions
+
+                        Rectangle {
+                          required property var modelData
+                          readonly property var action: modelData
+
+                          width: actionLabel.implicitWidth + 16
+                          height: 26
+                          radius: 13
+                          color: actionMouse.containsMouse ? wallust.barHover : "transparent"
+                          border.width: 1
+                          border.color: wallust.barBorder
+
+                          Text {
+                            id: actionLabel
+
+                            anchors.centerIn: parent
+                            text: action.text
+                            color: wallust.barText
+                            font.family: "Hack Nerd Font"
+                            font.pixelSize: 12
+                          }
+
+                          MouseArea {
+                            id: actionMouse
+
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+
+                            onClicked: {
+                              action.invoke();
+                              notification.dismiss();
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    Rectangle {
+      id: centerPill
+
+      anchors.centerIn: parent
+      implicitWidth: clockLabel.implicitWidth + 18
+      implicitHeight: 30
+      radius: implicitHeight / 2
+      color: clockMouse.containsMouse ? wallust.barHover : wallust.barBackground
+      border.width: 1
+      border.color: wallust.barBorder
+
+      Behavior on color {
+        ColorAnimation {
+          duration: 120
+        }
+      }
+
+      Text {
+        id: clockLabel
+
+        anchors.centerIn: parent
+        text: "󰥔 " + Qt.formatDateTime(clock.date, "HH:mm | d MMM")
+        color: wallust.barText
+        font.family: "Hack Nerd Font"
+        font.pixelSize: 15
+      }
+
+      MouseArea {
+        id: clockMouse
+
+        anchors.fill: parent
+        hoverEnabled: true
+        cursorShape: Qt.PointingHandCursor
+
+        onClicked: barWindow.runCommand(["gnome-calendar"])
       }
     }
   }
