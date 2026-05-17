@@ -1,0 +1,12 @@
+[Libinput][5426][124][Razer DeathAdder V2 Pro]
+PointerAccelerationProfile=1
+
+[Libinput][5426][125][Razer Razer DeathAdder V2 Pro]
+PointerAccelerationProfile=1
+
+[Libinput][5426][125][Razer Razer DeathAdder V2 Pro Mouse]
+PointerAccelerationProfile=1
+
+[Mouse]
+cursorSize=24
+cursorTheme=breeze_cursors
