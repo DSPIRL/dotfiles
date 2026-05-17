@@ -1,7 +1,7 @@
-*breeze
-*breeze-cursors
-*breeze-gtk
-*breeze-icons
+breeze
+breeze-cursors
+breeze-gtk
+breeze-icons
 cliphist
 hyprcursor
 hyprgraphics
@@ -16,10 +16,14 @@ hyprpolkitagent
 *hyprqt6engine
 hyprshot
 hyprsunset
+kde-gtk-config
 *kvantum
 *nwg-displays
 *nwg-look
+plasma-integration
 playerctl
+qt5-wayland
+qt6-wayland
 *qt6ct
 quickshell
 rofi
@@ -30,6 +34,7 @@ waypaper
 wl-clipboard
 wob
 xdg-desktop-portal
-*xdg-desktop-portal-gtk
+xdg-desktop-portal-gtk
 xdg-desktop-portal-hyprland
 xdg-desktop-portal-wlr
+xsettingsd
