@@ -3,7 +3,8 @@
 # Colors the cursor will use if `custom_cursor_colors` is true
 [colors.cursor]
 text = "#011423"
-cursor = "#47FF9C"
+cursor = "{{cursor}}"
+# cursor = "#47FF9C"
 
 [colors.primary]
 background = "{{background}}"

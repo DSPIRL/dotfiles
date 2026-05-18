@@ -13,9 +13,9 @@ dimensions = { columns = 125, lines = 45 }
 option_as_alt = "Both"
 
 [font]
-normal = { family = "JetBrainsMono Nerd Font", style = "Medium" }
-bold = { family = "JetBrainsMono Nerd Font", style = "Bold" }
-italic = { family = "JetBrainsMono Nerd Font", style = "Italic" }
+normal = { family = "Hack Nerd Font", style = "Medium" }
+bold = { family = "Hack Nerd Font", style = "Bold" }
+italic = { family = "Hack Nerd Font", style = "Italic" }
 size = 14
 
 [mouse]

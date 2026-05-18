@@ -8,9 +8,11 @@ import Quickshell.Services.Mpris
 import Quickshell.Services.Notifications
 import Quickshell.Services.Pipewire
 import Quickshell.Services.UPower
+import Quickshell.Wayland
 
 import "../wallust" as Wallust
 import "bar"
+import "control"
 import "notifications"
 
 PanelWindow {
@@ -23,13 +25,15 @@ PanelWindow {
   }
 
   margins {
-    top: 2
-    left: 8
-    right: 8
+    top: 0
+    left: 0
+    right: 0
   }
 
-  implicitHeight: 40
+  implicitHeight: 38
   color: "transparent"
+
+  WlrLayershell.namespace: "quickshell"
 
   Wallust.Colors {
     id: wallust
@@ -41,13 +45,16 @@ PanelWindow {
   }
 
   PwObjectTracker {
-    objects: [Pipewire.defaultAudioSink]
+    objects: barWindow.audioTrackedNodes
   }
 
   property var hyprMonitor: Hyprland.monitorFor(screen)
   property var notifications
   property int notificationToggleGeneration: 0
+  property int controlToggleGeneration: 0
   property var focusedHyprMonitor
+  property var ddcBrightnessState
+  property bool controlPanelOpen: false
   property bool notificationPanelOpen: false
   property var toastNotification
   property bool toastVisible: false
@@ -58,8 +65,19 @@ PanelWindow {
     notificationPanelOpen = focused ? !notificationPanelOpen : false;
   }
 
+  onControlToggleGenerationChanged: {
+    const focused = isFocusedMonitor();
+    controlPanelOpen = focused ? !controlPanelOpen : false;
+  }
+
   onNotificationPanelOpenChanged: if (notificationPanelOpen) {
     toastVisible = false;
+    controlPanelOpen = false;
+  }
+
+  onControlPanelOpenChanged: if (controlPanelOpen) {
+    toastVisible = false;
+    notificationPanelOpen = false;
   }
 
   readonly property var workspaceGlyphs: ({
@@ -76,8 +94,26 @@ PanelWindow {
   })
 
   readonly property var defaultAudioSink: Pipewire.defaultAudioSink
+  readonly property var defaultAudioSource: Pipewire.defaultAudioSource
   readonly property bool sinkMuted: defaultAudioSink && defaultAudioSink.audio ? defaultAudioSink.audio.muted : false
   readonly property real sinkVolume: defaultAudioSink && defaultAudioSink.audio ? defaultAudioSink.audio.volume : 0
+  readonly property bool sourceMuted: defaultAudioSource && defaultAudioSource.audio ? defaultAudioSource.audio.muted : false
+  readonly property real sourceVolume: defaultAudioSource && defaultAudioSource.audio ? defaultAudioSource.audio.volume : 0
+  readonly property var audioOutputDevices: audioDevices(false)
+  readonly property var audioInputDevices: audioDevices(true)
+  readonly property var audioTrackedNodes: {
+    const nodes = audioOutputDevices.concat(audioInputDevices);
+
+    if (defaultAudioSink) {
+      nodes.push(defaultAudioSink);
+    }
+
+    if (defaultAudioSource) {
+      nodes.push(defaultAudioSource);
+    }
+
+    return nodes;
+  }
 
   readonly property var bluetoothAdapter: Bluetooth.defaultAdapter
   readonly property int bluetoothConnectedCount: {
@@ -192,6 +228,87 @@ PanelWindow {
     }
 
     runCommand(["sh", "-c", home + "/.config/hypr/scripts/" + scriptName]);
+  }
+
+  function setDdcBrightness(display, percent, maximum) {
+    if (ddcBrightnessState) {
+      ddcBrightnessState.setBrightness(display, percent, maximum);
+    }
+  }
+
+  function audioDevices(input) {
+    const nodes = Pipewire.nodes.values || [];
+    const devices = [];
+
+    for (let i = 0; i < nodes.length; i += 1) {
+      const node = nodes[i];
+      if (!node || !node.audio || node.isStream) {
+        continue;
+      }
+
+      if (input && node.isSink) {
+        continue;
+      }
+
+      if (!input && !node.isSink) {
+        continue;
+      }
+
+      devices.push(node);
+    }
+
+    return devices;
+  }
+
+  function audioNodeLabel(node) {
+    if (!node) {
+      return "Audio device";
+    }
+
+    if (node.description && node.description.length > 0) {
+      return node.description;
+    }
+
+    if (node.nickname && node.nickname.length > 0) {
+      return node.nickname;
+    }
+
+    if (node.name && node.name.length > 0) {
+      return node.name;
+    }
+
+    return "Audio device";
+  }
+
+  function isDefaultAudioDevice(node, input) {
+    const current = input ? defaultAudioSource : defaultAudioSink;
+    return Boolean(node && current && (node === current || node.id === current.id));
+  }
+
+  function setDefaultAudioDevice(node, input) {
+    if (!node) {
+      return;
+    }
+
+    if (input) {
+      Pipewire.preferredDefaultAudioSource = node;
+    } else {
+      Pipewire.preferredDefaultAudioSink = node;
+    }
+  }
+
+  function setAudioDeviceVolume(node, volume) {
+    if (!node || !node.audio) {
+      return;
+    }
+
+    node.audio.volume = Math.max(0, Math.min(1, volume));
+  }
+
+  function toggleAudioDeviceMute(node) {
+    if (node && node.audio) {
+      node.audio.muted = !node.audio.muted;
+    }
   }
 
   function shorten(text, maxLength) {
@@ -591,6 +708,11 @@ PanelWindow {
     }
 
     NotificationPanel {
+      bar: barWindow
+      wallust: wallust
+    }
+
+    ControlPanel {
       bar: barWindow
       wallust: wallust
     }

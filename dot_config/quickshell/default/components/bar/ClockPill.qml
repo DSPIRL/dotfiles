@@ -7,11 +7,11 @@ Rectangle {
   property var wallust
   property var clock
 
-  implicitWidth: clockLabel.implicitWidth + 18
-  implicitHeight: 30
+  implicitWidth: clockLabel.implicitWidth + 22
+  implicitHeight: 32
   radius: implicitHeight / 2
   color: clockMouse.containsMouse ? wallust.barHover : wallust.barBackground
-  border.width: 1
+  border.width: 1.5
   border.color: wallust.barBorder
 
   Behavior on color {

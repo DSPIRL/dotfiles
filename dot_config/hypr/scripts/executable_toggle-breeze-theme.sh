@@ -231,7 +231,7 @@ apply_mode() {
   apply_kde_settings "$look_and_feel" "$color_scheme" "$icon_theme" "$cursor_theme"
   apply_runtime_settings "$cursor_theme"
 
-  notify "Applied Breeze ${mode}"
+  # notify "Applied Breeze ${mode}"
 }
 
 case "${1:-toggle}" in

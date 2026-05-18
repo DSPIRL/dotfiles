@@ -8,11 +8,11 @@ Rectangle {
   property var bar
   property var wallust
 
-  implicitWidth: workspaceRow.implicitWidth + 16
-  implicitHeight: 30
+  implicitWidth: workspaceRow.implicitWidth + 22
+  implicitHeight: 32
   radius: implicitHeight / 2
   color: wallust.barBackground
-  border.width: 1
+  border.width: 1.5
   border.color: wallust.barBorder
 
   MouseArea {

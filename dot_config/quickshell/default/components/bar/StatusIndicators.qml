@@ -26,7 +26,7 @@ Row {
       text: bar.defaultAudioSink ? bar.volumeIcon(bar.sinkVolume, bar.sinkMuted) + " " + Math.round(bar.sinkVolume * 100) + "%" : "󰝟 --"
       color: wallust.barText
       font.family: "Hack Nerd Font"
-      font.pixelSize: 14
+      font.pixelSize: 15
     }
 
     MouseArea {
@@ -149,6 +149,38 @@ Row {
       id: batteryMouse
       anchors.fill: parent
       hoverEnabled: true
+    }
+  }
+
+  Rectangle {
+    implicitWidth: controlPanelLabel.implicitWidth + 12
+    implicitHeight: 24
+    radius: 10
+    color: controlPanelMouse.containsMouse || bar.controlPanelOpen ? wallust.barHover : "transparent"
+
+    Behavior on color {
+      ColorAnimation {
+        duration: 120
+      }
+    }
+
+    Text {
+      id: controlPanelLabel
+      anchors.centerIn: parent
+      text: "󰒓"
+      color: bar.controlPanelOpen ? wallust.color3 : wallust.barText
+      font.family: "Hack Nerd Font"
+      font.pixelSize: 14
+    }
+
+    MouseArea {
+      id: controlPanelMouse
+      anchors.fill: parent
+      hoverEnabled: true
+      acceptedButtons: Qt.LeftButton
+      cursorShape: Qt.PointingHandCursor
+
+      onClicked: bar.controlPanelOpen = !bar.controlPanelOpen
     }
   }
 
