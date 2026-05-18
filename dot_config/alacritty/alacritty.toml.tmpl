@@ -7,13 +7,21 @@ TERM = "xterm-256color"
 [window]
 padding = { x = 4, y = 4 }
 decorations = "Buttonless"
+{{ if .isDarwin }}
+opacity = 0.9
+{{ else if .isLinux }}
 opacity = 1
+{{ end }}
 blur = true
 dimensions = { columns = 125, lines = 45 }
 option_as_alt = "Both"
 
 [font]
+{{ if .isDarwin }}
 normal = { family = "Hack Nerd Font", style = "Medium" }
+{{ if .isDarwin }}
+normal = { family = "Hack Nerd Font", style = "Regular" }
+{{ end }}
 bold = { family = "Hack Nerd Font", style = "Bold" }
 italic = { family = "Hack Nerd Font", style = "Italic" }
 size = 14
