@@ -3,14 +3,19 @@
 [general]
 import = ["./colors.toml"]
 
+[selection]
+save_to_clipboard = true
+
 [env]
 TERM = "xterm-256color"
 
 [window]
 padding = { x = 4, y = 4 }
 decorations = "Buttonless"
+dynamic_padding = true
+resize_increments = true
 {{- if $isDarwin }}
-opacity = 0.9
+opacity = 0.8
 {{- else if $isLinux }}
 opacity = 1
 {{- end }}
@@ -18,7 +23,14 @@ blur = true
 dimensions = { columns = 125, lines = 45 }
 option_as_alt = "Both"
 
+[scrolling]
+history = 100000
+multiplier = 3
+
 [font]
+offset = { x = 2, y = 0 }
+glyph_offset = { x = 0, y = 0 }
+builtin_box_drawing = true
 {{- if $isDarwin }}
 normal = { family = "Hack Nerd Font", style = "Regular" }
 {{- else if $isLinux }}
@@ -37,3 +49,5 @@ bindings = [
   { key = "Space", mods = "Control|Alt", action = "ToggleViMode" },
 ]
 
+[colors]
+draw_bold_text_with_bright_colors = true
