@@ -10,11 +10,11 @@ Rectangle {
   property var updatesProcess
   property var networkState
 
-  implicitWidth: rightRow.implicitWidth + 16
-  implicitHeight: 30
+  implicitWidth: rightRow.implicitWidth + 22
+  implicitHeight: 32
   radius: implicitHeight / 2
   color: wallust.barBackground
-  border.width: 1
+  border.width: 1.5
   border.color: wallust.barBorder
 
   Row {

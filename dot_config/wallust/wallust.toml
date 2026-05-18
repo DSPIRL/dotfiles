@@ -5,6 +5,7 @@
 backend = "full"
 color_space = "labmixed"
 palette = "dark"
+check_contrast = true
 
 threshold = 15
 
@@ -13,6 +14,8 @@ cava = { template = 'colors-cava', target = '~/.config/cava/config' }
 ghostty = { template = 'colors-ghostty.conf', target = '~/.config/ghostty/themes/wallust.conf' }
 alacritty = { template = 'alacritty-colors.toml', target = '~/.config/alacritty/colors.toml' }
 hypr = { template = 'colors-hypr.conf', target = '~/.config/hypr/themes/wallust.conf' }
+ncspot = { template = 'ncspot-config.toml', target = '~/.config/ncspot/config.toml' }
+ncspot_colors = { template = 'ncspot-colors.toml', target = '~/.config/ncspot/colors.toml' }
 rofi = { template = 'colors-rofi.rasi', target = '~/.config/rofi/wallust/colors-rofi.rasi' }
 swaync = { template = 'colors-swaync.css', target = '~/.config/swaync/wallust/colors-swaync.css' }
-quickshell = { template = 'colors-quickshell.qml', target = '~/.config/quickshell/wallust/Colors.qml' }
+quickshell = { template = 'colors-quickshell.qml', target = '~/.config/quickshell/default/wallust/Colors.qml' }

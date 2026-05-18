@@ -1,8 +1,9 @@
 import QtQuick
 import Quickshell
+import Quickshell.Wayland
 import Quickshell.Widgets
 
-PopupWindow {
+PanelWindow {
   id: root
 
   property var bar
@@ -10,22 +11,22 @@ PopupWindow {
   property var notification
   property var timer
 
-  visible: bar && bar.toastVisible && notification && !bar.notificationPanelOpen
+  visible: bar && bar.toastVisible && notification && !bar.notificationPanelOpen && !bar.controlPanelOpen
   implicitWidth: 390
   implicitHeight: toastContent.implicitHeight
   color: "transparent"
+  screen: bar ? bar.screen : null
+  exclusionMode: ExclusionMode.Ignore
 
-  anchor {
-    window: bar
-    adjustment: PopupAdjustment.Slide | PopupAdjustment.Resize
-
-    rect {
-      x: Math.round((bar.width - root.width) / 2)
-      y: Math.round(bar.height + 12)
-      width: root.width
-      height: root.height
-    }
+  anchors {
+    top: true
   }
+
+  margins {
+    top: bar ? bar.height + 12 : 50
+  }
+
+  WlrLayershell.namespace: "quickshell"
 
   onVisibleChanged: if (!visible && timer) {
     timer.stop();

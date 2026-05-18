@@ -1,7 +1,8 @@
 import QtQuick
 import Quickshell
+import Quickshell.Wayland
 
-PopupWindow {
+PanelWindow {
   id: root
 
   property var bar
@@ -11,21 +12,20 @@ PopupWindow {
   implicitWidth: 390
   implicitHeight: Math.min(520, notificationPanelContent.implicitHeight)
   color: "transparent"
-  grabFocus: false
+  screen: bar ? bar.screen : null
+  focusable: visible
+  exclusionMode: ExclusionMode.Ignore
 
-  anchor {
-    window: bar
-    adjustment: PopupAdjustment.Slide | PopupAdjustment.Resize
-
-    rect {
-      x: Math.round((bar.width - root.width) / 2)
-      y: Math.round(bar.height + 12)
-      width: root.width
-      height: root.height
-    }
+  anchors {
+    top: true
   }
 
-  onClosed: bar.notificationPanelOpen = false
+  margins {
+    top: bar ? bar.height + 12 : 50
+  }
+
+  WlrLayershell.namespace: "quickshell"
+
   onVisibleChanged: if (visible) {
     notificationPanelContent.forceActiveFocus();
   }
@@ -140,7 +140,6 @@ PopupWindow {
 
         Column {
           id: notificationList
-
           width: parent.width
           spacing: 8
 
@@ -149,7 +148,6 @@ PopupWindow {
 
             NotificationCard {
               required property var modelData
-
               width: notificationList.width
               notification: modelData
               bar: root.bar

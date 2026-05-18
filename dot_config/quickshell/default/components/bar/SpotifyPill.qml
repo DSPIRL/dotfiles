@@ -30,7 +30,7 @@ Rectangle {
     text: bar.spotifyDisplay
     color: wallust.barText
     font.family: "Hack Nerd Font"
-    font.pixelSize: 16
+    font.pixelSize: 15
   }
 
   MouseArea {
