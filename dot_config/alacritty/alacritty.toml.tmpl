@@ -1,3 +1,5 @@
+{{- $isDarwin := eq .chezmoi.os "darwin" -}}
+{{- $isLinux := eq .chezmoi.os "linux" -}}
 [general]
 import = ["./colors.toml"]
 
@@ -7,21 +9,21 @@ TERM = "xterm-256color"
 [window]
 padding = { x = 4, y = 4 }
 decorations = "Buttonless"
-{{ if .isDarwin }}
+{{- if $isDarwin }}
 opacity = 0.9
-{{ else if .isLinux }}
+{{- else if $isLinux }}
 opacity = 1
-{{ end }}
+{{- end }}
 blur = true
 dimensions = { columns = 125, lines = 45 }
 option_as_alt = "Both"
 
 [font]
-{{ if .isDarwin }}
-normal = { family = "Hack Nerd Font", style = "Medium" }
-{{ if .isDarwin }}
+{{- if $isDarwin }}
 normal = { family = "Hack Nerd Font", style = "Regular" }
-{{ end }}
+{{- else if $isLinux }}
+normal = { family = "Hack Nerd Font", style = "Medium" }
+{{- end }}
 bold = { family = "Hack Nerd Font", style = "Bold" }
 italic = { family = "Hack Nerd Font", style = "Italic" }
 size = 14
@@ -32,5 +34,6 @@ hide_when_typing = true
 [keyboard]
 bindings = [
   { key = "F", mods = "Control|Alt|Shift", action = "ToggleFullscreen" },
-  { key = "Space", mods = "Control|Alt|Shift", action = "ToggleViMode" },
+  { key = "Space", mods = "Control|Alt", action = "ToggleViMode" },
 ]
+

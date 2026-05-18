@@ -1,7 +1,5 @@
 {{- $isWSL := and (eq .chezmoi.os "linux") (contains "microsoft" .chezmoi.kernel.osrelease) -}}
 {{- $isCachyOS := and (eq .chezmoi.os "linux") (hasKey .chezmoi.osRelease "id") (eq .chezmoi.osRelease.id "cachyos") -}}
-{{- $isDarwin := eq .chezmoi.os "darwin" -}}
-{{- $isLinux := eq .chezmoi.os "linux" -}}
 {{- $keepassDB := joinPath .chezmoi.homeDir "Documents/Syncs/Phone Backup/KeePass/Passwords.kdbx" -}}
 {{- $useKeePassXC := and (not $isWSL) (stat $keepassDB) -}}
 
