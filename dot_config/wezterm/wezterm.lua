@@ -35,7 +35,7 @@ local operatingSystem = trim(getOperatingSystem())
 if operatingSystem == "Darwin" then
 	config.window_decorations = "RESIZE"
 	config.macos_window_background_blur = 30
-	config.window_background_opacity = 0.85
+	config.window_background_opacity = 0.90
 	config.enable_tab_bar = false
 	config.font_size = 13
 	-- config.send_composed_key_when_left_alt_is_pressed = false
@@ -51,7 +51,7 @@ end
 config.adjust_window_size_when_changing_font_size = false
 config.hide_mouse_cursor_when_typing = true
 config.anti_alias_custom_block_glyphs = true
-config.font = wezterm.font("JetBrains Mono")
+config.font = wezterm.font("JetBrainsMono Nerd Font")
 
 config.initial_cols = 150
 config.initial_rows = 50
