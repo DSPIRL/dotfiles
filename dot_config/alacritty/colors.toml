@@ -3,29 +3,29 @@
 # Colors the cursor will use if `custom_cursor_colors` is true
 [colors.cursor]
 text = "#011423"
-cursor = "#EBCBE7"
+cursor = "#EEB0C0"
 # cursor = "#47FF9C"
 
 [colors.primary]
-background = "#0F1017"
-foreground = "#E2F2FB"
+background = "#131314"
+foreground = "#F9E7CF"
 
 [colors.normal]
-black = "#37383F"
-red = "#D3D87C"
-green = "#F3A4D4"
-yellow = "#D1BFDA"
-blue = "#CBD488"
-magenta = "#D3D87C"
-cyan = "#AEDBF4"
-white = "#CEE4F1"
+black = "#3B3A3B"
+red = "#7FC0EB"
+green = "#E379B1"
+yellow = "#ED8336"
+blue = "#71A6DA"
+magenta = "#7FC0EB"
+cyan = "#EEB976"
+white = "#EED4B2"
 
 [colors.bright]
-black = "#90A0A9"
-red = "#D3D87C"
-green = "#F3A4D4"
-yellow = "#D1BFDA"
-blue = "#CBD488"
-magenta = "#D3D87C"
-cyan = "#AEDBF4"
-white = "#CEE4F1"
+black = "#A7947D"
+red = "#7FC0EB"
+green = "#E379B1"
+yellow = "#ED8336"
+blue = "#71A6DA"
+magenta = "#7FC0EB"
+cyan = "#EEB976"
+white = "#EED4B2"
