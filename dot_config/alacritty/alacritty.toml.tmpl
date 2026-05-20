@@ -28,12 +28,13 @@ history = 100000
 multiplier = 3
 
 [font]
-offset = { x = 2, y = 0 }
 glyph_offset = { x = 0, y = 0 }
 builtin_box_drawing = true
 {{- if $isDarwin }}
+offset = { x = 2, y = 0 }
 normal = { family = "Hack Nerd Font", style = "Regular" }
 {{- else if $isLinux }}
+offset = { x = 0, y = 0 }
 normal = { family = "Hack Nerd Font", style = "Medium" }
 {{- end }}
 bold = { family = "Hack Nerd Font", style = "Bold" }
