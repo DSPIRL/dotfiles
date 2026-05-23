@@ -1,3 +1,6 @@
 #!/usr/bin/env bash
 
+# Toggle a command by process name: stop it if it is already running, start it otherwise.
+# The first argument is used to find/kill the process; all arguments are used when starting it.
+
 pgrep -f $1 &>/dev/null && killall $1 || $* &
