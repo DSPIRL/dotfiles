@@ -18,6 +18,9 @@
  # .zshrc
 {{- end }}
 
+# MacOS Stuff
+.DS_Store
+
 # Auxiliary directories (not deployed to ~)
 docs/
 install_scripts/
