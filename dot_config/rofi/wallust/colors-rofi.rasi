@@ -1,19 +1,19 @@
 * {
-    selected-text:	#37383F;
-    selected-background: #CBD488;
+    selected-text:	#3B3A3B;
+    selected-background: #71A6DA;
 
-    prompt-text: #37383F;
+    prompt-text: #3B3A3B;
     prompt-background: transparent;
 
-    normal-text: #E2F2FB;
+    normal-text: #F9E7CF;
     normal-background: transparent;
 
-    window-border: #CBD488;
-    window-background: #AEDBF40D;
+    window-border: #71A6DA;
+    window-background: #EEB9760D;
 
-    scrollbar-filled: #CBD488;
-    scrollbar-empty: #37383F;
+    scrollbar-filled: #71A6DA;
+    scrollbar-empty: #3B3A3B;
 
-    error-message: #CEE4F1;
-    error-message-border: #CEE4F1;
+    error-message: #EED4B2;
+    error-message-border: #EED4B2;
 }

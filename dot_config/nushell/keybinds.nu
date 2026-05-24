@@ -31,25 +31,23 @@ if (which fzf | is-not-empty) {
   ]
 }
 
-if ((which fzf | is-not-empty) and (which tmux | is-not-empty)) {
-  $env.config.keybindings ++= [
-      {
-          name: tmux_sessions
-          modifier: alt
-          keycode: char_s
-          mode: [emacs, vi_normal, vi_insert]
-          event: [
-              {
-                  send: executehostcommand
-                  cmd: "
-                      let script = ($env.HOME | path join '.local' 'scripts' 'tmux-session-fzf')
-                      run-external $script
-                  "
-              }
-          ]
-      }
-  ]
-}
+$env.config.keybindings ++= [
+    {
+        name: tmux_sessions
+        modifier: alt
+        keycode: char_s
+        mode: [emacs, vi_normal, vi_insert]
+        event: [
+            {
+                send: executehostcommand
+                cmd: "
+                    let script = ($env.HOME | path join '.local' 'scripts' 'tmux-session-fzf')
+                    run-external $script
+                "
+            }
+        ]
+    }
+]
 
 $env.config.keybindings ++= [
     {
