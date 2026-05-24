@@ -37,8 +37,8 @@ return {
 			require("nvim-silicon").setup({
 				font = "FiraCode Nerd Font=34;Hack Nerd Font=34;Jetbrains Mono Nerd Font=34;Noto Color Emoji=34",
 				theme = "Dracula",
-				background = "#94e2d5",
-				-- background_image = string.format("%s/.config/silicon/background.jpg", home),
+				-- background = "#94e2d5",
+				background_image = string.format("%s/.config/silicon/background.jpeg", home),
 				to_clipboard = true,
 				no_window_controls = true,
 				pad_horiz = 70,
