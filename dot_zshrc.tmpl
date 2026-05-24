@@ -129,16 +129,15 @@ autoload -U edit-command-line
 zle -N edit-command-line
 bindkey '^O' edit-command-line
 
-if command -v fzf &>/dev/null && command -v tmux &>/dev/null; then
-  tmux-session-fzf() {
-    zle -I
-    "${HOME}/.local/scripts/tmux-session-fzf" </dev/tty >/dev/tty 2>/dev/tty
-    zle reset-prompt
-  }
+__tmux_session_fzf_widget() {
+  [[ -n "${BUFFER}" ]] && zle push-line
+  BUFFER="${HOME}/.local/scripts/tmux-session-fzf"
+  CURSOR=${#BUFFER}
+  zle accept-line
+}
 
-  zle -N tmux-session-fzf
-  bindkey '^[s' tmux-session-fzf
-fi
+zle -N __tmux_session_fzf_widget
+bindkey '^[s' __tmux_session_fzf_widget
 
 ##### ZSH PLUGINS #####
 {{- if $isDarwin }}
