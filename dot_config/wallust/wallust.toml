@@ -2,7 +2,7 @@
 # color_space = "lch"
 # palette = "dark"
 
-backend = "full"
+backend = "resized"
 color_space = "labmixed"
 palette = "dark"
 check_contrast = true
