@@ -1,0 +1,58 @@
+name: virtuous-laziness-stack
+version: 0.1.0
+purpose: Make AI-assisted engineering optimize for maintainability, restraint, and durable project memory.
+
+principles:
+  - id: virtuous-laziness
+    path: principles/virtuous-laziness.md
+
+workflows:
+  - id: change-orchestration
+    path: workflows/change-orchestration.md
+
+agents:
+  - id: implementer
+    path: agents/implementer.md
+    trigger: Any requested code change.
+  - id: simplifier
+    path: agents/simplifier.md
+    trigger: Large diffs, new files, new abstractions, generated code, or uncertain implementations.
+  - id: security-reviewer
+    path: agents/security-reviewer.md
+    trigger: Auth, authorization, external input, secrets, filesystem, network, database, or dependency changes.
+  - id: documentation-steward
+    path: agents/documentation-steward.md
+    trigger: Public behavior, setup, API, workflow, or architecture changes.
+  - id: decision-scribe
+    path: agents/decision-scribe.md
+    trigger: Durable decisions, conventions, tradeoffs, non-goals, or context future agents should preserve.
+
+skills:
+  - id: virtuous-laziness
+    path: skills/virtuous-laziness.md
+    trigger: Any code change or implementation review.
+  - id: simplicity-review
+    path: skills/simplicity-review.md
+    trigger: Reviewing a diff for unnecessary complexity.
+  - id: security-review
+    path: skills/security-review.md
+    trigger: Reviewing a change for vulnerabilities and trust-boundary risks.
+  - id: documentation-stewardship
+    path: skills/documentation-stewardship.md
+    trigger: Creating or updating project documentation.
+  - id: decision-scribe
+    path: skills/decision-scribe.md
+    trigger: Recording durable project reasoning in CONTEXT.md or ADRs.
+
+templates:
+  - templates/AGENTS.md
+  - templates/CONTEXT.md
+  - templates/adr-template.md
+  - templates/review-report.md
+  - templates/security-report.md
+
+adapters:
+  opencode: adapters/opencode/README.md
+  claude-code: adapters/claude-code/README.md
+  codex: adapters/codex/README.md
+  pi: adapters/pi/README.md
