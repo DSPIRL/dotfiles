@@ -199,7 +199,7 @@ apply_mode() {
 
   case "$mode" in
     dark)
-      gtk_theme="Breeze-Dark"
+      gtk_theme="Breeze"
       icon_theme="breeze-dark"
       cursor_theme="breeze_cursors"
       prefer_dark="true"
