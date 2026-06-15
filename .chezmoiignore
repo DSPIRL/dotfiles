@@ -18,6 +18,11 @@
  # .zshrc
 {{- end }}
 
+{{- $useHyprland := and (eq .chezmoi.os "linux") (or (stat "/usr/bin/Hyprland") (stat "/usr/bin/hyprctl")) }}
+{{ if not $useHyprland }}
+.config/systemd/user/hyprland-session.target
+{{- end }}
+
 # MacOS Stuff
 .DS_Store
 
