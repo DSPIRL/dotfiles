@@ -2,9 +2,14 @@
 # color_space = "lch"
 # palette = "dark"
 
+# backend = "resized"
+# color_space = "labmixed"
+# palette = "dark"
+
 backend = "resized"
-color_space = "labmixed"
+color_space = "lab"
 palette = "dark"
+
 check_contrast = true
 
 threshold = 15

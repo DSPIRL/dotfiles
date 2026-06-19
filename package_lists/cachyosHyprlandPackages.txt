@@ -27,6 +27,8 @@ qt6-wayland
 *qt6ct
 quickshell
 rofi
+rofimoji
+rofi-calc
 swaync
 swww
 wallust

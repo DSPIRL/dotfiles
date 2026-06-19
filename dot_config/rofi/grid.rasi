@@ -1,0 +1,29 @@
+@import "~/.config/rofi/config.rasi" 
+
+textbox {
+    vertical-align:   0.5;
+    horizontal-align: 0.5;
+}
+
+listview {
+    columns:       5;
+    lines:         4;
+    cycle:         true;
+    dynamic:       true;
+    layout:        vertical;
+    flow:          horizontal;
+    reverse:       false;
+    fixed-height:  true;
+    fixed-columns: true;
+}
+
+element {
+    orientation: vertical;
+    padding: 18px 24px;
+}
+
+element-text {
+    font: "Roboto 24";
+    vertical-align:   0.5;
+    horizontal-align: 0.5;
+}
