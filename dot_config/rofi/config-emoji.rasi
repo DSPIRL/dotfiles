@@ -1,0 +1,8 @@
+@import "~/.config/rofi/config.rasi" 
+@import "~/.config/rofi/grid.rasi" 
+
+/* ---- Entry ---- */
+entry {
+    placeholder: " 🙂 Emojis";
+}
+
