@@ -9,3 +9,8 @@ mainbox {
 entry {
   placeholder: " 📋 Clipboard ";
 }
+
+element-icon {
+    size: 1em;
+    background-color: transparent;
+}

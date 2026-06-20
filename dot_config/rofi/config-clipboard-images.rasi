@@ -1,0 +1,32 @@
+@import "~/.config/rofi/grid.rasi"
+
+mainbox {
+  children: [ "inputbar", "message", "listview"];
+}
+
+entry {
+  placeholder: " 🖼 Clipboard Images ";
+}
+
+listview {
+  columns: 3;
+  lines: 3;
+}
+
+window {
+    width: 850px;
+}
+
+element {
+    padding: 5px;
+    margin: 2px;
+}
+
+element-icon {
+    size: 200px;
+    background-color: transparent;
+}
+
+element-text {
+    enabled: false;
+}

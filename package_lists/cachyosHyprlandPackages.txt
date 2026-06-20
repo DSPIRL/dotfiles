@@ -3,6 +3,8 @@ breeze-cursors
 breeze-gtk
 breeze-icons
 cliphist
+greetd
+greetd-tuigreet
 hyprcursor
 hyprgraphics
 hypridle
