@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+if [[ -n "$1" ]]; then
+    cliphist decode <<<"$1" | wl-copy
+    exit
+fi
+
+cliphist list | gawk '
+/^[0-9]+\s<meta http-equiv=/ { next }
+/^[0-9]+\s(\[\[\s)?binary.*(jpg|jpeg|png|bmp)/ { next }
+1
+'

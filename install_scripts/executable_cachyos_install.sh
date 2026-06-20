@@ -10,6 +10,19 @@ DOTSCRIPTS="${DOTS}/install_scripts"
 DOTMODS="${DOTSCRIPTS}/modules"
 #==============================================================#
 
+run_module() {
+    local module="$1"
+
+    if [[ -f "${DOTMODS}/${module}" ]]; then
+        bash "${DOTMODS}/${module}"
+    elif [[ -f "${DOTMODS}/executable_${module}" ]]; then
+        bash "${DOTMODS}/executable_${module}"
+    else
+        echo "Missing install module: ${module}" >&2
+        return 1
+    fi
+}
+
 if [[ -r /etc/os-release ]]; then
     # shellcheck disable=SC1091
     . /etc/os-release
@@ -33,12 +46,23 @@ read -rp 'Do you want to install Hyprland packages? (Y/N): ' varHyprlandInstall
 
 # Default packages
 cd "${HOME}"
-paru -S $(awk -v RS= '{$1=$1}1' "${DOTPKG}/cachyosBasePackages.txt") \
-    $([[ "${varHyprlandInstall^^}" == "Y" ]] && $(awk -v RS= '{$1=$1}1' "${DOTPKG}/cachyosHyprlandPackages.txt"))
+mapfile -t installPackages < <(awk 'NF { print }' "${DOTPKG}/cachyosBasePackages.txt")
+
+if [[ "${varHyprlandInstall^^}" == "Y" ]]; then
+    mapfile -t hyprlandPackages < <(awk 'NF { print }' "${DOTPKG}/cachyosHyprlandPackages.txt")
+    installPackages+=("${hyprlandPackages[@]}")
+fi
+
+paru -S "${installPackages[@]}"
+
+# Greetd setup
+if [[ "${varHyprlandInstall^^}" == "Y" ]]; then
+    run_module greetd.sh
+fi
 
 # Syncthing setup
 if [[ "${varSyncthingInstall^^}" == "Y" ]]; then
-    bash "${DOTMODS}/syncthing.sh"
+    run_module syncthing.sh
 fi
 
 # Kanata install
@@ -56,4 +80,4 @@ fi
 /usr/bin/zoxide init nushell >"${HOME}/.zoxide.nu"
 
 # SSH config setup
-bash "${DOTMODS}/ssh_config.sh"
+run_module ssh_config.sh
