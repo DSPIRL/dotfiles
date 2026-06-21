@@ -1,0 +1,27 @@
+[Added Associations]
+application/pdf=app.zen_browser.zen.desktop;com.brave.Browser.desktop;firefox.desktop;
+x-scheme-handler/http=app.zen_browser.zen.desktop;com.brave.Browser.desktop;firefox.desktop;
+x-scheme-handler/https=app.zen_browser.zen.desktop;com.brave.Browser.desktop;firefox.desktop;
+
+[Default Applications]
+x-scheme-handler/http=app.zen_browser.zen.desktop;com.brave.Browser.desktop;firefox.desktop;
+x-scheme-handler/https=app.zen_browser.zen.desktop;com.brave.Browser.desktop;firefox.desktop;
+x-scheme-handler/about=app.zen_browser.zen.desktop;com.brave.Browser.desktop;firefox.desktop;
+x-scheme-handler/unknown=app.zen_browser.zen.desktop;com.brave.Browser.desktop;firefox.desktop;
+x-scheme-handler/mailto=app.zen_browser.zen.desktop;com.brave.Browser.desktop;firefox.desktop;
+x-scheme-handler/heroic=com.heroicgameslauncher.hgl.desktop;
+x-scheme-handler/discord-1317823272821461012=discord-1317823272821461012.desktop;
+text/html=app.zen_browser.zen.desktop;com.brave.Browser.desktop;firefox.desktop;
+application/xhtml+xml=app.zen_browser.zen.desktop;com.brave.Browser.desktop;firefox.desktop;
+application/pdf=app.zen_browser.zen.desktop;com.brave.Browser.desktop;firefox.desktop;
+inode/directory=org.kde.dolphin.desktop;
+text/plain=nvim.desktop;org.kde.kate.desktop;
+application/x-shellscript=nvim.desktop;org.kde.kate.desktop;
+image/avif=org.kde.gwenview.desktop;
+image/gif=org.kde.gwenview.desktop;
+image/heif=org.kde.gwenview.desktop;
+image/jpeg=org.kde.gwenview.desktop;
+image/jxl=org.kde.gwenview.desktop;
+image/png=org.kde.gwenview.desktop;
+image/svg+xml=org.kde.gwenview.desktop;
+image/webp=org.kde.gwenview.desktop;

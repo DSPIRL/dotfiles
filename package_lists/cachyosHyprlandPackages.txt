@@ -20,6 +20,7 @@ hyprshot
 hyprsunset
 kde-gtk-config
 *kvantum
+nautilus
 *nwg-displays
 *nwg-look
 plasma-integration
