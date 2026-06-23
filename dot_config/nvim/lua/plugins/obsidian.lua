@@ -2,6 +2,15 @@ local function workspace_path()
 	return vim.fn.getcwd()
 end
 
+local function disable_frontmatter_when_formatting_is_disabled()
+	local lazyvim = rawget(_G, "LazyVim")
+	if not lazyvim or not lazyvim.format or not lazyvim.format.enabled then
+		return false
+	end
+
+	return not lazyvim.format.enabled(0)
+end
+
 return {
 	{
 		"epwalsh/obsidian.nvim",
@@ -29,6 +38,7 @@ return {
 			"ObsidianWorkspace",
 		},
 		opts = {
+			disable_frontmatter = disable_frontmatter_when_formatting_is_disabled,
 			workspaces = {
 				{
 					name = "notes",
