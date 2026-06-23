@@ -1,3 +1,9 @@
+---
+id: chezmoi-guide
+aliases: []
+tags: []
+---
+
 # Chezmoi Guide
 
 Reference guide for advanced chezmoi features used in this dotfiles repository.
@@ -35,6 +41,7 @@ On WSL systems, encryption and KeePassXC are disabled automatically - the setup 
 Processes `.chezmoi.toml.tmpl` and generates `~/.config/chezmoi/chezmoi.toml`.
 
 **What happens:**
+
 1. Reads `.chezmoi.toml.tmpl` from source directory
 2. Evaluates template variables (`.chezmoi.os`, `.chezmoi.homeDir`, etc.)
 3. Runs any template logic (e.g., `stat` check for KeePassXC database)
@@ -48,6 +55,7 @@ Processes `.chezmoi.toml.tmpl` and generates `~/.config/chezmoi/chezmoi.toml`.
 Deploys files from source state to your home directory.
 
 **What happens:**
+
 1. Reads config from `~/.config/chezmoi/chezmoi.toml`
 2. Reads `.chezmoiignore` and excludes matching files
 3. For each managed file:
@@ -59,6 +67,7 @@ Deploys files from source state to your home directory.
 5. Writes files that differ (creates/updates)
 
 **Example transformation:**
+
 ```
 Source: encrypted_dot_gitconfig.tmpl.age
   → decrypt → evaluate template → write to ~/.gitconfig
@@ -99,7 +108,7 @@ dot_config/quickshell/
 
 ### Method 2: Template Files (`.tmpl` suffix)
 
-For files that need different *content* per OS, add `.tmpl` to the filename. Chezmoi processes the template before deploying.
+For files that need different _content_ per OS, add `.tmpl` to the filename. Chezmoi processes the template before deploying.
 
 ```bash
 # File: dot_gitconfig.tmpl
@@ -147,6 +156,7 @@ run_onchange_install.sh      # Runs on any OS when content changes
 ```
 
 Boolean comparisons:
+
 ```
 {{ if eq .chezmoi.os "darwin" }}...{{ end }}
 {{ if ne .chezmoi.os "linux" }}...{{ end }}
@@ -164,6 +174,7 @@ Define reusable variables in `.chezmoi.toml.tmpl` (source) or `~/.config/chezmoi
 ```
 
 Use in templates with dot prefix:
+
 ```
 {{ .name }}
 {{ if .work_machine }}
@@ -181,6 +192,7 @@ This repo detects WSL using a computed data variable in `.chezmoi.toml.tmpl`:
 ```
 
 Use in templates:
+
 ```
 {{- if .isWSL }}
 # WSL-specific config
@@ -283,6 +295,7 @@ Encrypted files are stored with `.asc` suffix.
 ### Encrypted File Naming
 
 Chezmoi uses these conventions:
+
 - `encrypted_` prefix marks files for encryption
 - `.age` suffix for age-encrypted files
 - `.asc` suffix for GPG-encrypted files
@@ -362,13 +375,13 @@ Supported: 1Password, Bitwarden, LastPass, pass, macOS Keychain, KeePassXC, Vaul
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| Add encrypted file | `chezmoi add --encrypt ~/.secrets` |
-| Edit encrypted file | `chezmoi edit ~/.secrets` |
-| View diff (decrypts automatically) | `chezmoi diff` |
-| Apply (decrypts automatically) | `chezmoi apply` |
-| Re-encrypt with new key | `chezmoi forget <file>` then `chezmoi add --encrypt` |
+| Task                               | Command                                              |
+| ---------------------------------- | ---------------------------------------------------- |
+| Add encrypted file                 | `chezmoi add --encrypt ~/.secrets`                   |
+| Edit encrypted file                | `chezmoi edit ~/.secrets`                            |
+| View diff (decrypts automatically) | `chezmoi diff`                                       |
+| Apply (decrypts automatically)     | `chezmoi apply`                                      |
+| Re-encrypt with new key            | `chezmoi forget <file>` then `chezmoi add --encrypt` |
 
 ---
 

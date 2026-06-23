@@ -1,3 +1,9 @@
+---
+id: chezmoi-git-guide
+aliases: []
+tags: []
+---
+
 # Using Git with Chezmoi
 
 Guide to version controlling your dotfiles with git and chezmoi.
@@ -294,16 +300,16 @@ repos:
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| Edit and apply | `chezmoi edit ~/.file && chezmoi apply` |
-| Re-add changed files | `chezmoi re-add` |
-| Check diff | `chezmoi diff` |
-| Commit changes | `chezmoi git add -A && chezmoi git commit -m "msg"` |
-| Push to remote | `chezmoi git push` |
-| Pull and apply | `chezmoi update` |
-| Init new machine | `chezmoi init --apply <repo-url>` |
-| View source path | `chezmoi source-path ~/.file` |
+| Task                 | Command                                             |
+| -------------------- | --------------------------------------------------- |
+| Edit and apply       | `chezmoi edit ~/.file && chezmoi apply`             |
+| Re-add changed files | `chezmoi re-add`                                    |
+| Check diff           | `chezmoi diff`                                      |
+| Commit changes       | `chezmoi git add -A && chezmoi git commit -m "msg"` |
+| Push to remote       | `chezmoi git push`                                  |
+| Pull and apply       | `chezmoi update`                                    |
+| Init new machine     | `chezmoi init --apply <repo-url>`                   |
+| View source path     | `chezmoi source-path ~/.file`                       |
 
 ---
 
