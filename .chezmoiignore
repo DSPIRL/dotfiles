@@ -61,6 +61,7 @@ private_dot_shell/scripts/
 
 # Skip when KeePassXC not available (WSL or missing database)
 {{ if not (dig "useKeePassXC" false .) }}
+.config/containers/
 .config/private_chezmoi/
 .ssh/
 
