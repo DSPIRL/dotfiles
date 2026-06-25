@@ -69,14 +69,9 @@ cursor-click-to-move = true
 custom-shader = ~/.config/ghostty/shaders/cursor-smear.glsl
 
 # === WINDOWS & TABS ===
-{{- if eq .chezmoi.os "darwin" }}
 background-opacity = 0.93
 unfocused-split-opacity = 0.6
 background-blur = true
-{{- else }}
-background-opacity = 1
-background-blur = false
-{{- end }}
 window-decoration = auto
 macos-window-buttons = hidden
 macos-titlebar-proxy-icon = hidden
