@@ -83,6 +83,15 @@ fi
 ##### JETBRAINS TOOLBOX (Linux) #####
 [[ -d "${HOME}/.local/share/JetBrains/Toolbox/scripts" ]] && export PATH="${PATH}:${HOME}/.local/share/JetBrains/Toolbox/scripts"
 
+##### QT/GTK THEME (Linux) #####
+export GDK_BACKEND="wayland,x11"
+unset GTK_THEME
+export KDE_SESSION_VERSION="6"
+export QT_QPA_PLATFORM="wayland;xcb"
+export QT_QPA_PLATFORMTHEME="kde"
+export QT_QUICK_CONTROLS_STYLE="org.kde.desktop"
+export QT_STYLE_OVERRIDE="Breeze"
+
 {{- end }}
 
 ##### EDITOR #####
@@ -101,6 +110,4 @@ if command -v nvim &>/dev/null; then
 fi
 
 {{- if eq .chezmoi.os "linux" }}
-# export QT_QPA_PLATFORMTHEME="qt6ct"
-# export QT_STYLE_OVERRIDE="kvantum"
 {{- end }}

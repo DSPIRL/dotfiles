@@ -24,7 +24,7 @@ case "$mode" in
     ;;
 esac
 
-gsettings set org.gnome.desktop.interface gtk-theme 'Breeze' >/dev/null 2>&1 || true
+gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita' >/dev/null 2>&1 || true
 gsettings set org.gnome.desktop.interface icon-theme 'Adwaita' >/dev/null 2>&1 || true
 gsettings set org.gnome.desktop.interface cursor-theme "$cursor_theme" >/dev/null 2>&1 || true
 gsettings set org.gnome.desktop.interface cursor-size "$cursor_size" >/dev/null 2>&1 || true

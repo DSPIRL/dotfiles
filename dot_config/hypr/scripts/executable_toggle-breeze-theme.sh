@@ -70,13 +70,22 @@ gtk-xft-dpi=98304
 EOF
 
   cat > "${HOME}/.config/gtkrc" <<EOF
-include "/usr/share/themes/${gtk_theme}/gtk-2.0/gtkrc"
-
 gtk-theme-name="${gtk_theme}"
 gtk-icon-theme-name="${icon_theme}"
 gtk-cursor-theme-name="${cursor_theme}"
 gtk-cursor-theme-size=${cursor_size}
 EOF
+}
+
+hypr_env() {
+  local key="$1"
+  local value="$2"
+
+  value="${value//\\/\\\\}"
+  value="${value//\"/\\\"}"
+
+  hyprctl eval "env = ${key},\"${value}\"" >/dev/null 2>&1 || \
+    hyprctl keyword env "${key},${value}" >/dev/null 2>&1 || true
 }
 
 write_xsettingsd() {
@@ -117,6 +126,7 @@ apply_kde_settings() {
   local color_scheme="$2"
   local icon_theme="$3"
   local cursor_theme="$4"
+  local qt_custom_palette="$5"
 
   if command -v plasma-apply-lookandfeel >/dev/null 2>&1; then
     plasma-apply-lookandfeel -a "$look_and_feel" >/dev/null 2>&1 || true
@@ -141,7 +151,8 @@ apply_kde_settings() {
 
     for qtct_conf in "${HOME}/.config/qt5ct/qt5ct.conf" "${HOME}/.config/qt6ct/qt6ct.conf"; do
       [ -f "$qtct_conf" ] || continue
-      kwriteconfig6 --file "$qtct_conf" --group Appearance --key custom_palette false >/dev/null 2>&1 || true
+      kwriteconfig6 --file "$qtct_conf" --group Appearance --key color_scheme_path "~/.config/qt6ct/style-colors.conf" >/dev/null 2>&1 || true
+      kwriteconfig6 --file "$qtct_conf" --group Appearance --key custom_palette "$qt_custom_palette" >/dev/null 2>&1 || true
       kwriteconfig6 --file "$qtct_conf" --group Appearance --key icon_theme "$icon_theme" >/dev/null 2>&1 || true
       kwriteconfig6 --file "$qtct_conf" --group Appearance --key style Breeze >/dev/null 2>&1 || true
     done
@@ -151,22 +162,52 @@ apply_kde_settings() {
 apply_runtime_settings() {
   local cursor_theme="$1"
 
-  if command -v hyprctl >/dev/null 2>&1; then
-    hyprctl setcursor "$cursor_theme" "$cursor_size" >/dev/null 2>&1 || true
-    hyprctl keyword env "XCURSOR_THEME,$cursor_theme" >/dev/null 2>&1 || true
-    hyprctl keyword env "XCURSOR_SIZE,$cursor_size" >/dev/null 2>&1 || true
-    hyprctl keyword env "HYPRCURSOR_SIZE,$cursor_size" >/dev/null 2>&1 || true
-  fi
-
+  export GDK_BACKEND="wayland,x11"
+  unset GTK_THEME
+  export KDE_SESSION_VERSION="6"
+  export QT_QPA_PLATFORM="wayland;xcb"
+  export QT_QPA_PLATFORMTHEME="kde"
+  export QT_QUICK_CONTROLS_STYLE="org.kde.desktop"
+  export QT_STYLE_OVERRIDE="Breeze"
   export XCURSOR_THEME="$cursor_theme"
   export XCURSOR_SIZE="$cursor_size"
 
+  if command -v hyprctl >/dev/null 2>&1; then
+    hyprctl setcursor "$cursor_theme" "$cursor_size" >/dev/null 2>&1 || true
+    hypr_env GDK_BACKEND "$GDK_BACKEND"
+    hypr_env KDE_SESSION_VERSION "$KDE_SESSION_VERSION"
+    hypr_env QT_QPA_PLATFORM "$QT_QPA_PLATFORM"
+    hypr_env QT_QPA_PLATFORMTHEME "$QT_QPA_PLATFORMTHEME"
+    hypr_env QT_QUICK_CONTROLS_STYLE "$QT_QUICK_CONTROLS_STYLE"
+    hypr_env QT_STYLE_OVERRIDE "$QT_STYLE_OVERRIDE"
+    hypr_env XCURSOR_THEME "$XCURSOR_THEME"
+    hypr_env XCURSOR_SIZE "$XCURSOR_SIZE"
+    hypr_env HYPRCURSOR_SIZE "$XCURSOR_SIZE"
+  fi
+
   if command -v systemctl >/dev/null 2>&1; then
-    systemctl --user import-environment XCURSOR_THEME XCURSOR_SIZE >/dev/null 2>&1 || true
+    systemctl --user unset-environment GTK_THEME >/dev/null 2>&1 || true
+    systemctl --user import-environment \
+      GDK_BACKEND \
+      KDE_SESSION_VERSION \
+      QT_QPA_PLATFORM \
+      QT_QPA_PLATFORMTHEME \
+      QT_QUICK_CONTROLS_STYLE \
+      QT_STYLE_OVERRIDE \
+      XCURSOR_THEME \
+      XCURSOR_SIZE >/dev/null 2>&1 || true
   fi
 
   if command -v dbus-update-activation-environment >/dev/null 2>&1; then
-    dbus-update-activation-environment --systemd XCURSOR_THEME XCURSOR_SIZE >/dev/null 2>&1 || true
+    dbus-update-activation-environment --systemd \
+      "GDK_BACKEND=${GDK_BACKEND}" \
+      "KDE_SESSION_VERSION=${KDE_SESSION_VERSION}" \
+      "QT_QPA_PLATFORM=${QT_QPA_PLATFORM}" \
+      "QT_QPA_PLATFORMTHEME=${QT_QPA_PLATFORMTHEME}" \
+      "QT_QUICK_CONTROLS_STYLE=${QT_QUICK_CONTROLS_STYLE}" \
+      "QT_STYLE_OVERRIDE=${QT_STYLE_OVERRIDE}" \
+      "XCURSOR_THEME=${XCURSOR_THEME}" \
+      "XCURSOR_SIZE=${XCURSOR_SIZE}" >/dev/null 2>&1 || true
   fi
 }
 
@@ -190,31 +231,37 @@ apply_gsettings() {
 apply_mode() {
   local mode="$1"
   local gtk_theme=""
-  local icon_theme=""
+  local gtk_icon_theme=""
+  local kde_icon_theme=""
   local cursor_theme=""
   local prefer_dark=""
   local color_preference=""
   local look_and_feel=""
   local color_scheme=""
+  local qt_custom_palette=""
 
   case "$mode" in
     dark)
-      gtk_theme="Breeze"
-      icon_theme="Adwaita"
+      gtk_theme="Adwaita"
+      gtk_icon_theme="Adwaita"
+      kde_icon_theme="breeze-dark"
       cursor_theme="breeze_cursors"
       prefer_dark="true"
       color_preference="prefer-dark"
       look_and_feel="org.kde.breezedark.desktop"
       color_scheme="BreezeDark"
+      qt_custom_palette="true"
       ;;
     light)
-      gtk_theme="Breeze"
-      icon_theme="Adwaita"
+      gtk_theme="Adwaita"
+      gtk_icon_theme="Adwaita"
+      kde_icon_theme="breeze"
       cursor_theme="Breeze_Light"
       prefer_dark="false"
       color_preference="prefer-light"
       look_and_feel="org.kde.breeze.desktop"
       color_scheme="BreezeLight"
+      qt_custom_palette="false"
       ;;
     *)
       printf 'Usage: %s [apply|toggle|dark|light|status]\n' "${0##*/}" >&2
@@ -225,10 +272,10 @@ apply_mode() {
   mkdir -p "$(dirname "$state_file")"
   printf '%s\n' "$mode" > "$state_file"
 
-  write_gtk_settings "$gtk_theme" "$icon_theme" "$cursor_theme" "$prefer_dark"
-  write_xsettingsd "$gtk_theme" "$icon_theme" "$cursor_theme"
-  apply_gsettings "$gtk_theme" "$icon_theme" "$cursor_theme" "$color_preference"
-  apply_kde_settings "$look_and_feel" "$color_scheme" "$icon_theme" "$cursor_theme"
+  apply_kde_settings "$look_and_feel" "$color_scheme" "$kde_icon_theme" "$cursor_theme" "$qt_custom_palette"
+  write_gtk_settings "$gtk_theme" "$gtk_icon_theme" "$cursor_theme" "$prefer_dark"
+  write_xsettingsd "$gtk_theme" "$gtk_icon_theme" "$cursor_theme"
+  apply_gsettings "$gtk_theme" "$gtk_icon_theme" "$cursor_theme" "$color_preference"
   apply_runtime_settings "$cursor_theme"
 
   # notify "Applied Breeze ${mode}"
