@@ -1,0 +1,7 @@
+{{- if $useKeePassXC -}}
+[".config/wallpapers"]
+type = "git-repo"
+url = "ssh://git@192.168.86.202:30143/DSPIRL/wallpapers.git"
+refreshPeriod = "0s"            # 168h would re-pull weekly, 0s re-pulls every time you run chezmoi apply or chezmoi update
+pull.args = ["--ff-only"]
+{{ end }}
