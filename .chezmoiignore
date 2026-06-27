@@ -110,6 +110,7 @@ private_dot_shell/scripts/
 .config/dot_dmenurc
 .config/gtk-3.0/
 .config/gtk-4.0/
+.config/ghostty/themes/wallust.conf
 .config/gtkrc
 .config/gtkrc-2.0
 .config/hypr/

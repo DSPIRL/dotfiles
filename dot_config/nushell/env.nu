@@ -4,7 +4,7 @@
 # Oh-my-posh cache (must exist before prompt.nu is sourced)
 let omp_cache = $"($env.HOME)/.cache/oh-my-posh.nu"
 let omp_cache_dir = $"($env.HOME)/.cache/oh-my-posh"
-let omp_config = $"($env.HOME)/.config/oh-my-posh/default.omp.json"
+let omp_config = $"($env.HOME)/.config/oh-my-posh/wallust.omp.json"
 let omp_binary = (which oh-my-posh | get path.0?)
 if ($omp_binary | is-not-empty) and ($omp_config | path exists) {
   mut refresh_omp_cache = not ($omp_cache | path exists)

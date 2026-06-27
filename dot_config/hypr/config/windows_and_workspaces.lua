@@ -1,5 +1,8 @@
 local utils = require("config.utils")
 local opacity_toggle = require("config.opacity-toggle")
+local performance_profile = require("config.performance-profile")
+
+local performance_mode = performance_profile.enabled
 
 local wr = utils.window_rule
 local lr = utils.layer_rule
@@ -106,14 +109,16 @@ wr("opacity 0.9 override 0.8 override", { tag = "emacs" })
 wr("float on", { tag = "im" })
 wr("size (monitor_w*0.6) (monitor_h*0.6)", { tag = "im" })
 wr("opacity 0.9 override 0.8 override", { tag = "im" })
+wr("center on", { tag = "im" })
 
 wr("float on", { tag = "vpns" })
 wr("size (monitor_w*0.1) (monitor_h*0.1)", { tag = "vpns" })
 wr("center on", { tag = "vpns" })
 
-wr("float on", { tag = "keychains" })
-wr("size (monitor_w*0.5) (monitor_h*0.5)", { tag = "keychains" })
-wr("center on", { tag = "keychains" })
+wr("float on", { class = [[^([Kk]ee[Pp]ass[Xx][Cc]|org.keepassxc.KeePassXC)$]], title = [[ - KeePassXC$]] })
+wr("size (monitor_w*0.5) (monitor_h*0.5)", { class = [[^([Kk]ee[Pp]ass[Xx][Cc]|org.keepassxc.KeePassXC)$]], title = [[ - KeePassXC$]] })
+wr("center on", { class = [[^([Kk]ee[Pp]ass[Xx][Cc]|org.keepassxc.KeePassXC)$]], title = [[ - KeePassXC$]] })
+wr("no_blur on", { class = [[^([Kk]ee[Pp]ass[Xx][Cc]|org.keepassxc.KeePassXC)$]], title = [[^KeePassXC$]] }, "keepassxc-menu-no-blur")
 
 wr("float on", { tag = "wallpaper" })
 wr("size (monitor_w*0.7) (monitor_h*0.8)", { tag = "wallpaper" })
@@ -181,7 +186,7 @@ wr("opacity 0.9 override 0.8 override", { class = [[^(im.riot.Riot)$]] })
 wr("opacity 0.9 override 0.8 override", { class = [[^(seahorse)$]] })
 wr("opacity 0.95 override 0.75 override", { title = [[^(Picture-in-Picture)$]] })
 
-if opacity_toggle.enabled then
+if opacity_toggle.enabled or performance_mode then
   wr("opacity 1.0 override 1.0 override 1.0 override", { class = [[.*]] }, "opacity-toggle")
 end
 
@@ -198,9 +203,15 @@ wr("no_blur on", { tag = "games" })
 wr("fullscreen on", { tag = "games" })
 
 -- Layer rules
-lr("blur on", { namespace = "quickshell" })
+if not performance_mode then
+  lr("blur on", { namespace = "quickshell" })
+end
 lr("ignore_alpha 0.1", { namespace = "quickshell" })
-lr("blur on", { namespace = "rofi" })
+if not performance_mode then
+  lr("blur on", { namespace = "rofi" })
+end
 lr("ignore_alpha 0", { namespace = "rofi" })
-lr("blur on", { namespace = "notifications" })
+if not performance_mode then
+  lr("blur on", { namespace = "notifications" })
+end
 lr("ignore_alpha 0", { namespace = "notifications" })

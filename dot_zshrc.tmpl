@@ -115,7 +115,76 @@ fi
 
 ##### PROMPT #####
 if command -v oh-my-posh &>/dev/null && [ "${TERM_PROGRAM}" != "Apple_Terminal" ]; then
-  eval "$(oh-my-posh init zsh --config ${HOME}/.config/oh-my-posh/default.omp.json)"
+  eval "$(oh-my-posh init zsh --config ${HOME}/.config/oh-my-posh/wallust.omp.json)"
+
+  _wallust_prompt_refresh_pidfile() {
+    local runtime_dir="${XDG_RUNTIME_DIR:-/run/user/${UID}}"
+    if [[ ! -d "${runtime_dir}" || ! -w "${runtime_dir}" ]]; then
+      runtime_dir="${HOME}/.cache"
+    fi
+    print -r -- "${runtime_dir}/wallust-prompt-refresh.zsh.pids"
+  }
+
+  _wallust_prompt_refresh_state() {
+    local stat rest words
+    [[ -r "/proc/$$/stat" ]] || return
+    stat="$(<"/proc/$$/stat")"
+    rest="${stat#*) }"
+    words=(${=rest})
+    print -r -- "${words[20]:-}"
+  }
+
+  _wallust_prompt_refresh_register() {
+    local pid_file pid_dir tmp_file line
+    pid_file="$(_wallust_prompt_refresh_pidfile)"
+    pid_dir="${pid_file:h}"
+    mkdir -p "${pid_dir}" 2>/dev/null || return
+
+    tmp_file="${pid_file}.$$"
+    if [[ -f "${pid_file}" ]]; then
+      while IFS= read -r line; do
+        [[ "${line}" == "$$" || "${line}" == "$$ "* ]] && continue
+        print -r -- "${line}"
+      done <"${pid_file}" >| "${tmp_file}"
+      mv "${tmp_file}" "${pid_file}" 2>/dev/null || return
+    fi
+
+    print -r -- "$$ $(_wallust_prompt_refresh_state)" >>"${pid_file}"
+  }
+
+  _wallust_prompt_refresh_unregister() {
+    local pid_file tmp_file line
+    pid_file="$(_wallust_prompt_refresh_pidfile)"
+    [[ -f "${pid_file}" ]] || return
+
+    tmp_file="${pid_file}.$$"
+    while IFS= read -r line; do
+      [[ "${line}" == "$$" || "${line}" == "$$ "* ]] && continue
+      print -r -- "${line}"
+    done <"${pid_file}" >| "${tmp_file}"
+    mv "${tmp_file}" "${pid_file}" 2>/dev/null || rm -f "${tmp_file}"
+  }
+
+  _wallust_prompt_refresh_prompt() {
+    if (( $+functions[_omp_precmd] )); then
+      _omp_precmd
+    fi
+
+    if zle 2>/dev/null; then
+      zle -I
+      zle reset-prompt
+      zle -R
+    fi
+  }
+
+  TRAPUSR1() {
+    _wallust_prompt_refresh_prompt
+    return 0
+  }
+
+  _wallust_prompt_refresh_register
+  zshexit_functions=(${zshexit_functions:#_wallust_prompt_refresh_unregister})
+  zshexit_functions+=(_wallust_prompt_refresh_unregister)
 fi
 
 ##### MISE-EN-PLACE #####

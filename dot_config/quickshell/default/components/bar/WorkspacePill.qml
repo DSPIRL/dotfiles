@@ -8,7 +8,7 @@ Rectangle {
   property var bar
   property var wallust
 
-  implicitWidth: workspaceRow.implicitWidth + 22
+  implicitWidth: workspaceRow.implicitWidth + 10
   implicitHeight: 32
   radius: implicitHeight / 2
   color: wallust.barBackground

@@ -45,9 +45,12 @@
 #
 # ==================================
 # ===USER CONFIG===
-# theme = wallust.conf
 # fullscreen = true # Starts the app in fullscreen
+{{- if eq .chezmoi.os "linux" }}
+theme = wallust.conf
+{{- else }}
 theme = Carbonfox
+{{- end }}
 # font-family = "JetBrainsMono Nerd Font"
 font-family = "Hack Nerd Font"
 # font-family = "FiraCode Nerd Font=34;Hack Nerd Font=34;Jetbrains Mono Nerd Font=34;Noto Color Emoji=34"
@@ -64,7 +67,9 @@ mouse-hide-while-typing = true
 
 # === CURSOR ===
 cursor-style = block
+{{- if ne .chezmoi.os "linux" }}
 cursor-color = #5BAFF9
+{{- end }}
 cursor-click-to-move = true
 custom-shader = ~/.config/ghostty/shaders/cursor-smear.glsl
 
