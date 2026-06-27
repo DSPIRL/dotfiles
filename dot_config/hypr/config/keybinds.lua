@@ -44,7 +44,7 @@ hl.bind(main("RETURN"), hl.dsp.exec_cmd(vars.terminal))
 -- Windows and such
 hl.bind(main_alt("RETURN"), hl.dsp.window.fullscreen({ mode = "fullscreen" }))
 hl.bind(main("F"), hl.dsp.window.float())
-hl.bind(main("TAB"), hl.dsp.exec_cmd([[if hyprctl activewindow -j | jq -e ".floating" >/dev/null; then hyprctl dispatch 'hl.dsp.window.cycle_next({ floating = true })'; else hyprctl dispatch 'hl.dsp.window.cycle_next({ tiled = true })'; fi]]))
+hl.bind(main("TAB"), hl.dsp.exec_cmd(vars.windowStackToggle))
 hl.bind(main("C"), hl.dsp.window.center())
 hl.bind(main("P"), hl.dsp.window.pseudo())
 hl.bind(main("S"), hl.dsp.layout("togglesplit"))

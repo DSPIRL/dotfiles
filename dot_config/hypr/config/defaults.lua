@@ -16,6 +16,7 @@ return {
   opacityToggle = scripts .. "/toggle-opacity.sh",
   performanceProfileToggle = scripts .. "/toggle-performance-profile.sh",
   themeToggle = scripts .. "/toggle-breeze-theme.sh",
+  windowStackToggle = scripts .. "/toggle-window-stack.sh",
   sessionTarget = scripts .. "/start-session-target.sh",
 
   screenshotWindow = "hyprshot -m window -o /tmp/hyprshot -f latest.png",
