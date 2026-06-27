@@ -59,6 +59,7 @@ hl.bind(main_shift("R"), hl.dsp.exec_cmd("hyprctl reload"))
 hl.bind(main_shift("B"), hl.dsp.exec_cmd(vars.barReload))
 hl.bind(main_shift("I"), hl.dsp.exec_cmd(vars.barDoctor))
 hl.bind(main_shift("O"), hl.dsp.exec_cmd(vars.opacityToggle))
+hl.bind(main_shift("P"), hl.dsp.exec_cmd(vars.performanceProfileToggle))
 hl.bind(main_shift("T"), hl.dsp.exec_cmd(vars.themeToggle))
 hl.bind(main_shift("L"), hl.dsp.exec_cmd(vars.locker))
 

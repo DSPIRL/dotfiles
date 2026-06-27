@@ -18,6 +18,7 @@ threshold = 15
 cava = { template = 'colors-cava', target = '~/.config/cava/config' }
 ghostty = { template = 'colors-ghostty.conf', target = '~/.config/ghostty/themes/wallust.conf' }
 alacritty = { template = 'alacritty-colors.toml', target = '~/.config/alacritty/colors.toml' }
+oh_my_posh = { template = 'oh-my-posh.omp.json', target = '~/.config/oh-my-posh/wallust.omp.json' }
 hypr = { template = 'colors-hypr.lua', target = '~/.config/hypr/themes/wallust.lua' }
 ncspot = { template = 'ncspot-config.toml', target = '~/.config/ncspot/config.toml' }
 ncspot_colors = { template = 'ncspot-colors.toml', target = '~/.config/ncspot/colors.toml' }

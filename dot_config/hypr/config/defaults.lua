@@ -14,6 +14,7 @@ return {
   barReload = scripts .. "/quickshell-reload.sh",
   barDoctor = scripts .. "/quickshell-healthcheck.sh",
   opacityToggle = scripts .. "/toggle-opacity.sh",
+  performanceProfileToggle = scripts .. "/toggle-performance-profile.sh",
   themeToggle = scripts .. "/toggle-breeze-theme.sh",
   sessionTarget = scripts .. "/start-session-target.sh",
 

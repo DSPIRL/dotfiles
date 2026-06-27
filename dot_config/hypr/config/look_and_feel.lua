@@ -1,5 +1,8 @@
 local wallust = require("themes.wallust")
 local utils = require("config.utils")
+local performance_profile = require("config.performance-profile")
+
+local performance_mode = performance_profile.enabled
 
 hl.config({
 	general = {
@@ -26,16 +29,16 @@ hl.config({
 		dim_special = 0.8,
 
 		shadow = {
-			enabled = true,
+			enabled = not performance_mode,
 			range = 20,
 			render_power = 3,
-			color = "rgba(24232399)",
+			color = "rgba(10101099)",
 			-- color = wallust.color12,
 			-- color_inactive = wallust.color10,
 		},
 
 		blur = {
-			enabled = true,
+			enabled = not performance_mode,
 			size = 3,
 			passes = 4,
 			xray = true,
@@ -46,7 +49,7 @@ hl.config({
 	},
 
 	animations = {
-		enabled = true,
+		enabled = not performance_mode,
 	},
 
 	dwindle = {
@@ -104,7 +107,7 @@ local animations = {
 	{ leaf = "windowsOut", enabled = true, speed = 2.0, spring = "easy", style = "slide" },
 	{ leaf = "windowsMove", enabled = true, speed = 2.5, bezier = "wind", style = "slide" },
 	{ leaf = "border", enabled = true, speed = 1, bezier = "liner" },
-	-- { leaf = "borderangle", enabled = true, speed = 80, bezier = "liner", style = "loop" },
+	{ leaf = "borderangle", enabled = not performance_mode, speed = performance_mode and 1 or 80, bezier = "liner", style = not performance_mode and "loop" or nil },
 	{ leaf = "fade", enabled = true, speed = 2, bezier = "smoothOut" },
 	{ leaf = "workspaces", enabled = true, speed = 3.5, bezier = "overshot" },
 	{ leaf = "workspacesIn", enabled = true, speed = 3.5, bezier = "winIn", style = "slide" },

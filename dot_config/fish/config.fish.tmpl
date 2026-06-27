@@ -1,0 +1,499 @@
+##### ENVIRONMENT #####
+set -gx XDG_CONFIG_HOME "$HOME/.config"
+set -gx XDG_DATA_HOME "$HOME/.local/share"
+set -gx XDG_CACHE_HOME "$HOME/.cache"
+set -gx DOTS "$HOME/.local/share/chezmoi"
+set -gx DOTS_CONFIG "$DOTS/dot_config"
+
+function __add_path --argument-names path position
+    test -d "$path"; or return
+
+    if contains -- "$path" $PATH
+        set -gx PATH (string match -v -- "$path" $PATH)
+    end
+
+    if test "$position" = append
+        set -gx PATH $PATH "$path"
+    else
+        set -gx PATH "$path" $PATH
+    end
+end
+
+__add_path "$HOME/.local/bin"
+__add_path "$HOME/.local/scripts"
+
+##### RUST #####
+if test -d "$HOME/.cargo"
+    set -gx CARGO_HOME "$HOME/.cargo"
+    __add_path "$CARGO_HOME/bin"
+end
+
+##### BUN #####
+if test -d "$HOME/.bun"
+    set -gx BUN_INSTALL "$HOME/.bun"
+    __add_path "$BUN_INSTALL/bin"
+end
+
+##### EMACS #####
+__add_path "$HOME/.config/emacs/bin"
+
+##### LM STUDIO #####
+__add_path "$HOME/.lmstudio/bin" append
+
+{{- if eq .chezmoi.os "darwin" }}
+
+##### JAVA/ANDROID (macOS) #####
+if test -d "/Applications/Android Studio.app"
+    set -gx JAVA_HOME "/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+    set -gx ANDROID_HOME "$HOME/Library/Android/sdk"
+    __add_path "$JAVA_HOME/bin"
+end
+
+##### FLUTTER (macOS) #####
+__add_path "$HOME/development/flutter/bin"
+__add_path "$HOME/fvm/default/bin"
+
+##### RUBY (macOS) #####
+if test -d /opt/homebrew/opt/ruby
+    __add_path /opt/homebrew/opt/ruby/bin
+    if test -x /opt/homebrew/opt/ruby/bin/ruby
+        __add_path (/opt/homebrew/opt/ruby/bin/ruby -e 'puts Gem.bindir')
+    end
+    set -gx GEM_HOME "$HOME/.gem"
+end
+
+##### DOTNET (macOS) #####
+if test -d "$HOME/.dotnet"
+    set -gx DOTNET_ROOT /opt/homebrew/bin
+    __add_path "$DOTNET_ROOT" append
+    __add_path "$HOME/.dotnet/tools" append
+end
+
+##### NVM (macOS) #####
+set -gx NVM_DIR "$XDG_CONFIG_HOME/nvm"
+
+{{- else if eq .chezmoi.os "linux" }}
+
+##### XDG DATA DIRS (Linux) #####
+if not set -q XDG_DATA_DIRS
+    set -gx XDG_DATA_DIRS "/usr/local/share:/usr/share:$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share"
+end
+
+##### SSH AUTH SOCKET (Linux) #####
+if set -q XDG_RUNTIME_DIR
+    set -gx SSH_AUTH_SOCK "$XDG_RUNTIME_DIR/ssh-agent.socket"
+end
+
+##### PATH (Linux) #####
+for path in /usr/bin/core_perl /usr/bin/vendor_perl /usr/bin/site_perl /var/lib/flatpak/exports/bin /bin /usr/bin
+    __add_path "$path"
+end
+
+##### JAVA/ANDROID (Linux) #####
+if test -d /opt/android-studio
+    set -gx JAVA_HOME /opt/android-studio/jbr
+    set -gx ANDROID_HOME "$HOME/Android/Sdk"
+end
+
+##### DOTNET (Linux) #####
+if test -d "$HOME/.dotnet"
+    set -gx DOTNET_ROOT /usr/local/share/dotnet
+    __add_path "$DOTNET_ROOT" append
+    __add_path "$HOME/.dotnet/tools" append
+end
+
+##### JETBRAINS TOOLBOX (Linux) #####
+__add_path "$HOME/.local/share/JetBrains/Toolbox/scripts" append
+
+##### QT/GTK THEME (Linux) #####
+set -gx GDK_BACKEND "wayland,x11"
+set -e GTK_THEME
+set -gx KDE_SESSION_VERSION 6
+set -gx QT_QPA_PLATFORM "wayland;xcb"
+set -gx QT_QPA_PLATFORMTHEME kde
+set -gx QT_QUICK_CONTROLS_STYLE org.kde.desktop
+set -gx QT_STYLE_OVERRIDE Breeze
+
+##### TERMINAL (Linux) #####
+if command -q ghostty
+    set -gx USER_TERMINAL ghostty
+else if command -q alacritty
+    set -gx USER_TERMINAL alacritty
+end
+
+{{- end }}
+
+##### EDITOR #####
+if not set -q USER_TERMINAL
+    set -gx USER_TERMINAL alacritty
+end
+if command -q nvim
+    set -gx NVIM_PATH (command -v nvim)
+    set -gx VISUAL "$NVIM_PATH"
+    set -gx EDITOR "$NVIM_PATH"
+end
+
+##### MANPAGER #####
+if command -q bat
+    set -gx MANROFFOPT -c
+    set -gx MANPAGER "sh -c 'col -bx | bat -l man -p'"
+else if command -q nvim
+    set -gx MANPAGER "nvim +Man!"
+end
+
+functions -e __add_path
+
+status is-interactive; or return
+
+##### FZF #####
+if command -q fzf
+    set -gx FZF_DEFAULT_OPTS_FILE "$HOME/.config/fzf/.fzfrc"
+    set -gx FZF_CTRL_T_COMMAND "fd --hidden --ignore-case"
+    set -gx FZF_CTRL_T_OPTS "--preview='less {}' --bind shift-up:preview-page-up,shift-down:preview-page-down"
+    set -gx FZF_ALT_C_COMMAND ""
+    fzf --fish | source
+
+    function __fzf_path_widget
+        set -l line (commandline)
+        set -l cursor (commandline -C)
+        set -l before ""
+        set -l after ""
+
+        if test "$cursor" -gt 0
+            set before (string sub -s 1 -l "$cursor" -- "$line")
+        end
+        set after (string sub -s (math "$cursor" + 1) -- "$line")
+
+        set -l token (string replace -r '^.*[[:space:]]' '' -- "$before")
+        set -l prefix_len (math (string length -- "$before") - (string length -- "$token"))
+        set -l prefix ""
+        if test "$prefix_len" -gt 0
+            set prefix (string sub -s 1 -l "$prefix_len" -- "$before")
+        end
+
+        set -l selected ("$HOME/.local/scripts/fzf-path-widget" "$token")
+        or return
+        test (count $selected) -gt 0; or return
+
+        set -l quoted
+        for selection in $selected
+            set -a quoted (string escape -- "$selection")
+        end
+
+        set -l replacement (string join ' ' -- $quoted)
+        commandline -r "$prefix$replacement$after"
+        commandline -C (math (string length -- "$prefix") + (string length -- "$replacement"))
+    end
+end
+
+##### WORKTRUNK #####
+if command -q wt
+    wt config shell init fish | source
+end
+
+##### ZOXIDE #####
+if command -q zoxide
+    set -gx _ZO_DATA_DIR "$HOME/.config/zoxide"
+    set -gx _ZO_ECHO 1
+    zoxide init fish | source
+
+    function cd --wraps z --description 'zoxide cd'
+        if test (count $argv) -eq 0
+            z "$HOME"
+        else
+            z $argv
+        end
+    end
+end
+
+##### COMPLETIONS #####
+if command -q carapace
+    set -gx CARAPACE_BRIDGES 'zsh,fish,bash,inshellisense'
+    carapace _carapace fish | source
+end
+
+if command -q awsm
+    awsm completions fish | source
+end
+
+if command -q chezmoi
+    chezmoi completion fish | source
+end
+
+if command -q kubectl
+    kubectl completion fish | source
+end
+
+if command -q podman
+    podman completion fish | source
+end
+
+if command -q dotnet
+    complete -f -c dotnet -a '(dotnet complete (commandline -cp))'
+end
+
+##### PROMPT #####
+if command -q oh-my-posh; and test "$TERM_PROGRAM" != Apple_Terminal
+    function __init_oh_my_posh
+        set -l omp_config "$HOME/.config/oh-my-posh/wallust.omp.json"
+        if test -f "$omp_config"
+            oh-my-posh init fish --config "$omp_config" | source
+        else
+            oh-my-posh init fish | source
+        end
+    end
+
+    function __wallust_prompt_refresh_pidfile
+        if set -q XDG_RUNTIME_DIR; and test -d "$XDG_RUNTIME_DIR"; and test -w "$XDG_RUNTIME_DIR"
+            echo "$XDG_RUNTIME_DIR/wallust-prompt-refresh.fish.pids"
+            return
+        end
+
+        set -l runtime_dir "/run/user/"(id -u)
+        if not test -d "$runtime_dir"; or not test -w "$runtime_dir"
+            set runtime_dir "$HOME/.cache"
+        end
+
+        echo "$runtime_dir/wallust-prompt-refresh.fish.pids"
+    end
+
+    function __wallust_prompt_refresh_state
+        set -l stat_file "/proc/$fish_pid/stat"
+        test -r "$stat_file"; or return
+
+        set -l stat (cat "$stat_file")
+        set -l rest (string replace -r '^.*\) ' '' -- "$stat")
+        set -l stat_fields (string split ' ' -- "$rest")
+        test (count $stat_fields) -ge 20; and echo $stat_fields[20]
+    end
+
+    function __wallust_prompt_refresh_register
+        set -l pid_file (__wallust_prompt_refresh_pidfile)
+        set -l pid_dir (dirname "$pid_file")
+        mkdir -p "$pid_dir" 2>/dev/null; or return
+
+        set -l tmp_file "$pid_file.$fish_pid"
+        if test -f "$pid_file"
+            while read -l line
+                string match -qr "^$fish_pid( |\$)" -- "$line"; and continue
+                printf '%s\n' "$line"
+            end <"$pid_file" >"$tmp_file"
+            mv "$tmp_file" "$pid_file" 2>/dev/null; or begin
+                rm -f "$tmp_file"
+                return
+            end
+        end
+
+        printf '%s %s\n' "$fish_pid" (__wallust_prompt_refresh_state) >>"$pid_file"
+    end
+
+    function __wallust_prompt_refresh_unregister --on-event fish_exit
+        set -l pid_file (__wallust_prompt_refresh_pidfile)
+        test -f "$pid_file"; or return
+
+        set -l tmp_file "$pid_file.$fish_pid"
+        while read -l line
+            string match -qr "^$fish_pid( |\$)" -- "$line"; and continue
+            printf '%s\n' "$line"
+        end <"$pid_file" >"$tmp_file"
+        mv "$tmp_file" "$pid_file" 2>/dev/null; or rm -f "$tmp_file"
+    end
+
+    function __wallust_prompt_refresh_prompt --on-signal SIGUSR2
+        __init_oh_my_posh
+        set --global _omp_new_prompt 1
+        if functions -q omp_repaint_prompt
+            omp_repaint_prompt 2>/dev/null; or commandline --function repaint 2>/dev/null
+        else
+            commandline --function repaint 2>/dev/null
+        end
+    end
+
+    __init_oh_my_posh
+    __wallust_prompt_refresh_register
+end
+
+##### MISE-EN-PLACE #####
+if command -q mise
+    mise activate fish --shims | source
+end
+
+##### ALIASES #####
+alias l 'command ls --color=auto'
+alias grep 'command grep --color=auto'
+alias cls clear
+alias modhelp "cat $HOME/.shell/manpages/help_chmod.md"
+
+if command -q eza
+    alias ls 'eza -lhAF --color=auto --icons=always'
+else
+    alias ls 'command ls -lAFh --color=auto'
+end
+
+function glols --wraps git
+    git log --graph '--pretty=%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --stat $argv
+end
+
+function modstat --wraps stat
+{{- if eq .chezmoi.os "darwin" }}
+    stat -f "File name: %N
+File type: %HT%SY
+Exec modes: %Sp
+Hex values: %Lp" $argv
+{{- else }}
+    stat -c "File name: %n
+File type: %F -> %N
+Exec modes: %A
+Hex values: %a" $argv
+{{- end }}
+end
+
+if command -q exiftool
+    alias exifall 'exiftool -all='
+    alias exifkeepicc 'exiftool -all= --icc_profile:all'
+end
+
+if command -q nvim
+    alias vim nvim
+    alias nv nvim
+    alias n nvim
+
+    function nvim-env --wraps nvim --description 'Switch between named Neovim configs'
+        set -l appname nvim
+        if test (count $argv) -gt 0
+            set appname $argv[1]
+            set -e argv[1]
+        end
+
+        env NVIM_APPNAME="$appname" nvim $argv
+    end
+
+    function __nvim_env_complete
+        set -l config_home "$XDG_CONFIG_HOME"
+        test -n "$config_home"; or set config_home "$HOME/.config"
+
+        for config in "$config_home"/nvim*
+            test -d "$config"; and basename "$config"
+        end
+    end
+
+    complete -c nvim-env -f -a '(__nvim_env_complete)' -d 'Neovim config'
+end
+
+if command -q okta-aws-cli
+    alias okta okta-aws-cli
+end
+
+if command -q claude
+    alias claude-unsafe 'claude --allow-dangerously-skip-permissions'
+end
+
+if test -d "$HOME/.cargo"
+    alias cr 'cargo run'
+    alias ct 'cargo test'
+    alias cb 'cargo build'
+end
+
+if command -q emacsclient
+    alias emacs "emacsclient -c -a 'emacs'"
+end
+
+if command -q sudoedit
+    alias se sudoedit
+end
+
+if command -q kubectl
+    alias k kubectl
+end
+
+if command -q podman
+    alias p podman
+end
+
+if command -q podman-compose
+    alias pc podman-compose
+end
+
+if command -q docker
+    alias d docker
+    alias dc 'docker compose'
+end
+
+{{- if eq .chezmoi.os "darwin" }}
+
+if command -q python3
+    alias python python3
+    alias pip pip3
+end
+
+if test -x /opt/homebrew/bin/ruby
+    alias ruby /opt/homebrew/bin/ruby
+end
+
+{{- end }}
+
+if command -q nu
+    alias mac-kanata 'nu ~/.config/nushell/scripts/mac-kanata.nu'
+    alias flatpak-alias 'nu ~/.config/nushell/scripts/flatpak-alias.nu'
+end
+
+##### FUNCTIONS #####
+function ref_dirinfo
+    set -l dir .
+    if test (count $argv) -gt 0
+        set dir $argv[1]
+    end
+
+    echo 'File count:'
+    find "$dir" -type f | wc -l
+    echo 'Total size (GiB):'
+    find "$dir" -type f -printf '%s\n' | awk '{total += $1} END {printf "%.2f GB\n", total/1024/1024/1024}'
+end
+
+function ref_dirinfo2
+    set -l dir .
+    if test (count $argv) -gt 0
+        set dir $argv[1]
+    end
+
+    echo "File count:  "(find "$dir" -type f | wc -l)
+    echo "Total size: "(find "$dir" -type f -print0 | du --files0-from=- -ch | tail -n1)
+end
+
+function mp4togif
+    if test (count $argv) -lt 1
+        echo 'Usage: mp4togif INPUT [FPS] [WIDTH] [DITHER]' >&2
+        return 2
+    end
+
+    set -l input $argv[1]
+    set -l fps 15
+    set -l width 720
+    set -l dither bayer
+
+    test (count $argv) -ge 2; and set fps $argv[2]
+    test (count $argv) -ge 3; and set width $argv[3]
+    test (count $argv) -ge 4; and set dither $argv[4]
+
+    set -l output (string replace -r '\.mp4$' '.gif' -- "$input")
+    if test "$output" = "$input"
+        set output "$input.gif"
+    end
+
+    ffmpeg -i "$input" \
+        -vf "fps=$fps,scale=$width:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=256[p];[s1][p]paletteuse=dither=$dither" \
+        "$output"
+end
+
+##### KEYBINDS #####
+bind \co edit_command_buffer
+if functions -q __fzf_path_widget
+    bind \ct __fzf_path_widget
+end
+
+function __tmux_session_fzf_widget
+    commandline -r "$HOME/.local/scripts/tmux-session-fzf"
+    commandline -f execute
+end
+
+bind \es __tmux_session_fzf_widget
