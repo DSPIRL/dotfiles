@@ -115,7 +115,17 @@ fi
 
 ##### PROMPT #####
 if command -v oh-my-posh &>/dev/null && [ "${TERM_PROGRAM}" != "Apple_Terminal" ]; then
-  eval "$(oh-my-posh init zsh --config ${HOME}/.config/oh-my-posh/wallust.omp.json)"
+  _wallust_init_oh_my_posh() {
+    local omp_config="${HOME}/.config/oh-my-posh/wallust.omp.json"
+
+    if [[ -f "${omp_config}" ]]; then
+      eval "$(oh-my-posh init zsh --config "${omp_config}")"
+    else
+      eval "$(oh-my-posh init zsh)"
+    fi
+  }
+
+  _wallust_init_oh_my_posh
 
   _wallust_prompt_refresh_pidfile() {
     local runtime_dir="${XDG_RUNTIME_DIR:-/run/user/${UID}}"
@@ -166,6 +176,8 @@ if command -v oh-my-posh &>/dev/null && [ "${TERM_PROGRAM}" != "Apple_Terminal" 
   }
 
   _wallust_prompt_refresh_prompt() {
+    _wallust_init_oh_my_posh
+
     if (( $+functions[_omp_precmd] )); then
       _omp_precmd
     fi
