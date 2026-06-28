@@ -39,7 +39,7 @@ Rectangle {
 
         visible: workspace.id > 0
         radius: 10
-        implicitWidth: workspaceLabel.implicitWidth + 12
+        implicitWidth: workspaceLabel.implicitWidth + 16
         implicitHeight: 24
         border.width: workspace.urgent ? 1 : 0
         border.color: wallust.color3
