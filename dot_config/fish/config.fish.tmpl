@@ -235,14 +235,23 @@ end
 ##### PROMPT #####
 if command -q oh-my-posh; and test "$TERM_PROGRAM" != Apple_Terminal
     function __init_oh_my_posh
+{{- if eq .chezmoi.os "darwin" }}
+        set -l omp_config "$HOME/.config/oh-my-posh/default.omp.json"
+{{- else if eq .chezmoi.os "linux" }}
         set -l omp_config "$HOME/.config/oh-my-posh/wallust.omp.json"
-        if test -f "$omp_config"
+{{- else }}
+        set -l omp_config ""
+{{- end }}
+        if test -n "$omp_config"; and test -f "$omp_config"
             oh-my-posh init fish --config "$omp_config" | source
         else
             oh-my-posh init fish | source
         end
     end
 
+    __init_oh_my_posh
+
+{{- if eq .chezmoi.os "linux" }}
     function __wallust_prompt_refresh_pidfile
         if set -q XDG_RUNTIME_DIR; and test -d "$XDG_RUNTIME_DIR"; and test -w "$XDG_RUNTIME_DIR"
             echo "$XDG_RUNTIME_DIR/wallust-prompt-refresh.fish.pids"
@@ -309,8 +318,8 @@ if command -q oh-my-posh; and test "$TERM_PROGRAM" != Apple_Terminal
         end
     end
 
-    __init_oh_my_posh
     __wallust_prompt_refresh_register
+{{- end }}
 end
 
 ##### MISE-EN-PLACE #####
