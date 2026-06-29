@@ -1,3 +1,5 @@
+{{- $isDarwin := eq .chezmoi.os "darwin" -}}
+{{- $isLinux := eq .chezmoi.os "linux" -}}
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
@@ -131,7 +133,19 @@ PS1='[\u@\h \W]\$ '
 
 ##### OH MY POSH PROMPT #####
 if command -v oh-my-posh &>/dev/null; then
-    eval "$(oh-my-posh init bash)"
+{{- if $isDarwin }}
+    omp_config="${HOME}/.config/oh-my-posh/default.omp.json"
+{{- else if $isLinux }}
+    omp_config="${HOME}/.config/oh-my-posh/wallust.omp.json"
+{{- else }}
+    omp_config=""
+{{- end }}
+    if [[ -n "${omp_config}" && -f "${omp_config}" ]]; then
+        eval "$(oh-my-posh init bash --config "${omp_config}")"
+    else
+        eval "$(oh-my-posh init bash)"
+    fi
+    unset omp_config
 fi
 
 ##### COMPLETERS #####
