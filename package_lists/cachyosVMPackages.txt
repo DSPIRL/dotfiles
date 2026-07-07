@@ -1,6 +1,11 @@
-qemu
+qemu-full
 virt-manager
 virt-viewer
-vde2
+libvirt
+edk2-ovmf
+dnsmasq
+iptables-nft
+swtpm
+virtiofsd
 openbsd-netcat
 libguestfs

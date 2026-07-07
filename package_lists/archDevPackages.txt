@@ -1,9 +1,0 @@
-dotnet-runtime
-dotnet-sdk
-github-cli
-go
-jujutsu
-nodejs
-npm
-pypy
-uv
