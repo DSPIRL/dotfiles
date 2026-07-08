@@ -174,7 +174,7 @@ PanelWindow {
 
   readonly property var displayBattery: UPower.displayDevice
   readonly property bool hasBattery: displayBattery && displayBattery.ready && displayBattery.isLaptopBattery
-  readonly property int batteryPercent: hasBattery ? Math.round(displayBattery.percentage) : 0
+  readonly property int batteryPercent: hasBattery ? normalizeBatteryPercent(displayBattery) : 0
 
   readonly property color batteryTextColor: {
     if (!hasBattery) {
@@ -475,6 +475,31 @@ PanelWindow {
     }
 
     return "󰁻";
+  }
+
+  function normalizeBatteryPercent(device) {
+    if (!device) {
+      return 0;
+    }
+
+    const rawPercent = Number(device.percentage);
+
+    if (!Number.isFinite(rawPercent)) {
+      return 0;
+    }
+
+    if (rawPercent > 1) {
+      return Math.max(0, Math.min(100, Math.round(rawPercent)));
+    }
+
+    const energy = Number(device.energy);
+    const capacity = Number(device.energyCapacity);
+
+    if (Number.isFinite(energy) && Number.isFinite(capacity) && capacity > 0) {
+      return Math.max(0, Math.min(100, Math.round((energy / capacity) * 100)));
+    }
+
+    return Math.max(0, Math.min(100, Math.round(rawPercent * 100)));
   }
 
   function launchNetworkTui() {
