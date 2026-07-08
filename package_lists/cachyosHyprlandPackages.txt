@@ -22,6 +22,7 @@ hyprwire
 kde-gtk-config
 kvantum
 nautilus
+nwg-displays
 nwg-look
 plasma-integration
 playerctl
@@ -34,7 +35,7 @@ rofi
 rofi-calc
 rofimoji
 swaync
-swww
+awww
 wallust
 waypaper
 wl-clipboard
