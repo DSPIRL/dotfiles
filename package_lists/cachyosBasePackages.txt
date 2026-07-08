@@ -7,6 +7,7 @@ carapace-bin
 cava
 eza
 flatpak
+ghostty
 gnome-calculator
 gnome-calendar
 gnome-dictionary

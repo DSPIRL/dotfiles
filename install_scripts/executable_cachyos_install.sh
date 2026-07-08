@@ -63,6 +63,19 @@ install_kanata() {
     fi
 }
 
+install_oh_my_posh() {
+    if command -v oh-my-posh >/dev/null 2>&1; then
+        echo "oh-my-posh is already installed."
+        return 0
+    fi
+
+    if ! command -v curl >/dev/null 2>&1; then
+        install_packages curl
+    fi
+
+    curl -s https://ohmyposh.dev/install.sh | bash -s
+}
+
 if [[ -r /etc/os-release ]]; then
     # shellcheck disable=SC1091
     . /etc/os-release
@@ -115,6 +128,9 @@ fi
 
 install_packages "${installPackages[@]}"
 
+# Oh My Posh setup
+install_oh_my_posh
+
 # Hyprland setup
 if [[ "${varHyprlandInstall^^}" == "Y" ]]; then
     bash "${DOTSCRIPTS}/executable_hyprland_install.sh"
@@ -138,6 +154,7 @@ fi
 # Kanata install
 if [[ "${varKanataInstall^^}" == "Y" ]]; then
     install_kanata
+    bash "${DOTSCRIPTS}/executable_kanata_setup.sh"
 fi
 
 # VM host setup
