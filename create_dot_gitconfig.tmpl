@@ -26,11 +26,8 @@
 
 {{- if eq .chezmoi.os "darwin" }}
 	editor = /opt/homebrew/bin/nvim
-{{- else }}
+{{- else if eq .chezmoi.os "linux" }}
 	editor = /usr/bin/nvim
-{{- end }}
-{{- if .useKeePassXC }}
-	sshCommand = ssh -i ~/.ssh/gitea
 {{- end }}
 
 [diff]
