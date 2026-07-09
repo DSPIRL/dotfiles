@@ -56,8 +56,9 @@ font-family = "Hack Nerd Font"
 # font-family = "FiraCode Nerd Font=34;Hack Nerd Font=34;Jetbrains Mono Nerd Font=34;Noto Color Emoji=34"
 font-size = 14
 scrollback-limit = 1000000
-quit-after-last-window-closed = false
+{{- if eq .chezmoi.os "linux" }}
 quit-after-last-window-closed-delay = 2s
+{{- end }}
 shell-integration-features = no-cursor
 macos-option-as-alt = true
 

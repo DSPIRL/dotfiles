@@ -9,6 +9,10 @@ fi
 
 wallust run "$@"
 
+if [[ "$OSTYPE" == linux* ]]; then
+  pkill -USR2 -u "$UID" -x ghostty 2>/dev/null || true
+fi
+
 runtime_dir="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 if [[ ! -d "$runtime_dir" || ! -w "$runtime_dir" ]]; then
   runtime_dir="${HOME}/.cache"
