@@ -15,6 +15,7 @@ hypridle
 hyprland
 hyprland-guiutils
 hyprland-qt-support
+hyprlock
 hyprpicker
 hyprpolkitagent
 hyprpwcenter
