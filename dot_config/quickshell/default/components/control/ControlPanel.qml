@@ -31,6 +31,9 @@ PanelWindow {
     if (bar && bar.ddcBrightnessState) {
       bar.ddcBrightnessState.refresh();
     }
+    if (bar && bar.laptopBrightnessState) {
+      bar.laptopBrightnessState.refresh();
+    }
   }
 
   Rectangle {
@@ -93,7 +96,7 @@ PanelWindow {
             id: refreshLabel
 
             anchors.centerIn: parent
-            text: bar && bar.ddcBrightnessState && bar.ddcBrightnessState.refreshing ? "..." : "Refresh"
+            text: bar && ((bar.ddcBrightnessState && bar.ddcBrightnessState.refreshing) || (bar.laptopBrightnessState && bar.laptopBrightnessState.refreshing)) ? "..." : "Refresh"
             color: wallust.barText
             font.family: "Hack Nerd Font"
             font.pixelSize: 13
@@ -106,8 +109,13 @@ PanelWindow {
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
 
-            onClicked: if (bar && bar.ddcBrightnessState) {
-              bar.ddcBrightnessState.refresh();
+            onClicked: {
+              if (bar && bar.ddcBrightnessState) {
+                bar.ddcBrightnessState.refresh();
+              }
+              if (bar && bar.laptopBrightnessState) {
+                bar.laptopBrightnessState.refresh();
+              }
             }
           }
         }
@@ -128,6 +136,13 @@ PanelWindow {
           devices: bar ? bar.audioInputDevices : []
           defaultDevice: bar ? bar.defaultAudioSource : null
           input: true
+        }
+
+        LaptopBrightnessControl {
+          visible: Boolean(bar && bar.showLaptopBrightnessControl)
+          width: parent.width
+          bar: root.bar
+          wallust: root.wallust
         }
 
         Rectangle {
@@ -185,7 +200,7 @@ PanelWindow {
 
               Text {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "No DDC displays found"
+                text: bar && bar.ddcBrightnessState && bar.ddcBrightnessState.error.length > 0 ? bar.ddcBrightnessState.error : "No DDC displays found"
                 color: wallust.barText
                 font.family: "Hack Nerd Font"
                 font.pixelSize: 13
@@ -193,7 +208,7 @@ PanelWindow {
 
               Text {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "Connect a DDC-capable external monitor"
+                text: bar && bar.ddcBrightnessState && bar.ddcBrightnessState.error.length > 0 ? "Check ddcutil and i2c permissions" : "Connect a DDC-capable external monitor"
                 color: wallust.barMutedText
                 font.family: "Hack Nerd Font"
                 font.pixelSize: 12

@@ -52,4 +52,5 @@ cd "${HOME}"
 mapfile -t hyprlandPackages < <(awk 'NF && $1 !~ /^#/ { print }' "${DOTPKG}/cachyosHyprlandPackages.txt")
 
 install_packages "${hyprlandPackages[@]}"
+run_module backlight.sh
 run_module greetd.sh

@@ -2,7 +2,9 @@ breeze
 breeze-cursors
 breeze-gtk
 breeze-icons
+brightnessctl
 cliphist
+ddcutil
 dolphin
 gamescope
 greetd

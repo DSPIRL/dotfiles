@@ -14,7 +14,7 @@ ShellRoot {
   property int notificationToggleGeneration: 0
   property int controlToggleGeneration: 0
 
-  readonly property string ddcBrightnessCommand: "if ! command -v ddcutil >/dev/null 2>&1; then exit 127; fi; " +
+  readonly property string ddcBrightnessCommand: "if ! command -v ddcutil >/dev/null 2>&1; then printf '__QS_DDC_MISSING__\\n'; exit 0; fi; " +
     "ddcutil detect --terse 2>/dev/null | awk '" +
     "/^Display[[:space:]]+[0-9]+/ { if (display != \"\") print display \";\" connector \";\" monitor; display=$2; connector=\"\"; monitor=\"\" } " +
     "/DRM connector:/ { connector=$3 } " +
@@ -30,15 +30,29 @@ ShellRoot {
     "fi; " +
     "done"
 
+  readonly property string laptopBrightnessCommand: "if ! ls /sys/class/backlight/* >/dev/null 2>&1; then exit 0; fi; " +
+    "if ! command -v brightnessctl >/dev/null 2>&1; then printf '__QS_BACKLIGHT_MISSING__\\n'; exit 0; fi; " +
+    "brightnessctl --class=backlight --machine-readable info 2>/dev/null"
+
   QtObject {
     id: ddcBrightnessState
 
     property var displays: []
     property int displayCount: 0
     property bool refreshing: false
+    property string error: ""
 
     function update(rawText) {
       const text = rawText ? rawText.trim() : "";
+      error = "";
+
+      if (text === "__QS_DDC_MISSING__") {
+        displays = [];
+        displayCount = 0;
+        error = "ddcutil is not installed";
+        return;
+      }
+
       if (text.length === 0) {
         displays = [];
         displayCount = 0;
@@ -119,6 +133,89 @@ ShellRoot {
     }
   }
 
+  QtObject {
+    id: laptopBrightnessState
+
+    property string device: ""
+    property int current: 0
+    property int maximum: 100
+    property int percent: 0
+    property bool available: false
+    property bool missingTool: false
+    property bool checked: false
+    property bool refreshing: false
+
+    function clear() {
+      device = "";
+      current = 0;
+      maximum = 100;
+      percent = 0;
+      available = false;
+    }
+
+    function update(rawText) {
+      const text = rawText ? rawText.trim() : "";
+      checked = true;
+      missingTool = false;
+
+      if (text === "__QS_BACKLIGHT_MISSING__") {
+        clear();
+        missingTool = true;
+        return;
+      }
+
+      if (text.length === 0) {
+        clear();
+        return;
+      }
+
+      const line = text.split("\n")[0];
+      const parts = line.split(",");
+      if (parts.length < 5) {
+        clear();
+        return;
+      }
+
+      const parsedCurrent = parseInt(parts[2], 10);
+      const parsedMaximum = parseInt(parts[3], 10);
+      const parsedPercent = parseInt(parts[4].replace("%", ""), 10);
+
+      if (Number.isNaN(parsedCurrent) || Number.isNaN(parsedMaximum) || parsedMaximum <= 0) {
+        clear();
+        return;
+      }
+
+      device = parts[0];
+      current = Math.max(0, Math.min(parsedMaximum, parsedCurrent));
+      maximum = parsedMaximum;
+      percent = Number.isNaN(parsedPercent) ? Math.round((current / maximum) * 100) : Math.max(0, Math.min(100, parsedPercent));
+      available = true;
+    }
+
+    function refresh() {
+      if (!laptopBrightnessProcess.running) {
+        laptopBrightnessProcess.running = true;
+      }
+    }
+
+    function setBrightness(percentValue) {
+      if (!available) {
+        return;
+      }
+
+      const nextPercent = Math.max(0, Math.min(100, Math.round(percentValue)));
+      const nextMaximum = Math.max(1, maximum || 100);
+      const nextCurrent = Math.max(0, Math.min(nextMaximum, Math.round((nextPercent / 100) * nextMaximum)));
+
+      Quickshell.execDetached(["brightnessctl", "--class=backlight", "set", String(nextPercent) + "%"]);
+      current = nextCurrent;
+      percent = nextPercent;
+      maximum = nextMaximum;
+      available = true;
+      laptopBrightnessRefreshAfterSetTimer.restart();
+    }
+  }
+
   Process {
     id: ddcBrightnessProcess
 
@@ -134,10 +231,35 @@ ShellRoot {
     onExited: function(exitCode, exitStatus) {
       if (exitCode !== 0) {
         ddcBrightnessState.displays = [];
+        ddcBrightnessState.displayCount = 0;
+        ddcBrightnessState.error = "DDC scan failed";
         return;
       }
 
       ddcBrightnessState.update(ddcBrightnessStdout.text);
+    }
+  }
+
+  Process {
+    id: laptopBrightnessProcess
+
+    command: ["sh", "-c", shellRoot.laptopBrightnessCommand]
+
+    stdout: StdioCollector {
+      id: laptopBrightnessStdout
+      waitForEnd: true
+    }
+
+    onRunningChanged: laptopBrightnessState.refreshing = running
+
+    onExited: function(exitCode, exitStatus) {
+      if (exitCode !== 0) {
+        laptopBrightnessState.checked = true;
+        laptopBrightnessState.clear();
+        return;
+      }
+
+      laptopBrightnessState.update(laptopBrightnessStdout.text);
     }
   }
 
@@ -151,12 +273,30 @@ ShellRoot {
   }
 
   Timer {
+    interval: 60000
+    running: true
+    repeat: true
+    triggeredOnStart: true
+
+    onTriggered: laptopBrightnessState.refresh()
+  }
+
+  Timer {
     id: ddcBrightnessRefreshAfterSetTimer
 
     interval: 1500
     repeat: false
 
     onTriggered: ddcBrightnessState.refresh()
+  }
+
+  Timer {
+    id: laptopBrightnessRefreshAfterSetTimer
+
+    interval: 1500
+    repeat: false
+
+    onTriggered: laptopBrightnessState.refresh()
   }
 
   NotificationServer {
@@ -205,6 +345,7 @@ ShellRoot {
       controlToggleGeneration: shellRoot.controlToggleGeneration
       focusedHyprMonitor: Hyprland.focusedMonitor
       ddcBrightnessState: ddcBrightnessState
+      laptopBrightnessState: laptopBrightnessState
     }
   }
 }

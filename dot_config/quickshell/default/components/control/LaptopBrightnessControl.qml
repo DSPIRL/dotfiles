@@ -5,45 +5,26 @@ Rectangle {
 
   property var bar
   property var wallust
-  property var ddcDisplay
 
-  readonly property int maximum: ddcDisplay && ddcDisplay.maximum > 0 ? ddcDisplay.maximum : 100
-  readonly property int current: ddcDisplay ? ddcDisplay.current : 0
-  readonly property real modelPercent: maximum > 0 ? Math.max(0, Math.min(100, (current / maximum) * 100)) : 0
+  readonly property var brightnessState: bar ? bar.laptopBrightnessState : null
+  readonly property bool available: Boolean(brightnessState && brightnessState.available)
+  readonly property bool missingTool: Boolean(brightnessState && brightnessState.missingTool)
+  readonly property string deviceLabel: brightnessState && brightnessState.device ? brightnessState.device : "Laptop display"
+  readonly property real modelPercent: available ? Math.max(0, Math.min(100, brightnessState.percent)) : 0
   readonly property real shownPercent: dragging ? pendingPercent : modelPercent
-  readonly property string connector: ddcDisplay && ddcDisplay.connector ? ddcDisplay.connector : ""
-  readonly property string monitor: ddcDisplay && ddcDisplay.monitor ? ddcDisplay.monitor : "External display"
-  readonly property string displayLabel: connectorLabel(connector)
 
   property bool dragging: false
   property real pendingPercent: modelPercent
 
-  implicitHeight: 58
+  implicitHeight: sectionColumn.implicitHeight + 20
   height: implicitHeight
-  radius: 12
-  color: controlMouse.containsMouse || dragging ? wallust.barHover : "transparent"
+  radius: 14
+  color: "transparent"
+  border.width: 1
+  border.color: wallust.barBorder
 
   onModelPercentChanged: if (!dragging) {
     pendingPercent = modelPercent;
-  }
-
-  Behavior on color {
-    ColorAnimation {
-      duration: 120
-    }
-  }
-
-  function connectorLabel(connectorName) {
-    if (connectorName.length === 0) {
-      return ddcDisplay && ddcDisplay.display ? "DDC " + ddcDisplay.display : "DDC";
-    }
-
-    const parts = connectorName.split("-");
-    if (parts.length > 1 && parts[0].indexOf("card") === 0) {
-      return parts.slice(1).join("-");
-    }
-
-    return connectorName;
   }
 
   function clampPercent(percent) {
@@ -59,42 +40,42 @@ Rectangle {
   }
 
   function commitPercent(percent) {
-    if (!bar || !ddcDisplay) {
-      return;
+    if (bar) {
+      bar.setLaptopBrightness(clampPercent(percent));
     }
-
-    bar.setDdcBrightness(ddcDisplay.display, clampPercent(percent), maximum);
-  }
-
-  MouseArea {
-    id: controlMouse
-
-    anchors.fill: parent
-    acceptedButtons: Qt.NoButton
-    hoverEnabled: true
   }
 
   Column {
-    anchors.left: parent.left
-    anchors.right: parent.right
-    anchors.verticalCenter: parent.verticalCenter
-    anchors.leftMargin: 10
-    anchors.rightMargin: 10
-    spacing: 8
+    id: sectionColumn
+
+    x: 10
+    y: 10
+    width: parent.width - 20
+    spacing: 10
 
     Row {
       width: parent.width
-      height: 18
+      height: 22
       spacing: 8
 
       Text {
-        width: parent.width - percentLabel.width - parent.spacing
+        width: 20
         anchors.verticalCenter: parent.verticalCenter
-        text: root.displayLabel + "  " + root.monitor
-        color: wallust.barText
-        elide: Text.ElideRight
+        text: "󰃠"
+        color: wallust.color3
         font.family: "Hack Nerd Font"
-        font.pixelSize: 13
+        font.pixelSize: 16
+        horizontalAlignment: Text.AlignHCenter
+      }
+
+      Text {
+        width: parent.width - 20 - percentLabel.width - parent.spacing * 2
+        anchors.verticalCenter: parent.verticalCenter
+        text: "Internal display brightness"
+        color: wallust.barText
+        font.family: "Hack Nerd Font"
+        font.pixelSize: 14
+        font.bold: true
       }
 
       Text {
@@ -102,7 +83,7 @@ Rectangle {
 
         width: 42
         anchors.verticalCenter: parent.verticalCenter
-        text: Math.round(root.shownPercent) + "%"
+        text: root.available ? Math.round(root.shownPercent) + "%" : "--"
         color: wallust.barMutedText
         font.family: "Hack Nerd Font"
         font.pixelSize: 13
@@ -110,9 +91,50 @@ Rectangle {
       }
     }
 
-    Item {
+    Rectangle {
+      visible: !root.available
       width: parent.width
-      height: 18
+      height: visible ? 62 : 0
+      radius: 12
+      color: wallust.barHover
+      opacity: 0.7
+
+      Column {
+        anchors.centerIn: parent
+        spacing: 6
+
+        Text {
+          anchors.horizontalCenter: parent.horizontalCenter
+          text: root.missingTool ? "brightnessctl is not installed" : "No internal backlight found"
+          color: wallust.barText
+          font.family: "Hack Nerd Font"
+          font.pixelSize: 13
+        }
+
+        Text {
+          anchors.horizontalCenter: parent.horizontalCenter
+          text: root.missingTool ? "Install brightnessctl to control laptop brightness" : "No /sys/class/backlight device is available"
+          color: wallust.barMutedText
+          font.family: "Hack Nerd Font"
+          font.pixelSize: 12
+        }
+      }
+    }
+
+    Text {
+      visible: root.available
+      width: parent.width
+      text: root.deviceLabel
+      color: wallust.barMutedText
+      elide: Text.ElideRight
+      font.family: "Hack Nerd Font"
+      font.pixelSize: 12
+    }
+
+    Item {
+      visible: root.available
+      width: parent.width
+      height: visible ? 18 : 0
 
       Rectangle {
         id: sliderTrack
