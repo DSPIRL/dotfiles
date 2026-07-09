@@ -16,7 +16,7 @@ vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.wrap = true
 
--- Disable autoformat (<leader>cf)
+-- Disable format on save; manual formatting remains available with <leader>cf
 vim.g.autoformat = false
 
 -- Disable auto diagnostic (<leader>ud)
