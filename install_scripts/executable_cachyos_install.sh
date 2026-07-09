@@ -154,7 +154,7 @@ fi
 # Kanata install
 if [[ "${varKanataInstall^^}" == "Y" ]]; then
     install_kanata
-    bash "${DOTSCRIPTS}/executable_kanata_setup.sh"
+    bash "${DOTMODS}/executable_kanata_setup.sh"
 fi
 
 # VM host setup

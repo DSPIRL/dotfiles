@@ -218,6 +218,12 @@ autoload -U edit-command-line
 zle -N edit-command-line
 bindkey '^O' edit-command-line
 
+{{ if $isLinux -}}
+bindkey $'\e[1;3D' backward-word
+bindkey $'\e[1;3C' forward-word
+bindkey $'\e[1;3A' history-beginning-search-backward
+bindkey $'\e[1;3B' history-beginning-search-forward
+{{ end }}
 __tmux_session_fzf_widget() {
   [[ -n "${BUFFER}" ]] && zle push-line
   BUFFER="${HOME}/.local/scripts/tmux-session-fzf"
