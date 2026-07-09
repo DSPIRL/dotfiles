@@ -51,6 +51,10 @@ Rectangle {
   }
 
   function updateFromMouse(mouseX) {
+    if (sliderTrack.width <= 0) {
+      return;
+    }
+
     pendingPercent = clampPercent(((mouseX - sliderTrack.x) / sliderTrack.width) * 100);
   }
 

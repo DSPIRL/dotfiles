@@ -54,6 +54,7 @@ PanelWindow {
   property int controlToggleGeneration: 0
   property var focusedHyprMonitor
   property var ddcBrightnessState
+  property var laptopBrightnessState
   property bool controlPanelOpen: false
   property bool notificationPanelOpen: false
   property var toastNotification
@@ -175,6 +176,7 @@ PanelWindow {
   readonly property var displayBattery: UPower.displayDevice
   readonly property bool hasBattery: displayBattery && displayBattery.ready && displayBattery.isLaptopBattery
   readonly property int batteryPercent: hasBattery ? normalizeBatteryPercent(displayBattery) : 0
+  readonly property bool showLaptopBrightnessControl: Boolean(hasBattery || (laptopBrightnessState && (laptopBrightnessState.available || laptopBrightnessState.missingTool)))
 
   readonly property color batteryTextColor: {
     if (!hasBattery) {
@@ -243,6 +245,12 @@ PanelWindow {
   function setDdcBrightness(display, percent, maximum) {
     if (ddcBrightnessState) {
       ddcBrightnessState.setBrightness(display, percent, maximum);
+    }
+  }
+
+  function setLaptopBrightness(percent) {
+    if (laptopBrightnessState) {
+      laptopBrightnessState.setBrightness(percent);
     }
   }
 

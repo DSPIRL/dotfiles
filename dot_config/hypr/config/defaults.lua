@@ -13,6 +13,7 @@ return {
   controlPanel = "qs ipc call control toggle",
   barReload = scripts .. "/quickshell-reload.sh",
   barDoctor = scripts .. "/quickshell-healthcheck.sh",
+  brightness = scripts .. "/brightness.sh",
   opacityToggle = scripts .. "/toggle-opacity.sh",
   performanceProfileToggle = scripts .. "/toggle-performance-profile.sh",
   themeToggle = scripts .. "/toggle-breeze-theme.sh",
