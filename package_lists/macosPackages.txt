@@ -1,5 +1,7 @@
 bat
 btop
+cfn-lint
+cfn-format
 eza
 fzf
 ghostty
