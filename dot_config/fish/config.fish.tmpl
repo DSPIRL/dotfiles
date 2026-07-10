@@ -4,6 +4,7 @@ set -gx XDG_DATA_HOME "$HOME/.local/share"
 set -gx XDG_CACHE_HOME "$HOME/.cache"
 set -gx DOTS "$HOME/.local/share/chezmoi"
 set -gx DOTS_CONFIG "$DOTS/dot_config"
+set -g fish_greeting
 
 function __add_path --argument-names path position
     test -d "$path"; or return
