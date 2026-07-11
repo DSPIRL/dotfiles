@@ -76,6 +76,12 @@ install_oh_my_posh() {
     curl -s https://ohmyposh.dev/install.sh | bash -s
 }
 
+enable_atd_service() {
+    if ! command -v at >/dev/null 2>&1; then
+        sudo systemctl enable --now atd.service
+    fi
+}
+
 if [[ -r /etc/os-release ]]; then
     # shellcheck disable=SC1091
     . /etc/os-release
@@ -170,5 +176,5 @@ else
     echo "Skipping zoxide setup: zoxide is not available."
 fi
 
-# SSH config setup
-run_module ssh_config.sh
+# atd setup
+enable_atd_service
