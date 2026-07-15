@@ -16,6 +16,13 @@ Rectangle {
   property bool dragging: false
   property real pendingPercent: modelPercent
 
+  onAvailableChanged: Qt.callLater(function() {
+    sectionColumn.forceLayout();
+  })
+  onMissingToolChanged: Qt.callLater(function() {
+    sectionColumn.forceLayout();
+  })
+
   implicitHeight: sectionColumn.implicitHeight + 20
   height: implicitHeight
   radius: 14

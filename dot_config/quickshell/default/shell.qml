@@ -35,7 +35,7 @@ ShellRoot {
     "brightnessctl --class=backlight --machine-readable info 2>/dev/null"
 
   QtObject {
-    id: ddcBrightnessState
+    id: ddcState
 
     property var displays: []
     property int displayCount: 0
@@ -134,7 +134,7 @@ ShellRoot {
   }
 
   QtObject {
-    id: laptopBrightnessState
+    id: laptopState
 
     property string device: ""
     property int current: 0
@@ -177,8 +177,8 @@ ShellRoot {
       }
 
       const parsedCurrent = parseInt(parts[2], 10);
-      const parsedMaximum = parseInt(parts[3], 10);
-      const parsedPercent = parseInt(parts[4].replace("%", ""), 10);
+      const parsedPercent = parseInt(parts[3].replace("%", ""), 10);
+      const parsedMaximum = parseInt(parts[4], 10);
 
       if (Number.isNaN(parsedCurrent) || Number.isNaN(parsedMaximum) || parsedMaximum <= 0) {
         clear();
@@ -226,17 +226,17 @@ ShellRoot {
       waitForEnd: true
     }
 
-    onRunningChanged: ddcBrightnessState.refreshing = running
+    onRunningChanged: ddcState.refreshing = running
 
     onExited: function(exitCode, exitStatus) {
       if (exitCode !== 0) {
-        ddcBrightnessState.displays = [];
-        ddcBrightnessState.displayCount = 0;
-        ddcBrightnessState.error = "DDC scan failed";
+        ddcState.displays = [];
+        ddcState.displayCount = 0;
+        ddcState.error = "DDC scan failed";
         return;
       }
 
-      ddcBrightnessState.update(ddcBrightnessStdout.text);
+      ddcState.update(ddcBrightnessStdout.text);
     }
   }
 
@@ -250,16 +250,16 @@ ShellRoot {
       waitForEnd: true
     }
 
-    onRunningChanged: laptopBrightnessState.refreshing = running
+    onRunningChanged: laptopState.refreshing = running
 
     onExited: function(exitCode, exitStatus) {
       if (exitCode !== 0) {
-        laptopBrightnessState.checked = true;
-        laptopBrightnessState.clear();
+        laptopState.checked = true;
+        laptopState.clear();
         return;
       }
 
-      laptopBrightnessState.update(laptopBrightnessStdout.text);
+      laptopState.update(laptopBrightnessStdout.text);
     }
   }
 
@@ -269,7 +269,7 @@ ShellRoot {
     repeat: true
     triggeredOnStart: true
 
-    onTriggered: ddcBrightnessState.refresh()
+    onTriggered: ddcState.refresh()
   }
 
   Timer {
@@ -278,7 +278,7 @@ ShellRoot {
     repeat: true
     triggeredOnStart: true
 
-    onTriggered: laptopBrightnessState.refresh()
+    onTriggered: laptopState.refresh()
   }
 
   Timer {
@@ -287,7 +287,7 @@ ShellRoot {
     interval: 1500
     repeat: false
 
-    onTriggered: ddcBrightnessState.refresh()
+    onTriggered: ddcState.refresh()
   }
 
   Timer {
@@ -296,7 +296,7 @@ ShellRoot {
     interval: 1500
     repeat: false
 
-    onTriggered: laptopBrightnessState.refresh()
+    onTriggered: laptopState.refresh()
   }
 
   NotificationServer {
@@ -344,8 +344,8 @@ ShellRoot {
       notificationToggleGeneration: shellRoot.notificationToggleGeneration
       controlToggleGeneration: shellRoot.controlToggleGeneration
       focusedHyprMonitor: Hyprland.focusedMonitor
-      ddcBrightnessState: ddcBrightnessState
-      laptopBrightnessState: laptopBrightnessState
+      ddcBrightnessState: ddcState
+      laptopBrightnessState: laptopState
     }
   }
 }
