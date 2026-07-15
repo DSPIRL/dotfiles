@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 
 Rectangle {
   id: root
@@ -11,6 +12,7 @@ Rectangle {
 
   readonly property int deviceCount: devices ? devices.length : 0
   readonly property bool hasDefaultDevice: Boolean(defaultDevice && defaultDevice.audio)
+  readonly property int additionalDeviceCount: Math.max(0, deviceCount - (hasDefaultDevice ? 1 : 0))
   readonly property bool muted: hasDefaultDevice ? defaultDevice.audio.muted : false
   readonly property real modelPercent: hasDefaultDevice ? Math.max(0, Math.min(100, defaultDevice.audio.volume * 100)) : 0
   readonly property real shownPercent: dragging ? pendingPercent : modelPercent
@@ -18,6 +20,7 @@ Rectangle {
   readonly property string headerIcon: input ? (muted ? "" : "") : (bar ? bar.volumeIcon(modelPercent / 100, muted) : "")
 
   property bool dragging: false
+  property bool deviceListExpanded: false
   property real pendingPercent: modelPercent
 
   implicitHeight: sectionColumn.implicitHeight + 20
@@ -30,6 +33,12 @@ Rectangle {
   onModelPercentChanged: if (!dragging) {
     pendingPercent = modelPercent;
   }
+  onAdditionalDeviceCountChanged: if (additionalDeviceCount === 0) {
+    deviceListExpanded = false;
+  }
+  onDeviceListExpandedChanged: Qt.callLater(function() {
+    sectionColumn.forceLayout();
+  })
 
   function clampPercent(percent) {
     return Math.max(0, Math.min(100, percent));
@@ -204,6 +213,8 @@ Rectangle {
           }
 
           Text {
+            id: activeDeviceName
+
             width: parent.width - 26 - parent.spacing
             anchors.verticalCenter: parent.verticalCenter
             text: root.deviceLabel(root.defaultDevice)
@@ -211,6 +222,19 @@ Rectangle {
             elide: Text.ElideRight
             font.family: "Hack Nerd Font"
             font.pixelSize: 13
+
+            MouseArea {
+              id: activeDeviceNameMouse
+
+              anchors.fill: parent
+              acceptedButtons: Qt.NoButton
+              hoverEnabled: true
+
+              ToolTip.visible: containsMouse && activeDeviceName.truncated
+              ToolTip.delay: 500
+              ToolTip.timeout: 5000
+              ToolTip.text: activeDeviceName.text
+            }
           }
         }
 
@@ -281,8 +305,61 @@ Rectangle {
       }
     }
 
+    Rectangle {
+      id: deviceListToggle
+
+      visible: root.additionalDeviceCount > 0
+      width: parent.width
+      height: visible ? 34 : 0
+      radius: 10
+      color: deviceListToggleMouse.containsMouse ? wallust.barHover : "transparent"
+      border.width: 1
+      border.color: wallust.barBorder
+
+      Row {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.leftMargin: 10
+        anchors.rightMargin: 10
+        spacing: 8
+
+        Text {
+          width: parent.width - deviceListChevron.width - parent.spacing
+          anchors.verticalCenter: parent.verticalCenter
+          text: root.hasDefaultDevice ? "Other " + root.title.toLowerCase() + " " + (root.additionalDeviceCount === 1 ? "device" : "devices") + " (" + root.additionalDeviceCount + ")" : "Choose an " + root.title.toLowerCase() + " device"
+          color: wallust.barText
+          font.family: "Hack Nerd Font"
+          font.pixelSize: 13
+        }
+
+        Text {
+          id: deviceListChevron
+
+          width: 18
+          anchors.verticalCenter: parent.verticalCenter
+          text: root.deviceListExpanded ? "" : ""
+          color: wallust.barMutedText
+          font.family: "Hack Nerd Font"
+          font.pixelSize: 13
+          horizontalAlignment: Text.AlignHCenter
+        }
+      }
+
+      MouseArea {
+        id: deviceListToggleMouse
+
+        anchors.fill: parent
+        hoverEnabled: true
+        acceptedButtons: Qt.LeftButton
+        cursorShape: Qt.PointingHandCursor
+
+        onClicked: root.deviceListExpanded = !root.deviceListExpanded
+      }
+    }
+
     Column {
-      visible: root.deviceCount > 0
+      visible: root.deviceListExpanded && root.additionalDeviceCount > 0
       width: parent.width
       height: visible ? implicitHeight : 0
       spacing: 6
@@ -294,43 +371,27 @@ Rectangle {
           id: deviceRow
 
           readonly property bool active: root.isDefaultDevice(modelData)
+          readonly property bool selectable: !root.hasDefaultDevice || !active
 
+          visible: selectable
           width: parent.width
-          height: 34
+          height: visible ? 34 : 0
           radius: 10
-          color: active || deviceMouse.containsMouse ? wallust.barHover : "transparent"
-          border.width: active ? 1 : 0
-          border.color: active ? wallust.color3 : "transparent"
+          color: deviceMouse.containsMouse ? wallust.barHover : "transparent"
 
-          Row {
+          Text {
+            id: deviceName
+
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             anchors.leftMargin: 10
             anchors.rightMargin: 10
-            spacing: 8
-
-            Text {
-              width: parent.width - activeLabel.width - parent.spacing
-              anchors.verticalCenter: parent.verticalCenter
-              text: root.deviceLabel(modelData)
-              color: wallust.barText
-              elide: Text.ElideRight
-              font.family: "Hack Nerd Font"
-              font.pixelSize: 13
-            }
-
-            Text {
-              id: activeLabel
-
-              width: deviceRow.active ? implicitWidth : 0
-              anchors.verticalCenter: parent.verticalCenter
-              text: deviceRow.active ? "Active" : ""
-              color: wallust.color3
-              font.family: "Hack Nerd Font"
-              font.pixelSize: 12
-              font.bold: true
-            }
+            text: root.deviceLabel(modelData)
+            color: wallust.barText
+            elide: Text.ElideRight
+            font.family: "Hack Nerd Font"
+            font.pixelSize: 13
           }
 
           MouseArea {
@@ -341,8 +402,16 @@ Rectangle {
             acceptedButtons: Qt.LeftButton
             cursorShape: Qt.PointingHandCursor
 
-            onClicked: if (bar) {
-              bar.setDefaultAudioDevice(modelData, root.input);
+            ToolTip.visible: containsMouse && deviceName.truncated
+            ToolTip.delay: 500
+            ToolTip.timeout: 5000
+            ToolTip.text: deviceName.text
+
+            onClicked: {
+              if (bar) {
+                bar.setDefaultAudioDevice(modelData, root.input);
+              }
+              root.deviceListExpanded = false;
             }
           }
         }

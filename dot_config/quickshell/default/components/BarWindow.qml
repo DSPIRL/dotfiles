@@ -176,7 +176,7 @@ PanelWindow {
   readonly property var displayBattery: UPower.displayDevice
   readonly property bool hasBattery: displayBattery && displayBattery.ready && displayBattery.isLaptopBattery
   readonly property int batteryPercent: hasBattery ? normalizeBatteryPercent(displayBattery) : 0
-  readonly property bool showLaptopBrightnessControl: Boolean(hasBattery || (laptopBrightnessState && (laptopBrightnessState.available || laptopBrightnessState.missingTool)))
+  readonly property bool showLaptopBrightnessControl: Boolean(laptopBrightnessState && (laptopBrightnessState.available || laptopBrightnessState.missingTool))
 
   readonly property color batteryTextColor: {
     if (!hasBattery) {

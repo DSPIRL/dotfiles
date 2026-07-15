@@ -146,6 +146,7 @@ PanelWindow {
         }
 
         Rectangle {
+        visible: Boolean(bar && bar.ddcBrightnessState && bar.ddcBrightnessState.displayCount > 0)
         width: parent.width
         implicitHeight: displaySectionColumn.implicitHeight + 20
         height: implicitHeight
