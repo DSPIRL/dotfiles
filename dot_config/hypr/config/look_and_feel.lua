@@ -79,7 +79,9 @@ hl.config({
 })
 
 
-hl.curve("easy", { type = "spring", mass = 1, stiffness = 75.2633, dampening = 15.8273644 })
+-- Increasing stiffness per https://github.com/hyprwm/Hyprland/issues/15494 and https://github.com/hyprwm/Hyprland/pull/15499. 
+-- hl.curve("easy", { type = "spring", mass = 1, stiffness = 75.2633, dampening = 15.8273644 })
+hl.curve("easy", { type = "spring", mass = 1, stiffness = 258.2633, dampening = 21.8273644 })
 local curves = {
 	{ "wind", { 0.05, 0.9 }, { 0.1, 1.05 } },
 	{ "winIn", { 0.1, 1.1 }, { 0.1, 1.1 } },
@@ -98,9 +100,9 @@ for _, curve in ipairs(curves) do
 end
 
 local animations = {
-	-- { leaf = "windows", enabled = true, speed = 3, bezier = "wind", style = "slide" },
-	-- { leaf = "windowsIn", enabled = true, speed = 2, bezier = "winIn", style = "slide" },
-	-- { leaf = "windowsOut", enabled = true, speed = 3, bezier = "smoothOut", style = "slide" },
+	-- { leaf = "windows", enabled = true, speed = 2, bezier = "wind", style = "slide" },
+	-- { leaf = "windowsIn", enabled = true, speed = 2, bezier = "smoothIn", style = "slide" },
+	-- { leaf = "windowsOut", enabled = true, speed = 2, bezier = "smoothOut", style = "slide" },
     -- { leaf = "global", enabled = true, speed = 10, bezier = "default" },
 	{ leaf = "windows", enabled = true, speed = 2.0, spring = "easy" },
 	{ leaf = "windowsIn", enabled = true, speed = 2.0, spring = "easy", style = "slide up" },
