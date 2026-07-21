@@ -31,6 +31,7 @@ PanelWindow {
   }
 
   implicitHeight: 38
+  visible: barVisible
   color: "transparent"
 
   WlrLayershell.namespace: "quickshell"
@@ -52,6 +53,7 @@ PanelWindow {
   property var notifications
   property int notificationToggleGeneration: 0
   property int controlToggleGeneration: 0
+  property bool barVisible: true
   property var focusedHyprMonitor
   property var ddcBrightnessState
   property var laptopBrightnessState
@@ -69,6 +71,12 @@ PanelWindow {
   onControlToggleGenerationChanged: {
     const focused = isFocusedMonitor();
     controlPanelOpen = focused ? !controlPanelOpen : false;
+  }
+
+  onBarVisibleChanged: if (!barVisible) {
+    controlPanelOpen = false;
+    notificationPanelOpen = false;
+    toastVisible = false;
   }
 
   onNotificationPanelOpenChanged: if (notificationPanelOpen) {

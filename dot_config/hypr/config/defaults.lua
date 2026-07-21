@@ -11,6 +11,7 @@ return {
   searchEngine = "https://kagi.com/search?q={}",
   notifications = "qs ipc call notifications toggle",
   controlPanel = "qs ipc call control toggle",
+  barToggle = "qs ipc call bar toggle",
   barReload = scripts .. "/quickshell-reload.sh",
   barDoctor = scripts .. "/quickshell-healthcheck.sh",
   brightness = scripts .. "/brightness.sh",

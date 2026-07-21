@@ -13,6 +13,7 @@ ShellRoot {
 
   property int notificationToggleGeneration: 0
   property int controlToggleGeneration: 0
+  property bool barVisible: true
 
   readonly property string ddcBrightnessCommand: "if ! command -v ddcutil >/dev/null 2>&1; then printf '__QS_DDC_MISSING__\\n'; exit 0; fi; " +
     "ddcutil detect --terse 2>/dev/null | awk '" +
@@ -334,6 +335,14 @@ ShellRoot {
     }
   }
 
+  IpcHandler {
+    target: "bar"
+
+    function toggle(): void {
+      barVisible = !barVisible;
+    }
+  }
+
   Variants {
     model: Quickshell.screens
 
@@ -343,6 +352,7 @@ ShellRoot {
       notifications: notificationServer
       notificationToggleGeneration: shellRoot.notificationToggleGeneration
       controlToggleGeneration: shellRoot.controlToggleGeneration
+      barVisible: shellRoot.barVisible
       focusedHyprMonitor: Hyprland.focusedMonitor
       ddcBrightnessState: ddcState
       laptopBrightnessState: laptopState
