@@ -53,6 +53,14 @@ private_dot_shell/scripts/
 # Podman connections (machine-specific)
 .config/containers/podman-connections.json
 
+# Herdr runtime state (logs, sockets, session snapshots) lives in the same
+# directory as its config; only config.toml and status.sh are managed.
+.config/herdr/*.log
+.config/herdr/*.sock
+.config/herdr/session.json
+.config/herdr/session-history.json
+.config/herdr/.plugins.lock
+
 # macOS-only (skip on Linux)
 {{ if ne .chezmoi.os "darwin" }}
 .config/aerospace/

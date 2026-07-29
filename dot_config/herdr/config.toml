@@ -1,0 +1,88 @@
+[theme]
+name = "catppuccin"
+auto_switch = false
+
+# Match the pane, tab, resize, and reload bindings in ~/.config/tmux/tmux.reset.conf.
+# These are all prefix chords (prefix+h/j/k/l, etc.); the Alt-arrow resize
+# chords near the bottom of the file depend on the outer terminal forwarding Alt.
+#
+# NOTE: keep every scalar binding inside this [keys] table, above the
+# [[keys.command]] blocks at the end of the file. A bare `key = value` line
+# placed after a [[keys.command]] header would silently become part of that
+# command table instead of [keys].
+[keys]
+focus_pane_left = "prefix+h"
+focus_pane_down = "prefix+j"
+focus_pane_up = "prefix+k"
+focus_pane_right = "prefix+l"
+previous_tab = "prefix+p"
+next_tab = "prefix+n"
+reload_config = "prefix+shift+r"
+resize_mode = "prefix+alt+r"
+toggle_sidebar = "prefix+b"
+
+# Restore the tmux defaults where Herdr has an equivalent action.
+settings = "prefix+,"
+# Just prefix+d: tmux uses prefix+q for display-panes, so also binding it to
+# detach would fight muscle memory.
+detach = "prefix+d"
+new_tab = "prefix+c"
+switch_tab = "prefix+1..9"
+close_tab = ["prefix+&", "prefix+shift+x"]
+help = "prefix+?"
+workspace_picker = "prefix+w"
+rename_workspace = ["prefix+$", "prefix+shift+w"]
+copy_mode = "prefix+["
+cycle_pane_next = ["prefix+o", "prefix+tab"]
+last_pane = "prefix+;"
+split_vertical = "prefix+%"
+split_horizontal = 'prefix+"'
+close_pane = "prefix+x"
+zoom = "prefix+z"
+swap_pane_left = "prefix+{"
+swap_pane_right = "prefix+}"
+
+[ui]
+show_agent_labels_on_pane_borders = true
+
+[ui.toast]
+delivery = "system"
+
+[experimental]
+# May change or disappear across updates; revisit after upgrading.
+pane_history = true
+
+# -----------------------------------------------------------------------------
+# Command bindings. Keep these at the end of the file (see the note on [keys]).
+# -----------------------------------------------------------------------------
+
+# Equivalent to tmux's default prefix + Alt-arrow pane resizing (five cells per
+# press). Prefixed so bare Alt+arrows still reach apps running inside panes.
+[[keys.command]]
+key = "prefix+alt+left"
+type = "shell"
+command = "herdr pane resize --current --direction left --amount 5"
+
+[[keys.command]]
+key = "prefix+alt+right"
+type = "shell"
+command = "herdr pane resize --current --direction right --amount 5"
+
+[[keys.command]]
+key = "prefix+alt+up"
+type = "shell"
+command = "herdr pane resize --current --direction up --amount 5"
+
+[[keys.command]]
+key = "prefix+alt+down"
+type = "shell"
+command = "herdr pane resize --current --direction down --amount 5"
+
+# Herdr has no persistent, configurable status bar. Open a tmux-like status
+# popup with the time and the UPower battery details instead.
+[[keys.command]]
+key = "prefix+t"
+type = "popup"
+command = "~/.config/herdr/status.sh"
+width = 42
+height = 8
