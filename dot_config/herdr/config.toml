@@ -10,7 +10,12 @@ auto_switch = false
 # [[keys.command]] blocks at the end of the file. A bare `key = value` line
 # placed after a [[keys.command]] header would silently become part of that
 # command table instead of [keys].
+
+[terminal]
+new_cwd = "follow"
+
 [keys]
+focus_agent = "prefix+a+1..9"
 focus_pane_left = "prefix+h"
 focus_pane_down = "prefix+j"
 focus_pane_up = "prefix+k"
