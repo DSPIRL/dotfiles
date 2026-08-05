@@ -70,7 +70,7 @@ command = "herdr pane resize --current --direction left --amount 5"
 [[keys.command]]
 key = "prefix+a"
 type = "popup"
-command = "$HOME/.config/herdr/scripts/agent-picker.sh"
+command = "$HOME/.config/herdr/agent-picker.sh"
 description = "pick agent"
 width = "60%"
 height = "50%"
