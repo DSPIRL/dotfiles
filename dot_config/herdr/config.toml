@@ -15,7 +15,6 @@ auto_switch = false
 new_cwd = "follow"
 
 [keys]
-focus_agent = "prefix+a+1..9"
 focus_pane_left = "prefix+h"
 focus_pane_down = "prefix+j"
 focus_pane_up = "prefix+k"
@@ -67,6 +66,14 @@ pane_history = true
 key = "prefix+alt+left"
 type = "shell"
 command = "herdr pane resize --current --direction left --amount 5"
+
+[[keys.command]]
+key = "prefix+a"
+type = "popup"
+command = "$HOME/.config/herdr/scripts/agent-picker.sh"
+description = "pick agent"
+width = "60%"
+height = "50%"
 
 [[keys.command]]
 key = "prefix+alt+right"
