@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -lt 1 ]]; then
+    echo "Usage: vimcrypt <file.age> [new]"
+    echo ""
+    echo "  Opens an age-encrypted file in Vim. Plaintext never touches disk."
+    echo "  Pass 'new' as the second argument to create a new encrypted file."
+    exit 1
+fi
+
+FILE="$1"
+
+if [[ "${2:-}" == "new" ]]; then
+    if [[ -e "$FILE" ]]; then
+        echo "Error: $FILE already exists"
+        exit 1
+    fi
+    vim -n \
+        -c "setlocal noswapfile noundofile nobackup nowritebackup viminfo=" \
+        -c "autocmd BufWritePre <buffer> silent! %!age -p 2>/dev/null" \
+        -c "autocmd BufWritePost <buffer> silent! u" \
+        "$FILE"
+else
+    if [[ ! -f "$FILE" ]]; then
+        echo "Error: $FILE not found"
+        exit 1
+    fi
+    vim -n \
+        -c "setlocal noswapfile noundofile nobackup nowritebackup viminfo=" \
+        -c "autocmd BufReadPost <buffer> silent! %!age -d 2>/dev/null" \
+        -c "autocmd BufWritePre <buffer> silent! %!age -p 2>/dev/null" \
+        -c "autocmd BufWritePost <buffer> silent! u" \
+        -c "edit" \
+        "$FILE"
+fi
