@@ -4,33 +4,87 @@ set -euo pipefail
 if [[ $# -lt 1 ]]; then
     echo "Usage: vimcrypt <file.age> [new]"
     echo ""
-    echo "  Opens an age-encrypted file in Vim. Plaintext never touches disk."
+    echo "  Edit an age-encrypted file. Plaintext never touches the SSD."
     echo "  Pass 'new' as the second argument to create a new encrypted file."
     exit 1
 fi
 
 FILE="$1"
 
+# Prefer nvim if available
+if command -v nvim &>/dev/null; then
+    VIM=nvim
+else
+    VIM=vim
+fi
+
+# Create a secure temp directory in RAM (plaintext never touches SSD)
+if [[ "$(uname)" == "Darwin" ]]; then
+    RAMDISK=$(hdiutil attach -nomount ram://131072)
+    RAMDISK=$(echo "$RAMDISK" | xargs)
+    diskutil erasevolume HFS+ "vimcrypt" "$RAMDISK" > /dev/null 2>&1
+    SECDIR="/Volumes/vimcrypt"
+    cleanup() { hdiutil detach "$RAMDISK" > /dev/null 2>&1; }
+else
+    if [[ -d /dev/shm ]]; then
+        SECDIR=$(mktemp -d /dev/shm/vimcrypt.XXXXXX)
+    else
+        echo "Warning: /dev/shm not available, temp files may touch disk" >&2
+        SECDIR=$(mktemp -d)
+    fi
+    cleanup() { rm -rf "$SECDIR"; }
+fi
+trap cleanup EXIT
+
 if [[ "${2:-}" == "new" ]]; then
     if [[ -e "$FILE" ]]; then
-        echo "Error: $FILE already exists"
+        echo "Error: $FILE already exists" >&2
         exit 1
     fi
-    vim -n \
-        -c "setlocal noswapfile noundofile nobackup nowritebackup viminfo=" \
-        -c "autocmd BufWritePre <buffer> silent! %!age -p 2>/dev/null" \
-        -c "autocmd BufWritePost <buffer> silent! u" \
-        "$FILE"
+    TMPPLAIN="$SECDIR/buffer.txt"
+    "$VIM" -ni NONE \
+        -c "setlocal noswapfile noundofile nobackup nowritebackup" \
+        "$TMPPLAIN"
+    if [[ -s "$TMPPLAIN" ]]; then
+        age -p -o "$FILE" "$TMPPLAIN"
+    fi
 else
     if [[ ! -f "$FILE" ]]; then
-        echo "Error: $FILE not found"
+        echo "Error: $FILE not found" >&2
         exit 1
     fi
-    vim -n \
-        -c "setlocal noswapfile noundofile nobackup nowritebackup viminfo=" \
-        -c "autocmd BufReadPost <buffer> silent! %!age -d 2>/dev/null" \
-        -c "autocmd BufWritePre <buffer> silent! %!age -p 2>/dev/null" \
-        -c "autocmd BufWritePost <buffer> silent! u" \
-        -c "edit" \
-        "$FILE"
+
+    # Generate a temporary keypair in RAM for the editing session.
+    # Vim's %! filter can't prompt for a passphrase (no tty access),
+    # so we use this temp key for encrypt/decrypt inside vim, and only
+    # use the passphrase at the boundaries where the shell has tty.
+    KEYFILE="$SECDIR/key"
+    PUBKEY=$(age-keygen -o "$KEYFILE" 2>&1 | grep "public key:" | awk '{print $NF}')
+
+    # Decrypt with passphrase (tty available), re-encrypt with temp key
+    TMPFILE="$SECDIR/working.age"
+    age -d "$FILE" | age -r "$PUBKEY" -o "$TMPFILE"
+
+    MTIME_BEFORE=$(stat -f %m "$TMPFILE" 2>/dev/null || stat -c %Y "$TMPFILE")
+
+    # Edit — vim uses the temp key for filter operations (no passphrase prompts)
+    "$VIM" -ni NONE \
+        -c "setlocal binary noendofline nofixendofline noswapfile noundofile nobackup nowritebackup" \
+        -c "autocmd BufReadPost <buffer> %!age -d -i $KEYFILE" \
+        -c "autocmd BufReadPost <buffer> setlocal nobinary endofline fixendofline" \
+        -c "autocmd BufWritePre <buffer> setlocal binary noendofline nofixendofline" \
+        -c "autocmd BufWritePre <buffer> %!age -r $PUBKEY" \
+        -c "autocmd BufWritePost <buffer> u" \
+        -c "autocmd BufWritePost <buffer> setlocal nobinary endofline fixendofline" \
+        -c "edit!" \
+        "$TMPFILE"
+
+    MTIME_AFTER=$(stat -f %m "$TMPFILE" 2>/dev/null || stat -c %Y "$TMPFILE")
+
+    if [[ "$MTIME_BEFORE" != "$MTIME_AFTER" ]]; then
+        # Decrypt with temp key, re-encrypt with passphrase for storage
+        age -d -i "$KEYFILE" "$TMPFILE" | age -p -o "$FILE"
+    else
+        echo "No changes saved."
+    fi
 fi
