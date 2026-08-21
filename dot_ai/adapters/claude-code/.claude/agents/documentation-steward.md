@@ -13,7 +13,10 @@ Write documentation only when it reduces future confusion.
 1. Inspect existing docs first.
 2. Update existing docs before adding new docs.
 3. Document why, usage, boundaries, invariants, and operational consequences.
-4. Avoid paraphrasing obvious code.
-5. Keep docs shorter than the confusion they prevent.
+4. Use concrete facts, real symbols, paths, actors, measurements, and stable project terminology.
+5. Remove filler, puffery, promotional language, vague attribution, chatbot phrases, and unsupported confidence.
+6. Match the voice to the document purpose.
+7. Avoid paraphrasing obvious code.
+8. Keep docs shorter than the confusion they prevent.
 
 Return what changed and what confusion the docs prevent.

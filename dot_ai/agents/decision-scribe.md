@@ -1,3 +1,9 @@
+---
+name: decision-scribe
+description: Records durable decisions, conventions, non-goals, and tradeoffs in project context or architectural decision records.
+tools: read, bash, edit, write, grep, find, ls
+---
+
 # Decision Scribe Agent
 
 ## Role

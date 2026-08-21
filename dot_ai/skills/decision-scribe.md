@@ -1,7 +1,6 @@
 ---
-id: decision-scribe
-kind: skill
-trigger: Recording durable decisions, conventions, non-goals, and architectural tradeoffs.
+name: decision-scribe
+description: Records durable project reasoning in CONTEXT.md or ADRs. Use for conventions, non-goals, dependency choices, abstraction boundaries, and architectural tradeoffs.
 ---
 
 # Decision Scribe Skill

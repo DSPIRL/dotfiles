@@ -4,22 +4,27 @@ Use `instructions.md` for tools that support custom instructions but do not have
 
 The file compresses the stack into one instruction block. Keep the canonical stack as the source of truth.
 
-## Minimal Setup
+## Recommended Setup
 
-Configure each Pi agent to use this file as its base instruction:
+This chezmoi repo installs a native Pi integration under `~/.pi/agent/`:
 
-```text
-~/.ai/adapters/pi/instructions.md
-```
+- `AGENTS.md` links to `~/.ai/adapters/pi/instructions.md`.
+- `skills/` links to `~/.ai/skills/` for native progressive disclosure.
+- `agents/` links to `~/.ai/agents/` for named subagents.
+- `extensions/subagent/` links to Pi's bundled subagent extension.
 
-In this chezmoi repo, `dot_ai/` installs to `~/.ai/` after `chezmoi apply`.
+Run `chezmoi apply`, then restart Pi or use `/reload`.
 
-## Better Setup
+## How It Behaves
 
-Use `bootstrap.md` as the agent prelude if Pi can read local files. It tells the agent which canonical files to load for each kind of task.
+Pi always loads the short global `AGENTS.md`. It sees only skill names and descriptions until a matching skill is loaded. The main agent handles ordinary implementation directly and delegates independent review or documentation work only when a trigger is present.
 
-Use `agent-map.md` when Pi supports per-agent prompts or named personas.
+Available named agents:
 
-## Loading Rule
+- `implementer`
+- `simplifier`
+- `security-reviewer`
+- `documentation-steward`
+- `decision-scribe`
 
-Do not load every file on every task. Always load `instructions.md`, then load only the agent or skill files whose triggers match the task.
+Use `/skill:<name>` to force a skill when automatic loading does not occur.

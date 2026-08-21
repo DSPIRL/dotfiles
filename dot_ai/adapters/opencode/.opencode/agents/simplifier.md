@@ -17,5 +17,7 @@ Challenge unnecessary code.
 - Generated scaffolding the project does not need.
 - Helpers, wrappers, or files that can be removed.
 - Names that drift from project language.
+- Indirection layers and hidden or mutable state a reader must track.
+- Pass-through abstractions that hide no meaningful complexity.
 
-Return concrete findings with file references and the smallest safe simplification.
+Return concrete findings with file references, the smallest safe simplification, and the net reader-load change.

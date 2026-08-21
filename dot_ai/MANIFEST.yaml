@@ -1,5 +1,5 @@
 name: virtuous-laziness-stack
-version: 0.1.0
+version: 0.2.0
 purpose: Make AI-assisted engineering optimize for maintainability, restraint, and durable project memory.
 
 principles:
@@ -43,6 +43,9 @@ skills:
   - id: decision-scribe
     path: skills/decision-scribe.md
     trigger: Recording durable project reasoning in CONTEXT.md or ADRs.
+  - id: unslop
+    path: skills/unslop.md
+    trigger: Manual only; explicitly supplied AI-generated text or file needs decoding, rewriting, or auditing.
 
 templates:
   - templates/AGENTS.md

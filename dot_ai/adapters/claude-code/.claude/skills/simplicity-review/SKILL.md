@@ -11,4 +11,6 @@ description: Reviews changes for unnecessary complexity and maintainability cost
 2. Identify new files, abstractions, wrappers, helpers, dependencies, and branching paths.
 3. Ask whether each addition removes more burden than it creates.
 4. Look for deletion, reuse, collapse, localization, or clearer names.
-5. Return concrete simplifications that preserve behavior.
+5. Count indirection layers and hidden or mutable state a reader must track.
+6. Challenge pass-through and one-caller abstractions that hide no meaningful complexity.
+7. Return concrete simplifications that preserve behavior and state the net reader-load change.
