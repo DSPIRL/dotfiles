@@ -34,6 +34,8 @@ Good AI-assisted engineering optimizes for the smallest durable improvement:
 5. Use `documentation-steward` when public behavior, setup, APIs, workflows, or architecture change.
 6. Use `decision-scribe` when a durable decision, convention, non-goal, or tradeoff should be preserved.
 
+Specialized skills cover planning, difficult diagnosis, opt-in TDD, architecture review, manual prose decoding, and maintenance of the stack itself. See [`HOW_TO.md`](HOW_TO.md) for invocation examples.
+
 ## Adapter Model
 
 The canonical files in this directory are the source of truth. Tool adapters should stay thin and preserve the same behavior in the format each tool can ingest.
