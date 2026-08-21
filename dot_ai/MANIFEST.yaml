@@ -1,5 +1,5 @@
 name: virtuous-laziness-stack
-version: 0.2.0
+version: 0.3.0
 purpose: Make AI-assisted engineering optimize for maintainability, restraint, and durable project memory.
 
 principles:
@@ -46,6 +46,21 @@ skills:
   - id: unslop
     path: skills/unslop.md
     trigger: Manual only; explicitly supplied AI-generated text or file needs decoding, rewriting, or auditing.
+  - id: make-plan
+    path: skills/make-plan.md
+    trigger: Scoping work, breaking down a task, stress-testing a proposal, or preparing a PLAN.md.
+  - id: diagnose
+    path: skills/diagnose.md
+    trigger: Difficult bugs, intermittent failures, performance regressions, or explicit diagnosis requests.
+  - id: tdd
+    path: skills/tdd.md
+    trigger: Explicit requests for TDD, test-first development, red-green-refactor, or regression-first fixes.
+  - id: architecture-review
+    path: skills/architecture-review.md
+    trigger: Architecture analysis, structural refactoring, locality, or test-seam improvements.
+  - id: maintain-ai-skill
+    path: skills/maintain-ai-skill.md
+    trigger: Manual only; creating, rewriting, reviewing, or maintaining an agent skill.
 
 templates:
   - templates/AGENTS.md
@@ -53,6 +68,7 @@ templates:
   - templates/adr-template.md
   - templates/review-report.md
   - templates/security-report.md
+  - templates/agent-brief.md
 
 adapters:
   opencode: adapters/opencode/README.md

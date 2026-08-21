@@ -12,7 +12,13 @@ What this project is for.
 
 ## Domain Language
 
-List important terms and what they mean in this project.
+For each project-specific term, record its concise definition, aliases to avoid, and resolved ambiguities.
+
+## Domain Relationships
+
+Record important ownership, cardinality, lifecycle, and communication relationships between domain terms.
+
+For multiple domain contexts, use a root `CONTEXT-MAP.md` only when separate context files already reduce confusion.
 
 ## Invariants
 

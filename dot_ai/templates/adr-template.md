@@ -1,5 +1,7 @@
 # ADR NNNN: Title
 
+Create an ADR only when the decision is hard to reverse, surprising without context, and the result of a real tradeoff.
+
 ## Status
 
 Proposed | Accepted | Superseded
@@ -25,3 +27,5 @@ What are we choosing?
 ## Review Date
 
 When should this decision be reconsidered, if ever?
+
+Omit optional sections when they add no durable information. A short decision with its reason is enough.

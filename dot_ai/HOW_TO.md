@@ -54,6 +54,11 @@ Use Pi's skill command when you want a specific procedure:
 /skill:documentation-stewardship
 /skill:decision-scribe
 /skill:unslop
+/skill:make-plan
+/skill:diagnose
+/skill:tdd
+/skill:architecture-review
+/skill:maintain-ai-skill
 ```
 
 Arguments can follow the command:
@@ -65,6 +70,56 @@ Arguments can follow the command:
 ```text
 /skill:simplicity-review inspect my uncommitted changes
 ```
+
+### Plan Work
+
+Draft a plan from a goal:
+
+```text
+/skill:make-plan draft a migration from SQLite to PostgreSQL
+```
+
+Stress-test an existing proposal against the codebase and project context:
+
+```text
+/skill:make-plan stress-test @PLAN.md
+```
+
+The skill returns a plan in the conversation. Ask explicitly if you want it written to `PLAN.md`.
+
+### Diagnose a Difficult Failure
+
+```text
+/skill:diagnose investigate why this request intermittently times out
+```
+
+The skill builds a reproducible feedback loop, tests falsifiable hypotheses, and verifies the fix through the original path.
+
+### Use Test-Driven Development
+
+```text
+/skill:tdd add support for expiring invitations
+```
+
+TDD is opt-in. It uses one observable behavior per red-green cycle and does not force brittle tests when a cheaper proof is stronger.
+
+### Review Architecture
+
+```text
+/skill:architecture-review find evidence-backed opportunities to simplify the billing modules
+```
+
+The skill reports candidates and waits for you to choose one before implementation.
+
+### Maintain This Stack
+
+`maintain-ai-skill` is manual-only:
+
+```text
+/skill:maintain-ai-skill add a reusable database migration review skill
+```
+
+It checks for overlap, edits canonical files first, and updates only the adapters and documentation that are necessary.
 
 ### Decode AI-Generated Writing
 
