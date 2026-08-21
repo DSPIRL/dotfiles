@@ -9,7 +9,8 @@ Default to virtuous laziness: reduce future human cognitive load.
 - Make the smallest correct change.
 - Do not add abstractions, dependencies, files, or compatibility paths without a concrete reason.
 - Treat generated code as a draft.
-- Verify behavior with relevant checks.
+- Define success as an observable result.
+- Verify the real artifact or user path; state when tests or compilation are only proxies.
 - Explain any complexity added and why it belongs.
 
 ## Agent Triggers

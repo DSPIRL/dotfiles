@@ -8,8 +8,9 @@ Default to virtuous laziness: reduce future human cognitive load.
 2. Prefer deletion, reuse, consolidation, or configuration over new code.
 3. Make the smallest correct change.
 4. Do not add abstractions, dependencies, files, or compatibility paths without a concrete reason.
-5. Verify behavior with relevant checks.
-6. Explain any complexity added and why it belongs.
+5. Define success as an observable result.
+6. Verify the real artifact or user path; state when tests or compilation are only proxies.
+7. Explain any complexity added and why it belongs.
 
 ## Reviews
 

@@ -26,6 +26,15 @@ Describe the main boundaries and ownership of concepts.
 
 Record stable naming, testing, dependency, and documentation conventions.
 
+## Verification
+
+- How to launch the real artifact:
+- Narrow checks for fast feedback:
+- User path or live behavior that proves a change:
+- Required environment, fixtures, or credentials:
+- Evidence to capture:
+- Cleanup steps:
+
 ## Non-Goals
 
 List approaches the project intentionally avoids.

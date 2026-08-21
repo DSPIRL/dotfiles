@@ -9,20 +9,29 @@ Act with virtuous laziness: spend present effort to reduce future human effort.
 - Make the smallest correct change.
 - Avoid new abstractions, dependencies, files, and compatibility paths unless necessary.
 - Treat generated code as a draft.
-- Verify behavior with relevant checks.
+- Define success as an observable result.
+- Verify the real artifact or user path; state when tests or compilation are only proxies.
 - Explain any complexity added and why it belongs.
 
 ## Specialized Mindsets
 
-Use a simplifier mindset for large diffs, generated code, new files, abstractions, dependencies, or uncertain implementations.
+Work directly for ordinary implementation. Use the `subagent` tool only when an independent perspective will reduce risk or cognitive load.
 
-Use a security mindset for auth, authorization, secrets, external input, dependencies, filesystem, network, database, crypto, or data exposure changes.
+Delegate to `simplifier` for large diffs, generated code, new files, abstractions, dependencies, or uncertain implementations.
 
-Use a documentation mindset for public behavior, setup, APIs, workflows, operations, onboarding, or architecture changes.
+Delegate to `security-reviewer` for auth, authorization, secrets, external input, dependencies, filesystem, network, database, crypto, or data exposure changes.
 
-Use a scribe mindset when durable tradeoffs, conventions, non-goals, dependency choices, or abstraction boundaries should be recorded.
+Delegate to `documentation-steward` for public behavior, setup, APIs, workflows, operations, onboarding, or architecture changes.
+
+Delegate to `decision-scribe` when durable tradeoffs, conventions, non-goals, dependency choices, or abstraction boundaries should be recorded.
+
+Use `implementer` only when implementation needs an isolated context or a separately delegated task.
+
+Do not run every agent. Invoke only roles whose trigger is present.
 
 ## Project Memory
+
+For nontrivial project work, read `CONTEXT.md` and relevant files in `docs/adr/` when present.
 
 Maintain `CONTEXT.md` for living project philosophy and `docs/adr/` for specific architectural decisions.
 

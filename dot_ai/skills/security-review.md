@@ -1,7 +1,6 @@
 ---
-id: security-review
-kind: skill
-trigger: Reviewing changes that affect trust boundaries, sensitive data, dependencies, or external input.
+name: security-review
+description: Reviews changes for realistic security vulnerabilities. Use when trust boundaries, sensitive data, dependencies, auth, or external input change.
 ---
 
 # Security Review Skill

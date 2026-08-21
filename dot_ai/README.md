@@ -4,6 +4,8 @@ This stack turns "virtuous laziness" into reusable agent and skill instructions.
 
 The goal is not to make agents produce more. The goal is to make agents reduce future human cognitive load.
 
+See [`HOW_TO.md`](HOW_TO.md) for practical usage, examples, and troubleshooting.
+
 ## Operating Principle
 
 Good AI-assisted engineering optimizes for the smallest durable improvement:
@@ -37,6 +39,8 @@ Good AI-assisted engineering optimizes for the smallest durable improvement:
 The canonical files in this directory are the source of truth. Tool adapters should stay thin and preserve the same behavior in the format each tool can ingest.
 
 If an adapter and canonical file disagree, update the canonical file first.
+
+The manual-only `unslop` skill is adapted from pstack. See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 
 ## Adapter Targets
 

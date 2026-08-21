@@ -7,9 +7,17 @@ Use explicit triggers. Do not run every agent for every task.
 1. Inspect the codebase and project context.
 2. Apply the `virtuous-laziness` skill.
 3. Use the implementer role for the smallest correct change.
-4. Run relevant verification.
+4. Verify the observable result through the real artifact or user path when feasible.
 5. Invoke follow-up roles only when their triggers are present.
 6. Record durable decisions only when future agents would benefit.
+
+## Task-Specific Flows
+
+For a bug, reproduce the failure, identify its mechanism, make the smallest fix, and verify through the original failing path.
+
+For a refactor, pin current behavior with a characterization test or equivalence check. Reshape in verifiable units without adding behavior changes.
+
+For a small but risky change, identify the load-bearing safety assumption, trace beyond direct callers, and prove it or mark it unproven.
 
 ## Role Triggers
 
@@ -27,3 +35,4 @@ Use `decision-scribe` when the work establishes a durable convention, rejects an
 - Do not write documentation unless it reduces future confusion.
 - Do not write ADRs for reversible local implementation details.
 - Do not let agents debate indefinitely. Prefer concrete diffs, findings, or documented decisions.
+- Do not treat compilation, passing proxies, or agent summaries as proof of user-visible behavior.
