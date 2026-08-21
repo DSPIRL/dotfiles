@@ -58,6 +58,10 @@ hl.config({
 
 	master = {
 		new_status = "master",
+		-- Centered workspace mode: a 50%-wide master with slaves on both sides.
+		mfact = 0.5,
+		orientation = "center",
+		slave_count_for_center_master = 2,
 	},
 
 	misc = {
