@@ -88,7 +88,6 @@ local function toggle_center_workspace()
     centered_workspaces[workspace.id] = {
       enabled = true,
       rule = hl.workspace_rule({
-        name = "center-master-" .. tostring(workspace.id),
         workspace = tostring(workspace.id),
         layout = "master",
       }),
