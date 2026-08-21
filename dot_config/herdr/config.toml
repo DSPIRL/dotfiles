@@ -37,6 +37,10 @@ switch_tab = "prefix+1..9"
 close_tab = ["prefix+&", "prefix+shift+x"]
 help = "prefix+?"
 workspace_picker = "prefix+w"
+# Keep the worktree actions explicit so this custom key map does not depend on
+# defaults added by newer Herdr releases.
+new_worktree = "prefix+shift+g"
+open_worktree = "prefix+alt+g"
 rename_workspace = ["prefix+$", "prefix+shift+w"]
 copy_mode = "prefix+["
 cycle_pane_next = ["prefix+o", "prefix+tab"]
