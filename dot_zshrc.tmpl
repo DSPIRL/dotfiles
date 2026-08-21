@@ -41,7 +41,7 @@ fi
 
 ##### WORKTRUNK #####
 if command -v wt &>/dev/null; then
-    source <(wt config shell init zsh)
+    eval "$(command wt config shell init zsh)"
 fi
 
 {{- if $isDarwin }}

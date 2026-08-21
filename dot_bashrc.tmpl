@@ -159,6 +159,11 @@ if command -v awsm &>/dev/null; then
     source <(awsm completions bash)
 fi
 
+##### WORKTRUNK #####
+if command -v wt >/dev/null 2>&1; then
+    eval "$(command wt config shell init bash)";
+fi
+
 if command -v chezmoi &>/dev/null; then
     eval "$(chezmoi completion bash)"
 fi
