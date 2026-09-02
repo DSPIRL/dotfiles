@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if (( $# == 0 )); then
+    printf 'Usage: %s FILE_OR_DIRECTORY [...]\n' "${0##*/}" >&2
+    printf 'Paths are interpreted relative to ~/Downloads on seeder.\n' >&2
+    exit 2
+fi
+
+remote_command='"$HOME/scripts/copy_to_jellyfin"'
+for argument in "$@"; do
+    printf -v quoted '%q' "$argument"
+    remote_command+=" $quoted"
+done
+
+exec ssh seeder "$remote_command"
