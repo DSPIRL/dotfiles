@@ -18,6 +18,14 @@ if command -v zoxide >/dev/null 2>&1; then
     alias cd="z"
 fi
 
+if command -v lazygit >/dev/null 2>&1; then
+    alias lg="lazygit"
+fi
+
+if command -v lazydocker >/dev/null 2>&1; then
+    alias ld="lazydocker"
+fi
+
 {{- if eq .chezmoi.os "darwin" }}
 alias modstat='stat -f "File name: %N
 File type: %HT%SY
