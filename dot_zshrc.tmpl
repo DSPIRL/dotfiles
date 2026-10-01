@@ -117,7 +117,7 @@ fi
 if command -v oh-my-posh &>/dev/null && [ "${TERM_PROGRAM}" != "Apple_Terminal" ]; then
   _init_oh_my_posh() {
 {{- if $isDarwin }}
-    local omp_config="${HOME}/.config/oh-my-posh/default.omp.json"
+    local omp_config="${HOME}/.config/oh-my-posh/spaceship.omp.json"
 {{- else if $isLinux }}
     local omp_config="${HOME}/.config/oh-my-posh/wallust.omp.json"
 {{- else }}

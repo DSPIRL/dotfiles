@@ -134,7 +134,7 @@ PS1='[\u@\h \W]\$ '
 ##### OH MY POSH PROMPT #####
 if command -v oh-my-posh &>/dev/null; then
 {{- if $isDarwin }}
-    omp_config="${HOME}/.config/oh-my-posh/default.omp.json"
+    omp_config="${HOME}/.config/oh-my-posh/spaceship.omp.json"
 {{- else if $isLinux }}
     omp_config="${HOME}/.config/oh-my-posh/wallust.omp.json"
 {{- else }}
