@@ -237,7 +237,7 @@ end
 if command -q oh-my-posh; and test "$TERM_PROGRAM" != Apple_Terminal
     function __init_oh_my_posh
 {{- if eq .chezmoi.os "darwin" }}
-        set -l omp_config "$HOME/.config/oh-my-posh/default.omp.json"
+        set -l omp_config "$HOME/.config/oh-my-posh/spaceship.omp.json"
 {{- else if eq .chezmoi.os "linux" }}
         set -l omp_config "$HOME/.config/oh-my-posh/wallust.omp.json"
 {{- else }}
