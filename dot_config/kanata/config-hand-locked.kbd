@@ -22,6 +22,30 @@
     hold-time 150    ;; Time window for hold detection
     tt $tap-time     ;; Alias for tap-time
     ht $hold-time    ;; Alias for hold-time
+
+    ;; QWERTY layout - Define which keys are on left/right side
+    qwerty-left-hand-keys (
+        q w e r t
+        a s d f g
+        z x c v b
+    )
+    qwerty-right-hand-keys (
+        y u i o p
+        h j k l ;
+        n m , . /
+    )
+
+    ;; Dvorak layout - Define which keys are on left/right side
+    dvorak-left-hand-keys (
+        ' , . p y
+        a o e u i
+        ; q j k x
+    )
+    dvorak-right-hand-keys (
+        f g c r l
+        d h t n s
+        b m w v z
+    )
 )
 
 ;;; Physical Key Layout
@@ -126,26 +150,26 @@
 
 
     ;;; QWERTY Home Row Mods
-    ;; Any key can combine with either hand's modifiers; no same-hand early-tap lockout.
-    qa (tap-hold-release $tap-time $hold-time (multi a @qtap) lsft)
-    qs (tap-hold-release $tap-time $hold-time (multi s @qtap) lctl)
-    qd (tap-hold-release $tap-time $hold-time (multi d @qtap) lalt)
-    qf (tap-hold-release $tap-time $hold-time (multi f @qtap) lmet)
-    qj (tap-hold-release $tap-time $hold-time (multi j @qtap) rmet)
-    qk (tap-hold-release $tap-time $hold-time (multi k @qtap) ralt)
-    ql (tap-hold-release $tap-time $hold-time (multi l @qtap) rctl)
-    q; (tap-hold-release $tap-time $hold-time (multi ; @qtap) rsft)
+    ;; Format: (tap-hold-release-keys $tap-time $hold-time (tap-action) modifier affected-keys)
+    qa (tap-hold-release-keys $tap-time $hold-time (multi a @qtap) lsft $qwerty-left-hand-keys)
+    qs (tap-hold-release-keys $tap-time $hold-time (multi s @qtap) lctl $qwerty-left-hand-keys)
+    qd (tap-hold-release-keys $tap-time $hold-time (multi d @qtap) lalt $qwerty-left-hand-keys)
+    qf (tap-hold-release-keys $tap-time $hold-time (multi f @qtap) lmet $qwerty-left-hand-keys)
+    qj (tap-hold-release-keys $tap-time $hold-time (multi j @qtap) rmet $qwerty-right-hand-keys)
+    qk (tap-hold-release-keys $tap-time $hold-time (multi k @qtap) ralt $qwerty-right-hand-keys)
+    ql (tap-hold-release-keys $tap-time $hold-time (multi l @qtap) rctl $qwerty-right-hand-keys)
+    q; (tap-hold-release-keys $tap-time $hold-time (multi ; @qtap) rsft $qwerty-right-hand-keys)
 
     ;;; Dvorak Home Row Mods
-    ;; Same modifier order and unrestricted combinations as QWERTY.
-    da (tap-hold-release $tap-time $hold-time (multi a @dtap) lsft)
-    do (tap-hold-release $tap-time $hold-time (multi o @dtap) lctl)
-    de (tap-hold-release $tap-time $hold-time (multi e @dtap) lalt)
-    du (tap-hold-release $tap-time $hold-time (multi u @dtap) lmet)
-    dh (tap-hold-release $tap-time $hold-time (multi h @dtap) rmet)
-    dt (tap-hold-release $tap-time $hold-time (multi t @dtap) ralt)
-    dn (tap-hold-release $tap-time $hold-time (multi n @dtap) rctl)
-    ds (tap-hold-release $tap-time $hold-time (multi s @dtap) rsft)
+    ;; Same modifier order as QWERTY: shift, ctrl, alt, meta (both sides)
+    da (tap-hold-release-keys $tap-time $hold-time (multi a @dtap) lsft $dvorak-left-hand-keys)
+    do (tap-hold-release-keys $tap-time $hold-time (multi o @dtap) lctl $dvorak-left-hand-keys)
+    de (tap-hold-release-keys $tap-time $hold-time (multi e @dtap) lalt $dvorak-left-hand-keys)
+    du (tap-hold-release-keys $tap-time $hold-time (multi u @dtap) lmet $dvorak-left-hand-keys)
+    dh (tap-hold-release-keys $tap-time $hold-time (multi h @dtap) rmet $dvorak-right-hand-keys)
+    dt (tap-hold-release-keys $tap-time $hold-time (multi t @dtap) ralt $dvorak-right-hand-keys)
+    dn (tap-hold-release-keys $tap-time $hold-time (multi n @dtap) rctl $dvorak-right-hand-keys)
+    ds (tap-hold-release-keys $tap-time $hold-time (multi s @dtap) rsft $dvorak-right-hand-keys)
 
 
     ;;; Layer Modifiers
