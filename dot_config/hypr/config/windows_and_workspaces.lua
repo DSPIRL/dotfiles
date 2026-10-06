@@ -140,6 +140,10 @@ wr("float on", { tag = "file-manager" })
 wr("size (monitor_w*0.7) (monitor_h*0.7)", { tag = "file-manager" })
 wr("opacity 0.9 override 0.8 override", { tag = "file-manager" })
 
+wr("float on", { tag = "keychains" })
+wr("size (monitor_w*0.7) (monitor_h*0.7)", { tag = "keychains" })
+wr("opacity 0.9 override 0.8 override", { tag = "keychains" })
+
 wr("opacity 0.95 override 0.8 override", { tag = "browser" })
 
 -- Floating rules
