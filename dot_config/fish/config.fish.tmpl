@@ -146,6 +146,11 @@ functions -e __add_path
 
 status is-interactive; or return
 
+##### PODMAN #####
+if command -q podman
+    set -gx DOCKER_HOST "unix://$XDG_RUNTIME_DIR/podman/podman.sock"
+end
+
 ##### FZF #####
 if command -q fzf
     set -gx FZF_DEFAULT_OPTS_FILE "$HOME/.config/fzf/.fzfrc"
@@ -418,6 +423,14 @@ end
 
 if command -q podman
     alias p podman
+end
+
+if command -q lazydocker
+    alias lad lazydocker
+end
+
+if command -q lazygit
+    alias lag lazygit
 end
 
 if command -q podman-compose

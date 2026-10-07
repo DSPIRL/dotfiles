@@ -92,6 +92,11 @@ fi
 
 {{- else }}
 
+##### PODMAN #####
+if command -v podman &>/dev/null; then
+    export DOCKER_HOST=unix://${XDG_RUNTIME_DIR}/podman/podman.sock
+fi
+
 ##### FZF #####
 if command -v fzf &>/dev/null; then
     export FZF_DEFAULT_OPTS="--extended --multi --preview 'cat {}'"
