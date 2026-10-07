@@ -9,6 +9,7 @@ dolphin
 gamescope
 greetd
 greetd-tuigreet
+gwenview
 hyprcursor
 hyprgraphics
 hypridle
@@ -37,6 +38,7 @@ quickshell
 rofi
 rofi-calc
 rofimoji
+spectacle
 swaync
 awww
 wallust

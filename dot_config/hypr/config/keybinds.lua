@@ -24,6 +24,24 @@ local function main_ctrl(key)
   return mainMod .. " + CTRL + " .. key
 end
 
+-- Center lone floating windows on creation/toggle, not continuously while dragging.
+local function center_lone_floating_window(window)
+  if not window or not window.mapped or not window.workspace or not window.floating
+      or window.hidden or window.pinned or window.fullscreen ~= 0 or window.title == "Picture-in-Picture" then
+    return
+  end
+
+  for _, other in ipairs(hl.get_workspace_windows(window.workspace)) do
+    if other ~= window and other.mapped and other.floating and not other.hidden then
+      return
+    end
+  end
+
+  hl.dispatch(hl.dsp.window.center({ window = window }))
+end
+
+hl.on("window.open", center_lone_floating_window)
+
 -- Toggle the focused window into the middle half of its monitor. On the
 -- Odyssey this is a centered 2560x1440 area -- effectively one 1440p display.
 local centered_windows = {}
@@ -100,6 +118,8 @@ local function toggle_center_workspace()
 end
 
 -- ROFI
+-- Search open windows across workspaces; Super+Space still launches apps.
+hl.bind("ALT + SPACE", hl.dsp.exec_cmd(vars.windowSwitcher))
 hl.bind(main("SPACE"), hl.dsp.exec_cmd(vars.appLauncher))
 hl.bind(main_alt("SPACE"), hl.dsp.exec_cmd(vars.shell))
 hl.bind(main_alt("B"), hl.dsp.exec_cmd(vars.search))
@@ -119,7 +139,14 @@ hl.bind(main("RETURN"), hl.dsp.exec_cmd(vars.terminal))
 
 -- Windows and such
 hl.bind(main_alt("RETURN"), hl.dsp.window.fullscreen({ mode = "fullscreen" }))
-hl.bind(main("F"), hl.dsp.window.float())
+hl.bind(main("F"), function()
+  local window = hl.get_active_window()
+  if not window then
+    return
+  end
+  hl.dispatch(hl.dsp.window.float({ window = window }))
+  center_lone_floating_window(window)
+end)
 hl.bind(main("TAB"), hl.dsp.exec_cmd(vars.windowStackToggle))
 hl.bind(main("C"), hl.dsp.window.center())
 hl.bind(main("P"), hl.dsp.window.pseudo())
