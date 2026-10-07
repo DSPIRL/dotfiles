@@ -83,17 +83,13 @@ hl.config({
 })
 
 
--- Increasing stiffness per https://github.com/hyprwm/Hyprland/issues/15494 and https://github.com/hyprwm/Hyprland/pull/15499. 
--- hl.curve("easy", { type = "spring", mass = 1, stiffness = 75.2633, dampening = 15.8273644 })
-hl.curve("easy", { type = "spring", mass = 1, stiffness = 258.2633, dampening = 21.8273644 })
+-- Keep the stiffer spring, but damp its bounce without removing it entirely.
+hl.curve("easy", { type = "spring", mass = 1, stiffness = 258.2633, dampening = 28 })
 local curves = {
-	{ "wind", { 0.05, 0.9 }, { 0.1, 1.05 } },
-	{ "winIn", { 0.1, 1.1 }, { 0.1, 1.1 } },
-	{ "winOut", { 0.3, -0.3 }, { 0, 1 } },
+	-- Shared timing keeps workspace slides and window rearrangement aligned.
+	{ "workspaceSmooth", { 0.22, 1 }, { 0.36, 1 } },
 	{ "liner", { 1, 1 }, { 1, 1 } },
-	{ "overshot", { 0.05, 0.9 }, { 0.1, 1.05 } },
-	{ "smoothOut", { 0.5, 0 }, { 0.99, 0.99 } },
-	{ "smoothIn", { 0.5, -0.5 }, { 0.68, 1.5 } },
+	{ "fadeSmooth", { 0.25, 1 }, { 0.5, 1 } },
 }
 
 for _, curve in ipairs(curves) do
@@ -104,20 +100,18 @@ for _, curve in ipairs(curves) do
 end
 
 local animations = {
-	-- { leaf = "windows", enabled = true, speed = 2, bezier = "wind", style = "slide" },
-	-- { leaf = "windowsIn", enabled = true, speed = 2, bezier = "smoothIn", style = "slide" },
-	-- { leaf = "windowsOut", enabled = true, speed = 2, bezier = "smoothOut", style = "slide" },
-    -- { leaf = "global", enabled = true, speed = 10, bezier = "default" },
 	{ leaf = "windows", enabled = true, speed = 2.0, spring = "easy" },
-	{ leaf = "windowsIn", enabled = true, speed = 2.0, spring = "easy", style = "slide up" },
+	{ leaf = "windowsIn", enabled = true, speed = 2.5, bezier = "workspaceSmooth", style = "popin 95%" },
 	{ leaf = "windowsOut", enabled = true, speed = 2.0, spring = "easy", style = "slide" },
-	{ leaf = "windowsMove", enabled = true, speed = 2.5, bezier = "wind", style = "slide" },
+	{ leaf = "windowsMove", enabled = true, speed = 3.5, bezier = "workspaceSmooth" },
 	{ leaf = "border", enabled = true, speed = 1, bezier = "liner" },
-	{ leaf = "borderangle", enabled = not performance_mode, speed = performance_mode and 1 or 80, bezier = "liner", style = not performance_mode and "loop" or nil },
-	{ leaf = "fade", enabled = true, speed = 2, bezier = "smoothOut" },
-	{ leaf = "workspaces", enabled = true, speed = 3.5, bezier = "overshot" },
-	{ leaf = "workspacesIn", enabled = true, speed = 3.5, bezier = "winIn", style = "slide" },
-	{ leaf = "workspacesOut", enabled = true, speed = 3.5, bezier = "winOut", style = "slide" },
+	-- Avoid continuous rendering while the desktop is otherwise idle.
+	{ leaf = "borderangle", enabled = false, speed = 1, bezier = "liner" },
+	{ leaf = "fade", enabled = true, speed = 2, bezier = "fadeSmooth" },
+	{ leaf = "fadeIn", enabled = true, speed = 1.8, bezier = "fadeSmooth" },
+	{ leaf = "workspaces", enabled = true, speed = 3.5, bezier = "workspaceSmooth" },
+	{ leaf = "workspacesIn", enabled = true, speed = 3.5, bezier = "workspaceSmooth", style = "slide" },
+	{ leaf = "workspacesOut", enabled = true, speed = 3.5, bezier = "workspaceSmooth", style = "slide" },
 }
 
 for _, animation in ipairs(animations) do

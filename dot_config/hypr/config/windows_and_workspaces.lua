@@ -23,6 +23,7 @@ wr("tag +browser", { class = [[^([Zz]en|[Zz]en-[Bb]rowser|app.zen_browser.zen)$]
 wr("tag +browser", { class = [[^([Gg]oogle-chrome(-beta|-dev|-unstable)?)$]] })
 wr("tag +browser", { class = [[^(chrome-.+-Default)$]] })
 wr("tag +browser", { class = [[^([Cc]hromium)$]] })
+wr("tag +browser", { class = [[^([Hh]elium(-bin))$]] })
 wr("tag +browser", { class = [[^([Vv]ivaldi|com.vivaldi.Vivaldi)$]] })
 wr("tag +browser", { class = [[^([Mm]icrosoft-edge(-stable|-beta|-dev|-unstable))$]] })
 wr("tag +browser", { class = [[^([Bb]rave-browser(-beta|-dev|-unstable)?)$]] })
@@ -96,8 +97,8 @@ wr("move (monitor_w*0.72) (monitor_h*0.07)", { title = [[^(Picture-in-Picture)$]
 wr("idle_inhibit fullscreen", { fullscreen = true })
 
 -- Workspace routing
-wr("workspace 1", { tag = "im" })
-wr("workspace 5", { tag = "browser" })
+-- wr("workspace 1", { tag = "im" })
+-- wr("workspace 5", { tag = "browser" })
 wr("workspace 10", { tag = "games" })
 
 -- Tag rules
