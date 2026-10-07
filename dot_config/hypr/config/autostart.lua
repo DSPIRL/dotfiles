@@ -5,6 +5,8 @@ hl.on("hyprland.start", function()
   hl.exec_cmd("awww-daemon")
   hl.exec_cmd(vars.sessionTarget)
   hl.exec_cmd("systemctl --user start hyprpolkitagent")
+  hl.exec_cmd("/usr/lib/pam_kwallet_init")
+  hl.exec_cmd("ksecretd")
   hl.exec_cmd("xsettingsd")
   hl.exec_cmd(vars.themeToggle .. " apply")
 

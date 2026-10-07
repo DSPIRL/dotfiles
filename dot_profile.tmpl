@@ -102,3 +102,12 @@ if command -v nvim >/dev/null 2>&1; then
     export VISUAL="${NVIM_PATH}"
     export EDITOR="${NVIM_PATH}"
 fi
+
+
+##### JAVA/ANDROID (Linux) #####
+if [ -d "${HOME/.local/share/JetBrains}" ]; then
+    # Added by Toolbox App
+    export PATH="$PATH:/home/athe/.local/share/JetBrains/Toolbox/scripts"
+fi
+
+

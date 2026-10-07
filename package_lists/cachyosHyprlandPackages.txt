@@ -1,3 +1,4 @@
+awww
 breeze
 breeze-cursors
 breeze-gtk
@@ -25,6 +26,8 @@ hyprsunset
 hyprwire
 kde-gtk-config
 kvantum
+kwallet-pam
+kwalletmanager
 nautilus
 nwg-displays
 nwg-look
@@ -40,7 +43,6 @@ rofi-calc
 rofimoji
 spectacle
 swaync
-awww
 wallust
 waypaper
 wl-clipboard

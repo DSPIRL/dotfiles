@@ -54,3 +54,4 @@ mapfile -t hyprlandPackages < <(awk 'NF && $1 !~ /^#/ { print }' "${DOTPKG}/cach
 install_packages "${hyprlandPackages[@]}"
 run_module backlight.sh
 run_module greetd.sh
+run_module kwallet.sh
