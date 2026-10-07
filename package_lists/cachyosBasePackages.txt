@@ -1,3 +1,4 @@
+7zip
 alacritty
 at
 aspell
@@ -7,11 +8,16 @@ btop
 carapace-bin
 cava
 eza
+ffmpeg
 flatpak
+fzf
 ghostty
 gnome-calculator
 gnome-calendar
 gnome-dictionary
+hyperfine
+imagemagick
+jq
 keepassxc
 lsof
 ncspot
@@ -21,8 +27,12 @@ noto-fonts
 noto-fonts-emoji
 npm
 nushell
+perf
+poppler
+resvg
 ripgrep
 silicon
+superfile
 tree
 ttf-hack-nerd
 ttf-jetbrains-mono

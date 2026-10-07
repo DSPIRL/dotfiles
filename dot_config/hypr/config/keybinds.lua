@@ -171,7 +171,25 @@ end
 for i = 1, 10 do
   local key = tostring(i % 10)
   hl.bind(main(key), hl.dsp.focus({ workspace = i }))
-  hl.bind(main_alt(key), hl.dsp.window.move({ workspace = i }))
+  hl.bind(main_alt(key), function()
+    local window = hl.get_active_window()
+    if not window or not window.workspace or window.workspace.id == i then
+      return
+    end
+
+    local destination = hl.get_workspace(i)
+    -- Keep native handling for pinned windows, special workspaces, and monitor transfers.
+    if window.pinned or window.workspace.special or (destination and destination.monitor ~= window.monitor) then
+      hl.dispatch(hl.dsp.window.move({ workspace = i, window = window }))
+      return
+    end
+
+    -- Switch first so the source is hidden before moving: otherwise Hyprland
+    -- starts a separate fade-out that competes with the workspace slide.
+    hl.dispatch(hl.dsp.focus({ workspace = i }))
+    hl.dispatch(hl.dsp.window.move({ workspace = i, window = window, follow = false }))
+    hl.dispatch(hl.dsp.focus({ window = window }))
+  end)
 end
 
 hl.bind(main_ctrl("h"), hl.dsp.workspace.move({ monitor = "l" }))
