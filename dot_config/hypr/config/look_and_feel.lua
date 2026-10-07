@@ -4,6 +4,9 @@ local performance_profile = require("config.performance-profile")
 
 local performance_mode = performance_profile.enabled
 
+-- Continuous border rotation costs idle rendering; performance mode always disables it.
+local animate_border = false
+
 hl.config({
 	general = {
 		border_size = 3,
@@ -105,8 +108,7 @@ local animations = {
 	{ leaf = "windowsOut", enabled = true, speed = 2.0, spring = "easy", style = "slide" },
 	{ leaf = "windowsMove", enabled = true, speed = 3.5, bezier = "workspaceSmooth" },
 	{ leaf = "border", enabled = true, speed = 1, bezier = "liner" },
-	-- Avoid continuous rendering while the desktop is otherwise idle.
-	{ leaf = "borderangle", enabled = false, speed = 1, bezier = "liner" },
+	{ leaf = "borderangle", enabled = animate_border and not performance_mode, speed = 80, bezier = "liner", style = "loop" },
 	{ leaf = "fade", enabled = true, speed = 2, bezier = "fadeSmooth" },
 	{ leaf = "fadeIn", enabled = true, speed = 1.8, bezier = "fadeSmooth" },
 	{ leaf = "workspaces", enabled = true, speed = 3.5, bezier = "workspaceSmooth" },
