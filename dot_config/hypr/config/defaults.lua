@@ -7,7 +7,8 @@ return {
   terminal = os.getenv("USER_TERMINAL") or os.getenv("ALT_TERMINAL") or "ghostty",
   editor = os.getenv("EDITOR") or "vi",
   fileManager = "nautilus",
-  browser = "zen_browser",
+  -- browser = "zen_browser",
+  browser = "helium-browser",
   searchEngine = "https://kagi.com/search?q={}",
   notifications = "qs ipc call notifications toggle",
   controlPanel = "qs ipc call control toggle",
@@ -34,6 +35,7 @@ return {
   locker = "hyprlock",
 
   appLauncher = scripts .. "/rofi-drun.sh",
+  windowSwitcher = scripts .. "/rofi-windows.sh",
   emojiPicker = scripts .. "/rofi-emoji-picker.sh",
   clipboard = scripts .. "/rofi-clipboard.sh",
   clipboardImages = scripts .. "/rofi-clipboard-images.sh",
