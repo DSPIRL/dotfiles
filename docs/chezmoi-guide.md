@@ -32,6 +32,8 @@ chezmoi apply
 
 On WSL systems, encryption and KeePassXC are disabled automatically - the setup will work without the database.
 
+For CachyOS desktop installation, control-panel usage, runtime preferences, and recovery commands, see [Hyprland desktop controls](hyprland-desktop.md).
+
 ---
 
 ## How Chezmoi Commands Work

@@ -11,6 +11,15 @@ wallust run "$@"
 
 if [[ "$OSTYPE" == linux* ]]; then
   pkill -USR2 -u "$UID" -x ghostty 2>/dev/null || true
+  theme_script="${HOME}/.config/hypr/scripts/toggle-breeze-theme.sh"
+  if [[ -x "$theme_script" ]]; then
+    "$theme_script" refresh-shell
+  fi
+  # Reload the generated QML palette reliably, including after atomic replacements.
+  reload_script="${HOME}/.config/hypr/scripts/quickshell-reload.sh"
+  if [[ -n "${WAYLAND_DISPLAY:-}" && -x "$reload_script" ]] && pgrep -x quickshell >/dev/null; then
+    "$reload_script"
+  fi
 fi
 
 runtime_dir="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"

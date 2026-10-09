@@ -4,7 +4,7 @@ local scripts = home .. "/.config/hypr/scripts"
 return {
   mainMod = "SUPER",
 
-  terminal = os.getenv("USER_TERMINAL") or os.getenv("ALT_TERMINAL") or "ghostty",
+  terminal = os.getenv("USER_TERMINAL") or os.getenv("ALT_TERMINAL") or "ghostty" or "alacritty",
   editor = os.getenv("EDITOR") or "vi",
   fileManager = "nautilus",
   -- browser = "zen_browser",
@@ -14,10 +14,7 @@ return {
   controlPanel = "qs ipc call control toggle",
   barToggle = "qs ipc call bar toggle",
   barReload = scripts .. "/quickshell-reload.sh",
-  barDoctor = scripts .. "/quickshell-healthcheck.sh",
   brightness = scripts .. "/brightness.sh",
-  opacityToggle = scripts .. "/toggle-opacity.sh",
-  performanceProfileToggle = scripts .. "/toggle-performance-profile.sh",
   themeToggle = scripts .. "/toggle-breeze-theme.sh",
   windowStackToggle = scripts .. "/toggle-window-stack.sh",
   sessionTarget = scripts .. "/start-session-target.sh",
@@ -31,7 +28,7 @@ return {
   telegram = "telegram",
   discord = "discord",
 
-  idleHandler = "swayidle -w timeout 300 'swaylock -f -c 000000' before-sleep 'swaylock -f -c 000000'",
+  idleHandler = "hypridle",
   locker = "hyprlock",
 
   appLauncher = scripts .. "/rofi-drun.sh",

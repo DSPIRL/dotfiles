@@ -11,7 +11,7 @@ Rectangle {
   implicitHeight: 32
   radius: implicitHeight / 2
   color: clockMouse.containsMouse ? wallust.barHover : wallust.barBackground
-  border.width: 1.5
+  border.width: 1
   border.color: wallust.barBorder
 
   Behavior on color {
@@ -24,9 +24,9 @@ Rectangle {
     id: clockLabel
 
     anchors.centerIn: parent
-    text: "󰥔 " + Qt.formatDateTime(clock.date, "HH:mm | d MMM")
+    text: Qt.formatDateTime(clock.date, bar.width < 1000 ? "HH:mm" : "HH:mm  ·  d MMM")
     color: wallust.barText
-    font.family: "Hack Nerd Font"
+    font.family: wallust.textFont
     font.pixelSize: 15
   }
 

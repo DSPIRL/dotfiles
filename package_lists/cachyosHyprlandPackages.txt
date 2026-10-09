@@ -4,6 +4,7 @@ breeze-cursors
 breeze-gtk
 breeze-icons
 brightnessctl
+blueman
 cliphist
 ddcutil
 dolphin
@@ -24,15 +25,18 @@ hyprpwcenter
 hyprshot
 hyprsunset
 hyprwire
+jq
 kde-gtk-config
 kvantum
 kwallet-pam
 kwalletmanager
 nautilus
+networkmanager
 nwg-displays
 nwg-look
 plasma-integration
 playerctl
+pavucontrol
 qt5-wayland
 qt5ct
 qt6-wayland
@@ -42,7 +46,8 @@ rofi
 rofi-calc
 rofimoji
 spectacle
-swaync
+ttf-hack-nerd
+noto-fonts
 wallust
 waypaper
 wl-clipboard

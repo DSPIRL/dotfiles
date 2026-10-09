@@ -22,13 +22,18 @@ QtObject {
   readonly property color color14: "{{color14}}"
   readonly property color color15: "{{color15}}"
 
-  readonly property color barBackground: "#99{{background | strip}}"
-  readonly property color barBorder: "{{color2}}"
-  readonly property color barText: "{{foreground}}"
-  readonly property color barMutedText: "{{color8}}"
-  readonly property color barAccentText: "{{cursor}}"
-  readonly property color barHover: "#4D{{color7 | strip}}"
-  readonly property color barActive: "#66{{cursor | strip}}"
-  readonly property color barSeparator: "#66{{foreground | strip}}"
-  readonly property color barCritical: "{{color1}}"
+  property bool lightMode: false
+  readonly property string textFont: "Noto Sans"
+  readonly property string iconFont: "Hack Nerd Font"
+  readonly property color panelBackground: lightMode ? "#F4F5F7" : "#171B22"
+  readonly property color barBackground: lightMode ? "#F0F4F5F7" : "#F0171B22"
+  readonly property color barCard: lightMode ? "#E5E8ED" : "#242B35"
+  readonly property color barBorder: lightMode ? "#26000000" : "#26FFFFFF"
+  readonly property color barText: lightMode ? "#202733" : "#E8EDF5"
+  readonly property color barMutedText: lightMode ? "#566171" : "#A7B2C3"
+  readonly property color barAccentText: lightMode ? Qt.darker(color12, 1.4) : Qt.lighter(color12, 1.3)
+  readonly property color barHover: lightMode ? "#14000000" : "#18FFFFFF"
+  readonly property color barActive: Qt.rgba(barAccentText.r, barAccentText.g, barAccentText.b, 0.18)
+  readonly property color barSeparator: barBorder
+  readonly property color barCritical: lightMode ? "#B42332" : "#FF8993"
 }

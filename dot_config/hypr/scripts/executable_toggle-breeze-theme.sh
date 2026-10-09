@@ -228,6 +228,21 @@ apply_gsettings() {
   gsettings set org.gnome.desktop.interface color-scheme "$color_preference" >/dev/null 2>&1 || true
 }
 
+refresh_shell_theme() {
+  local mode="$1" file="${HOME}/.config/rofi/wallust/colors-rofi.rasi"
+  local accent="#9FC5F0" background="#171B22FA" foreground="#E8EDF5" border="#FFFFFF26" surface="#242B35"
+  if [[ -r "$file" ]]; then
+    accent=$(awk '/selected-background:/ { gsub(/[;[:space:]]/, "", $2); print $2; exit }' "$file")
+    [[ "$accent" =~ ^#[[:xdigit:]]{6}$ ]] || accent="#9FC5F0"
+  fi
+  if [[ "$mode" == light ]]; then
+    background="#F4F5F7FA"; foreground="#202733"; border="#00000026"; surface="#E5E8ED"
+  fi
+  mkdir -p "$(dirname "$file")"
+  printf '* {\n selected-text: #171B22;\n selected-background: %s;\n normal-text: %s;\n normal-background: transparent;\n prompt-text: %s;\n prompt-background: transparent;\n window-background: %s;\n window-border: %s;\n scrollbar-filled: %s;\n scrollbar-empty: %s;\n error-message: %s;\n error-message-border: %s;\n}\n' \
+    "$accent" "$foreground" "$foreground" "$background" "$border" "$accent" "$surface" "$foreground" "$border" > "$file"
+}
+
 apply_mode() {
   local mode="$1"
   local gtk_theme=""
@@ -277,6 +292,7 @@ apply_mode() {
   write_xsettingsd "$gtk_theme" "$gtk_icon_theme" "$cursor_theme"
   apply_gsettings "$gtk_theme" "$gtk_icon_theme" "$cursor_theme" "$color_preference"
   apply_runtime_settings "$cursor_theme"
+  refresh_shell_theme "$mode"
 
   # notify "Applied Breeze ${mode}"
 }
@@ -297,8 +313,11 @@ case "${1:-toggle}" in
   status)
     current_mode
     ;;
+  refresh-shell)
+    refresh_shell_theme "$(current_mode)"
+    ;;
   *)
-    printf 'Usage: %s [apply|toggle|dark|light|status]\n' "${0##*/}" >&2
+    printf 'Usage: %s [apply|toggle|dark|light|status|refresh-shell]\n' "${0##*/}" >&2
     exit 2
     ;;
 esac

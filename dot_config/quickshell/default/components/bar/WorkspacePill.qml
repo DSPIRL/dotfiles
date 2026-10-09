@@ -12,7 +12,7 @@ Rectangle {
   implicitHeight: 32
   radius: implicitHeight / 2
   color: wallust.barBackground
-  border.width: 1.5
+  border.width: 1
   border.color: wallust.barBorder
 
   MouseArea {
@@ -58,7 +58,7 @@ Rectangle {
           anchors.centerIn: parent
           text: bar.workspaceText(workspace)
           color: workspace.active ? wallust.barAccentText : wallust.barMutedText
-          font.family: "Hack Nerd Font"
+          font.family: wallust.textFont
           font.pixelSize: 16
         }
 

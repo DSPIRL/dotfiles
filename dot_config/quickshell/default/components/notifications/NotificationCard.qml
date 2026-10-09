@@ -10,7 +10,7 @@ Rectangle {
 
   implicitHeight: notificationCardContent.implicitHeight + 20
   radius: 14
-  color: notificationMouse.containsMouse ? wallust.barHover : "transparent"
+  color: notificationMouse.containsMouse ? Qt.tint(wallust.barCard, wallust.barHover) : wallust.barCard
   border.width: 1
   border.color: bar.notificationAccent(notification)
 
@@ -50,7 +50,7 @@ Rectangle {
           text: notification.summary && notification.summary.length > 0 ? notification.summary : notification.appName
           color: wallust.barText
           elide: Text.ElideRight
-          font.family: "Hack Nerd Font"
+          font.family: wallust.textFont
           font.pixelSize: 14
           font.bold: true
         }
@@ -61,7 +61,7 @@ Rectangle {
           text: notification.appName
           color: wallust.barMutedText
           elide: Text.ElideRight
-          font.family: "Hack Nerd Font"
+          font.family: wallust.textFont
           font.pixelSize: 12
         }
       }
@@ -103,7 +103,7 @@ Rectangle {
       wrapMode: Text.Wrap
       maximumLineCount: 6
       elide: Text.ElideRight
-      font.family: "Hack Nerd Font"
+      font.family: wallust.textFont
       font.pixelSize: 13
     }
 
@@ -141,7 +141,7 @@ Rectangle {
             anchors.centerIn: parent
             text: action.text
             color: wallust.barText
-            font.family: "Hack Nerd Font"
+            font.family: wallust.textFont
             font.pixelSize: 12
           }
 

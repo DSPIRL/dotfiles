@@ -14,7 +14,7 @@ Rectangle {
   implicitHeight: 32
   radius: implicitHeight / 2
   color: wallust.barBackground
-  border.width: 1.5
+  border.width: 1
   border.color: wallust.barBorder
 
   Row {

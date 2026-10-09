@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -u
+set -euo pipefail
 
 #==============================================================#
 # Define script location variables
@@ -48,6 +48,11 @@ if [[ "${ID:-}" != "cachyos" ]]; then
     exit 1
 fi
 
+if ! command -v chezmoi >/dev/null 2>&1; then
+    echo "chezmoi is required to deploy the Hyprland and Quickshell configuration." >&2
+    exit 1
+fi
+
 cd "${HOME}"
 mapfile -t hyprlandPackages < <(awk 'NF && $1 !~ /^#/ { print }' "${DOTPKG}/cachyosHyprlandPackages.txt")
 
@@ -55,3 +60,23 @@ install_packages "${hyprlandPackages[@]}"
 run_module backlight.sh
 run_module greetd.sh
 run_module kwallet.sh
+
+# Import existing live toggles before applying managed defaults over their Lua files.
+if [[ -r "${HOME}/.config/hypr/config/opacity-toggle.lua" || \
+      -r "${HOME}/.config/hypr/config/blur-toggle.lua" || \
+      -r "${HOME}/.config/hypr/config/performance-profile.lua" ]]; then
+    bash "${DOTS}/dot_config/hypr/scripts/executable_desktop-settings.sh" status >/dev/null
+fi
+
+# Deploy only the desktop configuration; do not overwrite unrelated dotfiles.
+chezmoi apply "${HOME}/.config/hypr" "${HOME}/.config/quickshell" \
+    "${HOME}/.config/rofi" "${HOME}/.config/wallust" \
+    "${HOME}/.local/scripts/wallust-refresh"
+
+# NetworkManager supplies nmcli/nmtui; hypridle starts with the Hyprland session.
+sudo systemctl enable --now NetworkManager.service
+sudo systemctl enable --now bluetooth.service
+bash "${HOME}/.config/hypr/scripts/desktop-settings.sh" status >/dev/null
+bash "${HOME}/.config/hypr/scripts/quickshell-healthcheck.sh" || \
+    echo "Review the health-check report; Quickshell starts on your next Hyprland login."
+echo "Desktop setup complete. Log into Hyprland to start Quickshell and hypridle."
