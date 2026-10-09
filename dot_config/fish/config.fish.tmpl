@@ -222,17 +222,17 @@ if command -q awsm
     awsm completions fish | source
 end
 
-if command -q chezmoi
-    chezmoi completion fish | source
-end
+# if command -q chezmoi
+#     chezmoi completion fish | source
+# end
 
-if command -q kubectl
-    kubectl completion fish | source
-end
+# if command -q kubectl
+#     kubectl completion fish | source
+# end
 
-if command -q podman
-    podman completion fish | source
-end
+# if command -q podman
+#     podman completion fish | source
+# end
 
 if command -q dotnet
     complete -f -c dotnet -a '(dotnet complete (commandline -cp))'

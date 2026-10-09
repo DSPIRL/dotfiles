@@ -24,14 +24,14 @@ local env = {
 	XCURSOR_SIZE = "24",
 	XCURSOR_THEME = "breeze_cursors",
 
-	ALT_TERMINAL = "alacritty",
+	ALT_TERMINAL = "ghostty",
 	BROWSER = "xdg-open",
 	EDITOR = "nvim",
 	HYPR_CONFIG_PATH = home .. "/.config/hypr",
 	HYPR_SCRIPTS = home .. "/.config/hypr/scripts",
     HYPRLAND_CONFIG = home .. "/.config/hypr",
-	TERMINAL = "ghostty",
-	USER_TERMINAL = "ghostty",
+	TERMINAL = "alacritty",
+	USER_TERMINAL = "alacritty",
 	VISUAL = "nvim",
 }
 

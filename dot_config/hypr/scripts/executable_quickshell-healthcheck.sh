@@ -17,23 +17,32 @@ check_file() {
 }
 
 check_cmd quickshell
+check_cmd hypridle
+check_cmd hyprlock
+check_cmd brightnessctl
+check_cmd flock
+check_cmd systemd-inhibit
 check_cmd nmcli
 check_cmd pavucontrol
 check_cmd blueman-manager
 # check_cmd swaync-client
-check_cmd wlogout
 check_cmd hyprpicker
 check_cmd hyprsunset
 check_cmd checkupdates
 check_cmd playerctl
 
-check_file "$HOME/.config/quickshell/shell.qml"
-check_file "$HOME/.config/quickshell/components/BarWindow.qml"
+check_file "$HOME/.config/quickshell/default/shell.qml"
+check_file "$HOME/.config/quickshell/default/components/BarWindow.qml"
+check_file "$HOME/.config/quickshell/default/components/control/ControlPanel.qml"
+check_file "$HOME/.config/quickshell/default/components/control/DesktopState.qml"
 check_file "$HOME/.config/quickshell/default/wallust/Colors.qml"
 # check_file "$HOME/.config/swaync/wallust/colors-swaync.css"
 check_file "$HOME/.config/hypr/scripts/quickshell-reload.sh"
 check_file "$HOME/.config/hypr/scripts/colorpicker.sh"
 check_file "$HOME/.config/hypr/scripts/hyprsunset.sh"
+check_file "$HOME/.config/hypr/scripts/desktop-settings.sh"
+check_file "$HOME/.config/hypr/scripts/session-action.sh"
+check_file "$HOME/.config/hypr/hypridle.conf"
 
 if pgrep -x quickshell >/dev/null 2>&1; then
     quickshell_state="running"

@@ -1,15 +1,15 @@
 local wallust = require("themes.wallust")
 local utils = require("config.utils")
-local performance_profile = require("config.performance-profile")
+local effects = require("config.effects")
 
-local performance_mode = performance_profile.enabled
+local performance_mode = effects.low_effects
 
 -- Continuous border rotation costs idle rendering; performance mode always disables it.
 local animate_border = false
 
 hl.config({
 	general = {
-		border_size = 3,
+		border_size = 2,
 		gaps_in = 4,
 		gaps_out = 5,
 		col = {
@@ -41,7 +41,7 @@ hl.config({
 		},
 
 		blur = {
-			enabled = not performance_mode,
+			enabled = effects.blur,
 			size = 3,
 			passes = 3,
 			xray = true,
@@ -124,7 +124,7 @@ hl.workspace_rule({ workspace = "w[t1]", gaps_out = 1, gaps_in = 0 })
 hl.workspace_rule({ workspace = "w[tg1]", gaps_out = 1, gaps_in = 0 })
 hl.workspace_rule({ workspace = "f[1]", gaps_out = 1, gaps_in = 1 })
 
-utils.window_rule("border_size 3", { float = false, workspace = "w[t1]" }, "smart-gaps-tiled-border")
+utils.window_rule("border_size 2", { float = false, workspace = "w[t1]" }, "smart-gaps-tiled-border")
 utils.window_rule("rounding 12", { float = true, workspace = "w[t1]" }, "smart-gaps-floating-rounding")
 utils.window_rule("border_size 0", { float = false, workspace = "w[tg1]" }, "smart-gaps-tiled-group-border")
 utils.window_rule("rounding 0", { float = false, workspace = "w[tg1]" }, "smart-gaps-tiled-group-rounding")

@@ -80,7 +80,9 @@ local function toggle_center_half()
   local monitor = window.monitor
   local reserved = monitor.reserved or {}
   local width = math.floor(monitor.width / 2)
-  local height = math.floor(monitor.height - (reserved.top or 0) - (reserved.bottom or 0))
+  -- Resize targets content size; leave room for the border outside it.
+  local border = hl.get_config("general.border_size")
+  local height = math.floor(monitor.height - (reserved.top or 0) - (reserved.bottom or 0) - 2 * border)
 
   if not window.floating then
     hl.dispatch(hl.dsp.window.float({ action = "toggle" }))
@@ -117,7 +119,7 @@ local function toggle_center_workspace()
   state.rule:set_enabled(state.enabled)
 end
 
--- ROFI
+-- Launchers and panels. Alt selects alternate tools; movement below uses Alt to send.
 -- Search open windows across workspaces; Super+Space still launches apps.
 hl.bind("ALT + SPACE", hl.dsp.exec_cmd(vars.windowSwitcher))
 hl.bind(main("SPACE"), hl.dsp.exec_cmd(vars.appLauncher))
@@ -128,7 +130,7 @@ hl.bind(main_alt("V"), hl.dsp.exec_cmd(vars.clipboardImages))
 hl.bind(main_alt("C"), hl.dsp.exec_cmd(vars.calculator))
 hl.bind(main("PERIOD"), hl.dsp.exec_cmd(vars.emojiPicker))
 
--- System
+-- Applications
 hl.bind(main("E"), hl.dsp.exec_cmd(vars.fileManager))
 hl.bind(main("B"), hl.dsp.exec_cmd(vars.browser))
 hl.bind(main("N"), hl.dsp.exec_cmd(vars.notifications))
@@ -137,7 +139,7 @@ hl.bind(main("M"), hl.dsp.exec_cmd(vars.music))
 hl.bind(main("W"), hl.dsp.exec_cmd(vars.wallpaperGui))
 hl.bind(main("RETURN"), hl.dsp.exec_cmd(vars.terminal))
 
--- Windows and such
+-- Window actions
 hl.bind(main_alt("RETURN"), hl.dsp.window.fullscreen({ mode = "fullscreen" }))
 hl.bind(main("F"), function()
   local window = hl.get_active_window()
@@ -152,24 +154,17 @@ hl.bind(main("C"), hl.dsp.window.center())
 hl.bind(main("P"), hl.dsp.window.pseudo())
 hl.bind(main("S"), hl.dsp.layout("togglesplit"))
 
--- System keybinds
+-- Session and desktop actions. Infrequent preferences live in Super+A.
 hl.bind(main("Q"), hl.dsp.window.close())
 hl.bind(main_shift("ESCAPE"), hl.dsp.exit())
 hl.bind(main_shift("S"), hl.dsp.exec_cmd(vars.screenshotRegion))
 hl.bind(main_shift_alt("S"), hl.dsp.exec_cmd(vars.screenshotWindow))
 hl.bind(main_shift("E"), hl.dsp.exec_cmd(vars.editLastScreenshot))
-hl.bind(main_shift("R"), hl.dsp.exec_cmd("hyprctl reload"))
+hl.bind(main_ctrl("R"), hl.dsp.exec_cmd("hyprctl reload"))
 hl.bind(main_shift("B"), hl.dsp.exec_cmd(vars.barToggle))
-hl.bind(main_shift("I"), hl.dsp.exec_cmd(vars.barDoctor))
-hl.bind(main_shift("O"), hl.dsp.exec_cmd(vars.opacityToggle))
-hl.bind(main_shift("P"), hl.dsp.exec_cmd(vars.performanceProfileToggle))
-hl.bind(main_shift("T"), hl.dsp.exec_cmd(vars.themeToggle))
 hl.bind(main_shift("L"), hl.dsp.exec_cmd(vars.locker))
 hl.bind(main_shift("C"), toggle_center_half)
 hl.bind(main_shift_alt("C"), toggle_center_workspace)
-hl.bind(main_shift("M"), function()
-  monitors.apply()
-end)
 
 -- Event-driven clamshell mode: no polling or background process.
 -- The lid switch is "on" while closed and "off" while open.

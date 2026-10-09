@@ -1,8 +1,5 @@
 local utils = require("config.utils")
-local opacity_toggle = require("config.opacity-toggle")
-local performance_profile = require("config.performance-profile")
-
-local performance_mode = performance_profile.enabled
+local effects = require("config.effects")
 
 local wr = utils.window_rule
 local lr = utils.layer_rule
@@ -191,7 +188,7 @@ wr("opacity 0.9 override 0.8 override", { class = [[^(im.riot.Riot)$]] })
 wr("opacity 0.9 override 0.8 override", { class = [[^(seahorse)$]] })
 wr("opacity 0.95 override 0.75 override", { title = [[^(Picture-in-Picture)$]] })
 
-if opacity_toggle.enabled or performance_mode then
+if not effects.opacity then
   wr("opacity 1.0 override 1.0 override 1.0 override", { class = [[.*]] }, "opacity-toggle")
 end
 
@@ -208,15 +205,15 @@ wr("no_blur on", { tag = "games" })
 wr("fullscreen on", { tag = "games" })
 
 -- Layer rules
-if not performance_mode then
+if effects.blur then
   lr("blur on", { namespace = "quickshell" })
 end
 lr("ignore_alpha 0.1", { namespace = "quickshell" })
-if not performance_mode then
+if effects.blur then
   lr("blur on", { namespace = "rofi" })
 end
 lr("ignore_alpha 0", { namespace = "rofi" })
-if not performance_mode then
+if effects.blur then
   lr("blur on", { namespace = "notifications" })
 end
 lr("ignore_alpha 0", { namespace = "notifications" })

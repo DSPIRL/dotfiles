@@ -12,18 +12,17 @@ PanelWindow {
   property var timer
 
   visible: bar && bar.toastVisible && notification && !bar.notificationPanelOpen && !bar.controlPanelOpen
-  implicitWidth: 390
+  implicitWidth: 440
   implicitHeight: toastContent.implicitHeight
   color: "transparent"
   screen: bar ? bar.screen : null
   exclusionMode: ExclusionMode.Ignore
 
-  anchors {
-    top: true
-  }
+  anchors { top: true; right: true }
 
   margins {
-    top: bar ? bar.height + 12 : 50
+    top: bar && bar.barVisible ? bar.height + 12 : 12
+    right: 12
   }
 
   WlrLayershell.namespace: "quickshell"
@@ -38,7 +37,7 @@ PanelWindow {
     implicitHeight: toastColumn.implicitHeight + 20
     anchors.fill: parent
     radius: 18
-    color: wallust.barBackground
+    color: wallust.panelBackground
     border.width: 1
     border.color: bar.notificationAccent(notification)
 
@@ -84,7 +83,7 @@ PanelWindow {
             text: notification ? (notification.summary && notification.summary.length > 0 ? notification.summary : notification.appName) : ""
             color: wallust.barText
             elide: Text.ElideRight
-            font.family: "Hack Nerd Font"
+            font.family: wallust.textFont
             font.pixelSize: 14
             font.bold: true
           }
@@ -95,7 +94,7 @@ PanelWindow {
             text: notification ? notification.appName : ""
             color: wallust.barMutedText
             elide: Text.ElideRight
-            font.family: "Hack Nerd Font"
+            font.family: wallust.textFont
             font.pixelSize: 12
           }
         }
@@ -137,7 +136,7 @@ PanelWindow {
         wrapMode: Text.Wrap
         maximumLineCount: 3
         elide: Text.ElideRight
-        font.family: "Hack Nerd Font"
+        font.family: wallust.textFont
         font.pixelSize: 13
       }
     }

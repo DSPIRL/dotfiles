@@ -87,7 +87,10 @@ Row {
       acceptedButtons: Qt.LeftButton | Qt.RightButton
       cursorShape: Qt.PointingHandCursor
 
-      onClicked: bar.runCommand(["blueman-manager"])
+      onClicked: {
+        if (bar.desktopState.values.bluetoothSettings) bar.runCommand(["blueman-manager"]);
+        else { bar.desktopState.error = "Bluetooth settings require blueman-manager"; bar.controlPanelOpen = true; }
+      }
     }
   }
 
@@ -252,7 +255,7 @@ Row {
       acceptedButtons: Qt.LeftButton
       cursorShape: Qt.PointingHandCursor
 
-      onClicked: bar.runCommand(["wlogout"])
+      onClicked: { bar.controlPanelOpen = true; bar.sessionRequested(); }
     }
   }
 }

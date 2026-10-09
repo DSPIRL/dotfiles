@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 import Quickshell
 import Quickshell.Wayland
 
@@ -9,19 +10,19 @@ PanelWindow {
   property var wallust
 
   visible: bar && bar.notificationPanelOpen
-  implicitWidth: 390
-  implicitHeight: Math.min(520, notificationPanelContent.implicitHeight)
+  readonly property real maximumHeight: Math.min(520, screen ? screen.height - margins.top - 16 : 520)
+  implicitWidth: Math.min(440, screen ? screen.width - 24 : 440)
+  implicitHeight: Math.min(maximumHeight, notificationPanelContent.implicitHeight)
   color: "transparent"
   screen: bar ? bar.screen : null
   focusable: visible
   exclusionMode: ExclusionMode.Ignore
 
-  anchors {
-    top: true
-  }
+  anchors { top: true; right: true }
 
   margins {
-    top: bar ? bar.height + 12 : 50
+    top: bar && bar.barVisible ? bar.height + 12 : 12
+    right: 12
   }
 
   WlrLayershell.namespace: "quickshell"
@@ -37,7 +38,7 @@ PanelWindow {
     focus: true
     implicitHeight: notificationPanelColumn.implicitHeight + 24
     radius: 18
-    color: wallust.barBackground
+    color: wallust.panelBackground
     border.width: 1
     border.color: wallust.barBorder
 
@@ -61,7 +62,7 @@ PanelWindow {
           anchors.verticalCenter: parent.verticalCenter
           text: bar.notificationCount === 1 ? "1 notification" : bar.notificationCount + " notifications"
           color: wallust.barText
-          font.family: "Hack Nerd Font"
+          font.family: wallust.textFont
           font.pixelSize: 15
           font.bold: true
         }
@@ -83,7 +84,7 @@ PanelWindow {
             anchors.centerIn: parent
             text: "Clear"
             color: wallust.barText
-            font.family: "Hack Nerd Font"
+            font.family: wallust.textFont
             font.pixelSize: 13
           }
 
@@ -124,7 +125,7 @@ PanelWindow {
             anchors.horizontalCenter: parent.horizontalCenter
             text: "No notifications"
             color: wallust.barMutedText
-            font.family: "Hack Nerd Font"
+            font.family: wallust.textFont
             font.pixelSize: 14
           }
         }
@@ -133,10 +134,11 @@ PanelWindow {
       Flickable {
         visible: bar.notificationCount > 0
         width: parent.width
-        height: Math.min(430, notificationList.implicitHeight)
+        height: Math.min(Math.max(0, root.maximumHeight - 62), notificationList.implicitHeight)
         contentWidth: width
         contentHeight: notificationList.implicitHeight
         clip: true
+        ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
 
         Column {
           id: notificationList

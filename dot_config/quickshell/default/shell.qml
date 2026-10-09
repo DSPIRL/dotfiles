@@ -7,16 +7,44 @@ import Quickshell.Io
 import Quickshell.Services.Notifications
 
 import "components"
+import "components/control"
 
 ShellRoot {
   id: shellRoot
 
   property int notificationToggleGeneration: 0
   property int controlToggleGeneration: 0
+  property int sessionToggleGeneration: 0
   property bool barVisible: true
 
+  DesktopState { id: desktopSettings }
+
+  // systemd idle inhibition also works when the bar is hidden. Closing stdin
+  // releases the child and inhibitor if the shell exits; a newline releases it normally.
+  Process {
+    id: awakeProcess
+    command: ["systemd-inhibit", "--what=idle", "--mode=block", "--who=Quickshell", "--why=Keep awake", "sh", "-c", "read -r _"]
+    stdinEnabled: true
+    stderr: StdioCollector { id: awakeError }
+    onStarted: if (!desktopSettings.keepAwake) write("\n")
+    onExited: function(code) {
+      if (code !== 0 && desktopSettings.keepAwake)
+        desktopSettings.error = awakeError.text.trim() || "Could not inhibit automatic idle actions";
+      desktopSettings.keepAwake = false;
+    }
+  }
+  Connections {
+    target: desktopSettings
+    function onKeepAwakeChanged() {
+      if (desktopSettings.keepAwake) awakeProcess.running = true;
+      else if (awakeProcess.processId) awakeProcess.write("\n");
+    }
+  }
+
   readonly property string ddcBrightnessCommand: "if ! command -v ddcutil >/dev/null 2>&1; then printf '__QS_DDC_MISSING__\\n'; exit 0; fi; " +
-    "ddcutil detect --terse 2>/dev/null | awk '" +
+    "detected=$(ddcutil detect --terse 2>&1); code=$?; " +
+    "if [ \"$code\" -ne 0 ]; then printf '__QS_DDC_ERROR__%s\\n' \"$detected\"; exit 0; fi; " +
+    "printf '%s\\n' \"$detected\" | awk '" +
     "/^Display[[:space:]]+[0-9]+/ { if (display != \"\") print display \";\" connector \";\" monitor; display=$2; connector=\"\"; monitor=\"\" } " +
     "/DRM connector:/ { connector=$3 } " +
     "/Monitor:/ { sub(/^[[:space:]]*Monitor:[[:space:]]*/, \"\"); monitor=$0 } " +
@@ -51,6 +79,13 @@ ShellRoot {
         displays = [];
         displayCount = 0;
         error = "ddcutil is not installed";
+        return;
+      }
+
+      if (text.indexOf("__QS_DDC_ERROR__") === 0) {
+        displays = [];
+        displayCount = 0;
+        error = text.slice("__QS_DDC_ERROR__".length).trim() || "DDC display detection failed";
         return;
       }
 
@@ -323,23 +358,32 @@ ShellRoot {
     target: "notifications"
 
     function toggle(): void {
-      notificationToggleGeneration += 1;
+      shellRoot.notificationToggleGeneration += 1;
     }
+    function quiet(enabled: bool): void { desktopSettings.quiet = enabled; }
+    function isQuiet(): bool { return desktopSettings.quiet; }
   }
 
   IpcHandler {
     target: "control"
 
     function toggle(): void {
-      controlToggleGeneration += 1;
+      shellRoot.controlToggleGeneration += 1;
     }
+    function session(): void {
+      shellRoot.sessionToggleGeneration += 1;
+    }
+    function keepAwake(enabled: bool): void {
+      desktopSettings.keepAwake = enabled && Boolean(desktopSettings.values.idleRunning);
+    }
+    function isKeepingAwake(): bool { return desktopSettings.keepAwake; }
   }
 
   IpcHandler {
     target: "bar"
 
     function toggle(): void {
-      barVisible = !barVisible;
+      shellRoot.barVisible = !shellRoot.barVisible;
     }
   }
 
@@ -352,7 +396,10 @@ ShellRoot {
       notifications: notificationServer
       notificationToggleGeneration: shellRoot.notificationToggleGeneration
       controlToggleGeneration: shellRoot.controlToggleGeneration
+      sessionToggleGeneration: shellRoot.sessionToggleGeneration
+      desktopState: desktopSettings
       barVisible: shellRoot.barVisible
+      onSetBarVisible: value => shellRoot.barVisible = value
       focusedHyprMonitor: Hyprland.focusedMonitor
       ddcBrightnessState: ddcState
       laptopBrightnessState: laptopState

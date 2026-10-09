@@ -38,6 +38,7 @@ PanelWindow {
 
   Wallust.Colors {
     id: wallust
+    lightMode: barWindow.desktopState && barWindow.desktopState.values.theme === "light"
   }
 
   SystemClock {
@@ -53,7 +54,12 @@ PanelWindow {
   property var notifications
   property int notificationToggleGeneration: 0
   property int controlToggleGeneration: 0
+  property int sessionToggleGeneration: 0
+  property var desktopState
+  signal setBarVisible(bool value)
+  signal sessionRequested()
   property bool barVisible: true
+  readonly property string networkStatus: networkState.tooltip
   property var focusedHyprMonitor
   property var ddcBrightnessState
   property var laptopBrightnessState
@@ -73,8 +79,12 @@ PanelWindow {
     controlPanelOpen = focused ? !controlPanelOpen : false;
   }
 
+  onSessionToggleGenerationChanged: {
+    controlPanelOpen = isFocusedMonitor();
+    if (controlPanelOpen) sessionRequested();
+  }
+
   onBarVisibleChanged: if (!barVisible) {
-    controlPanelOpen = false;
     notificationPanelOpen = false;
     toastVisible = false;
   }
@@ -291,12 +301,12 @@ PanelWindow {
       return "Audio device";
     }
 
-    if (node.description && node.description.length > 0) {
-      return node.description;
-    }
-
     if (node.nickname && node.nickname.length > 0) {
       return node.nickname;
+    }
+
+    if (node.description && node.description.length > 0) {
+      return node.description;
     }
 
     if (node.name && node.name.length > 0) {
@@ -385,10 +395,10 @@ PanelWindow {
     }
 
     if (notification && notification.urgency === NotificationUrgency.Low) {
-      return wallust.barMutedText;
+      return wallust.barBorder;
     }
 
-    return wallust.color3;
+    return wallust.barBorder;
   }
 
   function notificationIcon(notification) {
@@ -412,7 +422,7 @@ PanelWindow {
   }
 
   function showNotificationToast(notification) {
-    if (!notification || !isFocusedMonitor()) {
+    if (!notification || !isFocusedMonitor() || (desktopState.quiet && notification.urgency !== NotificationUrgency.Critical)) {
       return;
     }
 
@@ -430,6 +440,14 @@ PanelWindow {
     const trackedNotifications = notifications.trackedNotifications.values;
     for (let i = trackedNotifications.length - 1; i >= 0; i -= 1) {
       trackedNotifications[i].dismiss();
+    }
+  }
+
+  Connections {
+    target: barWindow.desktopState
+    function onQuietChanged() {
+      if (barWindow.desktopState.quiet && barWindow.toastNotification && barWindow.toastNotification.urgency !== NotificationUrgency.Critical)
+        barWindow.toastVisible = false;
     }
   }
 
@@ -668,7 +686,7 @@ PanelWindow {
 
   Timer {
     interval: 8000
-    running: true
+    running: barWindow.toolsExpanded
     repeat: true
     triggeredOnStart: true
 
@@ -721,27 +739,15 @@ PanelWindow {
       spacing: 8
 
       WorkspacePill {
+        id: workspacePill
         bar: barWindow
         wallust: wallust
       }
 
-      Item {
-        Layout.fillWidth: true
-        implicitHeight: spotifyPill.implicitHeight
-
-        Row {
-          anchors.centerIn: parent
-          spacing: 6
-
-          SpotifyPill {
-            id: spotifyPill
-            bar: barWindow
-            wallust: wallust
-          }
-        }
-      }
+      Item { Layout.fillWidth: true }
 
       RightPill {
+        id: rightPill
         bar: barWindow
         wallust: wallust
         utilityState: utilityState
@@ -769,10 +775,20 @@ PanelWindow {
     }
 
     ClockPill {
-      anchors.centerIn: parent
+      id: clockPill
+      anchors.verticalCenter: parent.verticalCenter
+      x: Math.max(workspacePill.width + 12, Math.min((parent.width - width) / 2, parent.width - rightPill.width - width - 12))
+      visible: parent.width > workspacePill.width + rightPill.width + width + 24
       bar: barWindow
       wallust: wallust
       clock: clock
+    }
+    SpotifyPill {
+      anchors.verticalCenter: parent.verticalCenter
+      x: clockPill.x - width - 8
+      visible: barWindow.spotifyVisible && clockPill.visible && x > workspacePill.width + 12
+      bar: barWindow
+      wallust: wallust
     }
   }
 }

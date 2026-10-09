@@ -105,7 +105,7 @@ read -rp 'Do you want to install paru? (Y/N): ' varParuInstall
 
 echo ""
 echo '##### SYSTEM SETUP #####'
-read -rp 'Do you want to install Hyprland packages and setup greetd? (Y/N): ' varHyprlandInstall
+read -rp 'Do you want to install Hyprland, Quickshell controls, idle locking, and greetd? (Y/N): ' varHyprlandInstall
 read -rp 'Do you want to install and setup VM host tools? (Y/N): ' varVMHostInstall
 
 echo ""
@@ -139,7 +139,7 @@ install_oh_my_posh
 
 # Hyprland setup
 if [[ "${varHyprlandInstall^^}" == "Y" ]]; then
-    bash "${DOTSCRIPTS}/executable_hyprland_install.sh"
+    bash "${DOTSCRIPTS}/executable_hyprland_install.sh" || exit 1
 fi
 
 # Brave setup
