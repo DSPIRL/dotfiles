@@ -10,6 +10,9 @@ export XDG_CACHE_HOME="${HOME}/.cache"
 export PATH="${HOME}/.local/bin:${PATH}"
 export PATH="${HOME}/.local/scripts:${PATH}"
 
+##### PI #####
+[ -d "${HOME}/.pi/agent/bin" ] && export PATH="${HOME}/.pi/agent/bin:${PATH}"
+
 ##### RUST #####
 if [ -d "${HOME}/.cargo" ]; then
     export CARGO_HOME="${HOME}/.cargo"
@@ -109,5 +112,4 @@ if [ -d "${HOME/.local/share/JetBrains}" ]; then
     # Added by Toolbox App
     export PATH="$PATH:/home/athe/.local/share/JetBrains/Toolbox/scripts"
 fi
-
 

@@ -14,6 +14,9 @@ export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/ssh-agent.socket"
 export PATH="${HOME}/.local/bin:${PATH}"
 export PATH="${HOME}/.local/scripts:${PATH}"
 
+##### PI #####
+[[ -d "${HOME}/.pi/agent/bin" ]] && export PATH="${HOME}/.pi/agent/bin:${PATH}"
+
 ##### RUST #####
 if [[ -d "${HOME}/.cargo" ]]; then
   export CARGO_HOME="${HOME}/.cargo"

@@ -110,6 +110,11 @@ if command -v awsm &>/dev/null; then
     source <(awsm completions zsh)
 fi
 
+# WALLI
+if command -v walli &>/dev/null; then
+    source <(walli completions zsh)
+fi
+
 if command -v chezmoi &>/dev/null; then
   eval "$(chezmoi completion zsh)"
 fi
