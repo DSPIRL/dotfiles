@@ -51,6 +51,9 @@ if (which carapace | is-not-empty) {
 add-path $"($env.HOME)/.local/bin" --prepend
 add-path $"($env.HOME)/.local/scripts" --prepend
 
+##### PI #####
+add-path $"($env.HOME)/.pi/agent/bin" --prepend
+
 # RUST
 if ($"($env.HOME)/.cargo" | path exists) {
     $env.CARGO_HOME = $"($env.HOME)/.cargo"
@@ -65,4 +68,3 @@ if (which fzf | is-not-empty) {
     $env.FZF_CTRL_T_COMMAND = "fd --hidden --ignore-case"
     # $env.FZF_ALT_C_COMMAND = ""
 }
-

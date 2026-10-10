@@ -23,3 +23,12 @@ mp4togif() {
         -vf "fps=${fps},scale=${width}:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=256[p];[s1][p]paletteuse=dither=${dither}" \
         "$output"
 }
+
+y() {
+    local tmp cwd
+    tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+    command yazi "$@" --cwd-file="$tmp"
+    IFS= read -r -d '' cwd <"$tmp"
+    [ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd" || builtin true
+    command rm -f -- "$tmp"
+}

@@ -32,6 +32,16 @@ def --env cd [path?: string] {
     }
 }
 
+def --env --wrapped y [...args] {
+    let tmp = (mktemp -t "yazi-cwd.XXXXXX")
+    ^yazi ...$args --cwd-file $tmp
+    let cwd = (open $tmp)
+    if $cwd != $env.PWD and ($cwd | path exists) {
+        cd $cwd
+    }
+    rm -fp $tmp
+}
+
 ##### TESTING #####
 alias modhelp = cat ~/.local/share/chezmoi/shell/manpages/help_chmod.md
 

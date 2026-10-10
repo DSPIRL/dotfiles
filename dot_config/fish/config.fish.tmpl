@@ -23,6 +23,9 @@ end
 __add_path "$HOME/.local/bin"
 __add_path "$HOME/.local/scripts"
 
+##### PI #####
+__add_path "$HOME/.pi/agent/bin"
+
 ##### RUST #####
 if test -d "$HOME/.cargo"
     set -gx CARGO_HOME "$HOME/.cargo"
@@ -220,6 +223,10 @@ end
 
 if command -q awsm
     awsm completions fish | source
+end
+
+if command -q walli
+    walli completions fish | source
 end
 
 # if command -q chezmoi
@@ -461,6 +468,15 @@ if command -q nu
 end
 
 ##### FUNCTIONS #####
+function y
+    set tmp (mktemp -t "yazi-cwd.XXXXXX")
+    command yazi $argv --cwd-file="$tmp"
+    if read -z cwd <"$tmp"; and test "$cwd" != "$PWD"; and test -d "$cwd"
+        builtin cd -- "$cwd"
+    end
+    command rm -f -- "$tmp"
+end
+
 function ref_dirinfo
     set -l dir .
     if test (count $argv) -gt 0
