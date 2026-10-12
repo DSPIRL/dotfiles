@@ -76,6 +76,20 @@ install_oh_my_posh() {
     curl -s https://ohmyposh.dev/install.sh | bash -s
 }
 
+setup_nix() {
+    if ! command -v nix-channel >/dev/null 2>&1; then
+        echo "Skipping Nix setup: nix-channel is not available."
+        return 0
+    fi
+
+    sudo systemctl enable --now nix-daemon.service
+
+    if ! nix-channel --list | grep -q '^nixpkgs[[:space:]]'; then
+        nix-channel --add https://channels.nixos.org/nixpkgs-unstable nixpkgs
+    fi
+    nix-channel --update nixpkgs
+}
+
 enable_atd_service() {
     if ! command -v at >/dev/null 2>&1; then
         sudo systemctl enable --now atd.service
@@ -133,6 +147,9 @@ if [[ "${varVMHostInstall^^}" == "Y" ]]; then
 fi
 
 install_packages "${installPackages[@]}"
+
+# Nix setup
+setup_nix
 
 # Oh My Posh setup
 install_oh_my_posh
