@@ -7,6 +7,7 @@ hl.config({
 
     touchpad = {
       natural_scroll = true,
+      scroll_factor = 0.4,
     },
   },
 })
@@ -19,6 +20,7 @@ hl.device({
 
 hl.device({
   name = "syna801a:00-06cb:cec6-touchpad",
-  sensitivity = -0.0,
-  accel_profile = "adaptive",
+  sensitivity = 0.4,
+  accel_profile = "flat", -- flat, linear, adaptive, custom
+
 })
