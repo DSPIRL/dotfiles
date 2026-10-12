@@ -13,6 +13,10 @@ Act with virtuous laziness: spend present effort to reduce future human effort.
 - Verify the real artifact or user path; state when tests or compilation are only proxies.
 - Explain any complexity added and why it belongs.
 
+## Tool Preferences
+
+Before recommending or choosing project tools or running shell commands, read `~/.ai/principles/tool-preferences.md`. It lists commonly installed machine tools, contains the user's preferred stack and requires a brief fit assessment and user agreement before starting a new project or making a substantial stack change. Respect existing project choices. If the file is unavailable, ask the user for it rather than guessing their preferences.
+
 ## Specialized Mindsets
 
 Work directly for ordinary implementation. Use the `subagent` tool only when an independent perspective will reduce risk or cognitive load.

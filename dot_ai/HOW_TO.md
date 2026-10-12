@@ -19,6 +19,22 @@ Pi automatically loads:
 
 The full skill instructions, project `CONTEXT.md`, and relevant ADRs are read only when needed.
 
+## Preferred Tools and New Projects
+
+Edit `dot_ai/principles/tool-preferences.md` in this chezmoi source, then apply it to `~/.ai/principles/tool-preferences.md`, to change your defaults once for all adapters.
+
+For example:
+
+```text
+I want to build a desktop app for tracking expenses. Assess my preferred stack before building anything.
+```
+
+The agent should recommend a stack, explain fit and meaningful drawbacks, and wait for agreement before scaffolding. See [`principles/tool-preferences.md`](principles/tool-preferences.md) for the defaults. Existing projects keep their established stack unless a change is justified and agreed.
+
+Pi's global instructions already link to the adapter in this repository. For Claude Code, Codex, and OpenCode, load the corresponding instruction file from `~/.ai/adapters/` through the tool's global instructions or the project's `CLAUDE.md`/`AGENTS.md`; merely installing `~/.ai/` does not make those tools read it. Merge with existing instructions rather than overwriting them.
+
+For remote or chat-only assistants without access to `~/.ai/`, include the preference file's contents in their instructions or attach it to the conversation. No file on your machine can automatically configure every AI service.
+
 ## Automatic Use
 
 Describe the task normally. Pi should select matching skills and agents from their trigger descriptions.

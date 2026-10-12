@@ -5,6 +5,8 @@ purpose: Make AI-assisted engineering optimize for maintainability, restraint, a
 principles:
   - id: virtuous-laziness
     path: principles/virtuous-laziness.md
+  - id: tool-preferences
+    path: principles/tool-preferences.md
 
 workflows:
   - id: change-orchestration

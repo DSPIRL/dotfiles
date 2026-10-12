@@ -13,6 +13,10 @@ Default to virtuous laziness: reduce future human cognitive load.
 - Verify the real artifact or user path; state when tests or compilation are only proxies.
 - Explain any complexity added and why it belongs.
 
+## Tool Preferences
+
+Before recommending or choosing project tools or running shell commands, read `~/.ai/principles/tool-preferences.md`. It lists commonly installed machine tools, contains the user's preferred stack and requires a brief fit assessment and user agreement before starting a new project or making a substantial stack change. Respect existing project choices. If the file is unavailable, ask the user for it rather than guessing their preferences.
+
 ## Agent Triggers
 
 Use a simplifier review for large diffs, generated code, new abstractions, or new files.

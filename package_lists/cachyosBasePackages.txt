@@ -22,6 +22,7 @@ keepassxc
 lsof
 ncspot
 neovim
+nix
 nodejs
 noto-fonts
 noto-fonts-emoji

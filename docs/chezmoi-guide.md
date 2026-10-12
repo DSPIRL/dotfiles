@@ -32,6 +32,14 @@ chezmoi apply
 
 On WSL systems, encryption and KeePassXC are disabled automatically - the setup will work without the database.
 
+On CachyOS, install the base packages and optional components with:
+
+```bash
+bash ~/.local/share/chezmoi/install_scripts/executable_cachyos_install.sh
+```
+
+The base setup installs Nix, enables `nix-daemon.service`, and updates the user's `nixpkgs` channel, defaulting new setups to `nixpkgs-unstable`. Start a new login shell afterward so `/etc/profile.d/nix-daemon.sh` adds Nix profiles to the environment.
+
 For CachyOS desktop installation, control-panel usage, runtime preferences, and recovery commands, see [Hyprland desktop controls](hyprland-desktop.md).
 
 ---

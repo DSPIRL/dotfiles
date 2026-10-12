@@ -25,6 +25,10 @@ Good AI-assisted engineering optimizes for the smallest durable improvement:
 - `templates/` contains project memory and report templates.
 - `adapters/` packages the same stack for specific agent tools.
 
+## Tool Preferences
+
+[`principles/tool-preferences.md`](principles/tool-preferences.md) is the single source for personal stack defaults and the pre-build stack assessment. Every adapter and the project instruction template direct agents to read it before choosing tools. Keeping preferences separate from skills makes them apply regardless of which skill runs, without duplicating the tool list across adapters.
+
 ## Default Workflow
 
 1. Use `virtuous-laziness` for any code change.
