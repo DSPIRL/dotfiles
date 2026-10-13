@@ -2,7 +2,7 @@
 set -euo pipefail
 
 defaults_file="$HOME/.config/hypr/config/defaults.conf"
-search_engine="https://kagi.com/search?q={}"
+search_engine="https://search.brave.com/search?q={}"
 
 if [[ -f "$defaults_file" ]]; then
   extracted="$(sed -n 's/^\$searchEngine[[:space:]]*=[[:space:]]*"\(.*\)"[[:space:]]*$/\1/p' "$defaults_file" | head -n 1)"
