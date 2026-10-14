@@ -31,7 +31,7 @@ I want to build a desktop app for tracking expenses. Assess my preferred stack b
 
 The agent should recommend a stack, explain fit and meaningful drawbacks, and wait for agreement before scaffolding. See [`principles/tool-preferences.md`](principles/tool-preferences.md) for the defaults. Existing projects keep their established stack unless a change is justified and agreed.
 
-Pi's global instructions already link to the adapter in this repository. For Claude Code, Codex, and OpenCode, load the corresponding instruction file from `~/.ai/adapters/` through the tool's global instructions or the project's `CLAUDE.md`/`AGENTS.md`; merely installing `~/.ai/` does not make those tools read it. Merge with existing instructions rather than overwriting them.
+Pi's global instructions already link to the adapter in this repository. Merely installing `~/.ai/` does not make other tools read it. For Claude Code, follow [`adapters/claude-code/README.md`](adapters/claude-code/README.md) to install its instructions, agents, and skills at user or project scope. For Codex and OpenCode, load the corresponding instruction file from `~/.ai/adapters/` through the tool's global or project instructions. Merge with existing instructions rather than overwriting them.
 
 For remote or chat-only assistants without access to `~/.ai/`, include the preference file's contents in their instructions or attach it to the conversation. No file on your machine can automatically configure every AI service.
 
