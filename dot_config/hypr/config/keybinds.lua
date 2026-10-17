@@ -27,7 +27,8 @@ end
 -- Center lone floating windows on creation/toggle, not continuously while dragging.
 local function center_lone_floating_window(window)
   if not window or not window.mapped or not window.workspace or not window.floating
-      or window.hidden or window.pinned or window.fullscreen ~= 0 or window.title == "Picture-in-Picture" then
+      or window.hidden or window.pinned or window.fullscreen ~= 0 or window.title == "Picture-in-Picture"
+      or (window.xwayland and window.class == "KeePassXC" and window.title == "KeePassXC") then
     return
   end
 
