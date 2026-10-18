@@ -76,9 +76,16 @@ tmp=$(mktemp "$state_dir/.preference.XXXXXX")
 trap 'rm -f "$tmp"' EXIT
 printf '%s\n' "$next" >"$tmp"
 mv -f "$tmp" "$state_dir/$feature"
-if ! hyprctl reload >/dev/null || ! errors=$(hyprctl configerrors) || [[ -n "$errors" ]]; then
+apply_effects() {
+  local result errors
+  result=$(hyprctl repl 'require("config.effects").apply(); return "effects-applied"') &&
+    [[ "$result" == effects-applied ]] &&
+    errors=$(hyprctl configerrors) && [[ -z "$errors" ]]
+}
+
+if ! apply_effects; then
   printf '%s\n' "$previous" >"$state_dir/$feature"
-  hyprctl reload >/dev/null 2>&1 || true
+  apply_effects >/dev/null 2>&1 || true
   printf 'Could not apply %s; restored previous preference.\n' "$feature" >&2
   exit 1
 fi

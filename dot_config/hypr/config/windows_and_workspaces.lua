@@ -184,10 +184,6 @@ wr("opacity 0.9 override 0.8 override", { class = [[^(im.riot.Riot)$]] })
 wr("opacity 0.9 override 0.8 override", { class = [[^(seahorse)$]] })
 wr("opacity 0.95 override 0.75 override", { title = [[^(Picture-in-Picture)$]] })
 
-if not effects.opacity then
-  wr("opacity 1.0 override 1.0 override 1.0 override", { class = [[.*]] }, "opacity-toggle")
-end
-
 -- Size
 wr("size (monitor_w*0.6) (monitor_h*0.7)", { class = [[^([Ww]hatsapp-for-linux|ZapZap|com.rtosta.zapzap)$]] })
 wr("size (monitor_w*0.6) (monitor_h*0.7)", { class = [[^([Ff]erdium)$]] })
@@ -201,15 +197,9 @@ wr("no_blur on", { tag = "games" })
 wr("fullscreen on", { tag = "games" })
 
 -- Layer rules
-if effects.blur then
-  lr("blur on", { namespace = "quickshell" })
-end
 lr("ignore_alpha 0.1", { namespace = "quickshell" })
-if effects.blur then
-  lr("blur on", { namespace = "rofi" })
-end
 lr("ignore_alpha 0", { namespace = "rofi" })
-if effects.blur then
-  lr("blur on", { namespace = "notifications" })
-end
 lr("ignore_alpha 0", { namespace = "notifications" })
+
+-- The opacity override must follow app-specific opacity rules.
+effects.apply()

@@ -10,6 +10,15 @@ fi
 wallust run "$@"
 
 if [[ "$OSTYPE" == linux* ]]; then
+  # The generated Lua palette is intentionally not watched by Hyprland.
+  # Apply only colors, preserving runtime workspace layouts and window state.
+  if [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]]; then
+    result=$(hyprctl repl 'require("config.look_and_feel").apply_palette(); return "palette-applied"')
+    if [[ "$result" != palette-applied ]]; then
+      printf 'Could not apply Hyprland palette: %s\n' "$result" >&2
+      exit 1
+    fi
+  fi
   pkill -USR2 -u "$UID" -x ghostty 2>/dev/null || true
   theme_script="${HOME}/.config/hypr/scripts/toggle-breeze-theme.sh"
   if [[ -x "$theme_script" ]]; then

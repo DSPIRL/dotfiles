@@ -29,11 +29,13 @@ The footer and bar power button open the session menu. Suspend, logout, reboot, 
 
 Individual features accept `status`, `enable`, `disable`, or `toggle`. The existing `toggle-blur.sh`, `toggle-opacity.sh`, and `toggle-performance-profile.sh` wrappers accept the same operations; no argument still toggles.
 
-Runtime preferences live in `${XDG_STATE_HOME:-~/.local/state}/hypr/effects/`. The first invocation imports the old live Lua flags; managed Lua files subsequently supply defaults only. Applying chezmoi no longer resets these preferences. A failed compositor reload restores the previous preference.
+Runtime preferences live in `${XDG_STATE_HOME:-~/.local/state}/hypr/effects/`. The first invocation imports the old live Lua flags; managed Lua files subsequently supply defaults only. Applying chezmoi no longer resets these preferences. Effect toggles apply only the relevant compositor settings and existing opacity/layer-blur rules through `hyprctl repl`; they do not reload the config, reapply monitors, or reset centered-workspace/window state. A failed update restores the previous preference and attempts to reapply it.
 
 Low-effects mode overrides blur, configured transparency, animations, and shadows without erasing the saved blur/transparency preferences. The menu shows effective state and disables overridden switches. Configured transparency refers to Hyprland opacity rules, not an application's own background alpha.
 
-Theme state remains in `${XDG_STATE_HOME:-~/.local/state}/hypr/breeze-theme`. The existing theme script updates application themes and Rofi surfaces; Quickshell observes the same preference. `wallust-refresh` reapplies Rofi's selected light/dark surface after generating wallpaper colors and restarts an already-running Quickshell to load its new palette. Update both the Quickshell fallback palette and its Wallust template when changing shared style tokens.
+Theme state remains in `${XDG_STATE_HOME:-~/.local/state}/hypr/breeze-theme`. The existing theme script updates application themes and Rofi surfaces; Quickshell observes the same preference. `wallust-refresh` applies Hyprland border/group colors directly, reapplies Rofi's selected light/dark surface after generating wallpaper colors, and restarts an already-running Quickshell to load its new palette. Hyprland deliberately loads its generated Lua palette with `dofile`, not `require`, to keep wallpaper updates out of its config watcher. Running `wallust run` directly updates the file but does not apply Hyprland colors until the next refresh or config reload. Update both the Quickshell fallback palette and its Wallust template when changing shared style tokens.
+
+When first deploying these changes, load the new Lua modules at the next login or with one explicit config reload when it is safe to reset runtime layout state. Subsequent appearance toggles and wallpaper refreshes need no full reload. **Reload Hyprland**, `Super+Ctrl+R`, and edits to watched config modules still perform a full reload and can reset runtime layouts; **Reapply monitor configuration** also intentionally changes display geometry.
 
 ## Idle locking and keep-awake
 
@@ -78,6 +80,6 @@ qs ipc call control keepAwake false
 qs ipc call control isKeepingAwake
 ```
 
-Run `bash tests/desktop-settings.sh` for isolated migration, idempotence, override, rollback, concurrency, and Lua/CLI agreement checks. `lua tests/centered-window.lua` checks border clearance and toggle restoration without modifying live windows. Installer checks in `tests/hyprland-installer.sh` stub all installation/deployment commands; they do not install packages or modify services.
+Run `bash tests/desktop-settings.sh` for isolated migration, idempotence, override, rollback, concurrency, Lua/CLI agreement, runtime rule reuse, and colors-only wallpaper refresh checks. These tests use compositor doubles; they do not prove live window geometry preservation. `lua tests/centered-window.lua` checks border clearance and toggle restoration without modifying live windows. Installer checks in `tests/hyprland-installer.sh` stub all installation/deployment commands; they do not install packages or modify services.
 
 After applying QML edits, use `quickshell-reload.sh` rather than relying on hot reload. QML syntax checks are only a proxy. Verify the live panel with dark/light themes, blur disabled, expanded device lists, keyboard navigation, smaller/scaled displays, and a hidden bar. Test session actions manually only when it is safe to lock or leave the session.

@@ -1,11 +1,18 @@
-local wallust = require("themes.wallust")
 local utils = require("config.utils")
-local effects = require("config.effects")
+local M = {}
 
-local performance_mode = effects.low_effects
-
--- Continuous border rotation costs idle rendering; performance mode always disables it.
-local animate_border = false
+-- Use dofile, not require: generated palette files must not join Hyprland's
+-- config watch list and trigger a full reload when the wallpaper changes.
+function M.apply_palette()
+  local wallust = dofile(os.getenv("HOME") .. "/.config/hypr/themes/wallust.lua")
+  hl.config({
+    general = { col = { active_border = {
+      colors = { wallust.color12, wallust.color11, wallust.color9, wallust.color7 },
+      angle = 45,
+    } } },
+    group = { col = { border_active = wallust.color15 }, groupbar = { col = { active = wallust.color0 } } },
+  })
+end
 
 hl.config({
 	general = {
@@ -13,10 +20,6 @@ hl.config({
 		gaps_in = 4,
 		gaps_out = 5,
 		col = {
-			active_border = {
-				colors = { wallust.color12, wallust.color11, wallust.color9, wallust.color7 },
-				angle = 45,
-			},
 			inactive_border = "rgba(00ffff00)",
 		},
 		resize_on_border = true,
@@ -32,7 +35,6 @@ hl.config({
 		dim_special = 0.8,
 
 		shadow = {
-			enabled = not performance_mode,
 			range = 20,
 			render_power = 3,
 			color = "rgba(10101099)",
@@ -41,7 +43,6 @@ hl.config({
 		},
 
 		blur = {
-			enabled = effects.blur,
 			size = 3,
 			passes = 3,
 			xray = true,
@@ -49,10 +50,6 @@ hl.config({
 			vibrancy = 0.2,
 			popups = true,
 		},
-	},
-
-	animations = {
-		enabled = not performance_mode,
 	},
 
 	dwindle = {
@@ -71,17 +68,6 @@ hl.config({
 		font_family = "Fira Sans",
 		focus_on_activate = false,
 		vrr = 2,
-	},
-
-	group = {
-		col = {
-			border_active = wallust.color15,
-		},
-		groupbar = {
-			col = {
-				active = wallust.color0,
-			},
-		},
 	},
 })
 
@@ -108,7 +94,7 @@ local animations = {
 	{ leaf = "windowsOut", enabled = true, speed = 2.0, spring = "easy", style = "slide" },
 	{ leaf = "windowsMove", enabled = true, speed = 3.5, bezier = "workspaceSmooth" },
 	{ leaf = "border", enabled = true, speed = 1, bezier = "liner" },
-	{ leaf = "borderangle", enabled = animate_border and not performance_mode, speed = 80, bezier = "liner", style = "loop" },
+	{ leaf = "borderangle", enabled = false, speed = 80, bezier = "liner", style = "loop" },
 	{ leaf = "fade", enabled = true, speed = 2, bezier = "fadeSmooth" },
 	{ leaf = "fadeIn", enabled = true, speed = 1.8, bezier = "fadeSmooth" },
 	{ leaf = "workspaces", enabled = true, speed = 3.5, bezier = "workspaceSmooth" },
@@ -130,3 +116,6 @@ utils.window_rule("border_size 0", { float = false, workspace = "w[tg1]" }, "sma
 utils.window_rule("rounding 0", { float = false, workspace = "w[tg1]" }, "smart-gaps-tiled-group-rounding")
 utils.window_rule("border_size 0", { float = false, workspace = "f[1]" }, "smart-gaps-fullscreen-border")
 utils.window_rule("rounding 0", { float = false, workspace = "f[1]" }, "smart-gaps-fullscreen-rounding")
+
+M.apply_palette()
+return M
