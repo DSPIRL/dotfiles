@@ -13,7 +13,15 @@ printf 'return { enabled = false }\n' >"$HOME/.config/hypr/config/performance-pr
 cat >"$sandbox/bin/hyprctl" <<'MOCK'
 #!/usr/bin/env bash
 case "$1" in
-  reload) printf 'reload\n' >>"$CALLS"; [[ "${FAIL_RELOAD:-0}" == 0 ]] ;;
+  repl)
+    printf 'repl %s\n' "$2" >>"$CALLS"
+    [[ "${FAIL_APPLY:-0}" == 0 ]] || exit 1
+    if [[ "${LUA_ERROR:-0}" == 1 ]]; then printf 'Lua error\n'; exit 0; fi
+    case "$2" in
+      'require("config.effects").apply(); return "effects-applied"') printf 'effects-applied\n' ;;
+      'require("config.look_and_feel").apply_palette(); return "palette-applied"') printf 'palette-applied\n' ;;
+      *) exit 2 ;;
+    esac ;;
   configerrors) [[ "${CONFIG_QUERY_FAIL:-0}" == 0 ]] || exit 1; printf '%s' "${CONFIG_ERROR:-}" ;;
   *) exit 2 ;;
 esac
@@ -35,7 +43,9 @@ cli status | python -c 'import json,sys; s=json.load(sys.stdin); assert s["blur"
 cli low-effects disable
 cli status | python -c 'import json,sys; s=json.load(sys.stdin); assert s["effectiveBlur"] and s["effectiveOpacity"]'
 
-if FAIL_RELOAD=1 cli blur disable; then echo 'Expected reload failure' >&2; exit 1; fi
+if FAIL_APPLY=1 cli blur disable; then echo 'Expected apply failure' >&2; exit 1; fi
+check blur enabled
+if LUA_ERROR=1 cli blur disable; then echo 'Expected Lua error rejection' >&2; exit 1; fi
 check blur enabled
 if CONFIG_ERROR='broken configuration' cli opacity disable; then echo 'Expected config failure' >&2; exit 1; fi
 check opacity enabled
@@ -63,4 +73,23 @@ lua -e 'local e=require("config.effects"); assert(not e.blur and not e.opacity a
 XDG_STATE_HOME='' cli status | python -c 'import json,sys; s=json.load(sys.stdin); assert not s["blur"] and not s["opacity"] and not s["lowEffects"]'
 [[ -f "$HOME/.local/state/hypr/effects/blur" ]]
 XDG_STATE_HOME='' lua -e 'local e=require("config.effects"); assert(not e.blur and not e.opacity and not e.low_effects)'
+# Exercise actual Lua appearance updates with strict compositor doubles.
+mkdir -p "$HOME/.config/hypr/themes"
+printf 'return { color0="zero", color7="seven", color9="nine", color11="eleven", color12="twelve", color15="fifteen" }\n' >"$HOME/.config/hypr/themes/wallust.lua"
+lua "$root/tests/appearance-runtime.lua"
+
+# Wallpaper refresh must apply only colors, never reload the compositor.
+for command in wallust pkill pgrep; do
+  printf '#!/usr/bin/env bash\nexit 0\n' >"$sandbox/bin/$command"
+  chmod +x "$sandbox/bin/$command"
+done
+HYPRLAND_INSTANCE_SIGNATURE=test bash "$root/dot_local/scripts/executable_wallust-refresh" wallpaper.png
+[[ $(tail -n 1 "$CALLS") == 'repl require("config.look_and_feel").apply_palette(); return "palette-applied"' ]]
+if HYPRLAND_INSTANCE_SIGNATURE=test LUA_ERROR=1 bash "$root/dot_local/scripts/executable_wallust-refresh" wallpaper.png; then
+  echo 'Expected palette error rejection' >&2; exit 1
+fi
+calls=$(wc -l <"$CALLS")
+HYPRLAND_INSTANCE_SIGNATURE='' bash "$root/dot_local/scripts/executable_wallust-refresh" wallpaper.png
+[[ $(wc -l <"$CALLS") == "$calls" ]]
+! grep -q '^reload' "$CALLS"
 echo 'Desktop preference checks passed'
