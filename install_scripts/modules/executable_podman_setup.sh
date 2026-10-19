@@ -54,9 +54,14 @@ run_as_target() {
     fi
 }
 
-if ! command -v podman >/dev/null 2>&1; then
-    die "Podman is not installed. Install the podman package before running this module."
-fi
+for dependency in podman crun conmon pasta; do
+    command -v "${dependency}" >/dev/null 2>&1 \
+        || die "${dependency} is required to reproduce this machine's Podman setup."
+done
+[[ -x /usr/lib/podman/netavark ]] \
+    || die "netavark is required to reproduce this machine's Podman network backend."
+[[ -x /usr/lib/podman/aardvark-dns ]] \
+    || die "aardvark-dns is required by the netavark network backend."
 
 ensure_user_namespaces() {
     local currentValue
@@ -155,6 +160,17 @@ fi
 
 run_as_target systemctl --user enable --now podman.socket
 run_as_target podman info >/dev/null
+
+[[ "$(run_as_target podman info --format '{{.Host.Security.Rootless}}')" == "true" ]] \
+    || die "Podman is not running rootless."
+[[ "$(run_as_target podman info --format '{{.Host.OCIRuntime.Name}}')" == "crun" ]] \
+    || die "Podman did not select crun as its OCI runtime."
+[[ "$(run_as_target podman info --format '{{.Host.NetworkBackend}}')" == "netavark" ]] \
+    || die "Podman did not select netavark as its network backend."
+[[ "$(run_as_target podman info --format '{{.Host.RootlessNetworkCmd}}')" == "pasta" ]] \
+    || die "Podman did not select pasta for rootless networking."
+[[ "$(run_as_target podman info --format '{{.Store.GraphDriverName}}')" == "overlay" ]] \
+    || die "Podman did not select overlay storage."
 
 socketPath="/run/user/${targetUid}/podman/podman.sock"
 [[ -S "${socketPath}" ]] || die "Podman socket was not created at ${socketPath}."
