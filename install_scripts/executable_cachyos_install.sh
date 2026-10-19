@@ -113,6 +113,8 @@ varBraveInstall="N"
 varLazyVimInstall="N"
 varSyncthingInstall="N"
 varVMHostInstall="N"
+varPodmanInstall="N"
+varMinikubeInstall="N"
 
 echo '##### PACKAGE MANAGER #####'
 read -rp 'Do you want to install paru? (Y/N): ' varParuInstall
@@ -121,6 +123,8 @@ echo ""
 echo '##### SYSTEM SETUP #####'
 read -rp 'Do you want to install Hyprland, Quickshell controls, idle locking, and greetd? (Y/N): ' varHyprlandInstall
 read -rp 'Do you want to install and setup VM host tools? (Y/N): ' varVMHostInstall
+read -rp 'Do you want to install and setup rootless Podman? (Y/N): ' varPodmanInstall
+read -rp 'Do you want to install Minikube with rootless Podman? (Y/N): ' varMinikubeInstall
 
 echo ""
 echo '##### APPLICATIONS #####'
@@ -144,6 +148,18 @@ fi
 if [[ "${varVMHostInstall^^}" == "Y" ]]; then
     mapfile -t vmHostPackages < <(awk 'NF && $1 !~ /^#/ { print }' "${DOTPKG}/cachyosVMPackages.txt")
     installPackages+=("${vmHostPackages[@]}")
+fi
+
+if [[ "${varPodmanInstall^^}" == "Y" || "${varMinikubeInstall^^}" == "Y" ]]; then
+    installPackages+=(podman)
+fi
+
+if [[ "${varPodmanInstall^^}" == "Y" ]]; then
+    installPackages+=(podman-compose)
+fi
+
+if [[ "${varMinikubeInstall^^}" == "Y" ]]; then
+    installPackages+=(minikube)
 fi
 
 install_packages "${installPackages[@]}"
@@ -184,6 +200,16 @@ fi
 if [[ "${varVMHostInstall^^}" == "Y" ]]; then
     run_module vm_host.sh
     echo "Please review ${DOTPKG}/cachyosVirtualizationInstructions.md for VM creation notes."
+fi
+
+# Rootless Podman setup
+if [[ "${varPodmanInstall^^}" == "Y" || "${varMinikubeInstall^^}" == "Y" ]]; then
+    run_module podman_setup.sh
+fi
+
+# Minikube setup
+if [[ "${varMinikubeInstall^^}" == "Y" ]]; then
+    run_module minikube_setup.sh
 fi
 
 # Zoxide setup

@@ -40,6 +40,10 @@ bash ~/.local/share/chezmoi/install_scripts/executable_cachyos_install.sh
 
 The base setup installs Nix, enables `nix-daemon.service`, and updates the user's `nixpkgs` channel, defaulting new setups to `nixpkgs-unstable`. Start a new login shell afterward so `/etc/profile.d/nix-daemon.sh` adds Nix profiles to the environment.
 
+The optional rootless Podman setup installs `podman` and `podman-compose`, allocates subordinate UID/GID ranges when needed, enables unprivileged user namespaces when the kernel disables them, and enables the user's `podman.socket`. Enabling unprivileged user namespaces increases kernel attack surface, as noted by the Arch Wiki. The setup must run from an active login session so the user systemd manager and runtime directory are available.
+
+The optional Minikube setup installs `minikube`, ensures rootless Podman is installed and configured, and persists `driver=podman`, `rootless=true`, and `container-runtime=containerd` in the user's Minikube configuration. Using containerd avoids running a nested Docker daemon under rootless Podman and matches Minikube's default starting with v1.39. The setup does not create or start a cluster; run `minikube start` afterward.
+
 For CachyOS desktop installation, control-panel usage, runtime preferences, and recovery commands, see [Hyprland desktop controls](hyprland-desktop.md).
 
 ---
