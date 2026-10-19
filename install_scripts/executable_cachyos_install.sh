@@ -124,7 +124,7 @@ echo '##### SYSTEM SETUP #####'
 read -rp 'Do you want to install Hyprland, Quickshell controls, idle locking, and greetd? (Y/N): ' varHyprlandInstall
 read -rp 'Do you want to install and setup VM host tools? (Y/N): ' varVMHostInstall
 read -rp 'Do you want to install and setup rootless Podman? (Y/N): ' varPodmanInstall
-read -rp 'Do you want to install Minikube with rootless Podman? (Y/N): ' varMinikubeInstall
+read -rp 'Do you want to install Minikube with KVM/libvirt? (Y/N): ' varMinikubeInstall
 
 echo ""
 echo '##### APPLICATIONS #####'
@@ -145,21 +145,18 @@ if [[ "${varSyncthingInstall^^}" == "Y" ]]; then
     installPackages+=(syncthing)
 fi
 
-if [[ "${varVMHostInstall^^}" == "Y" ]]; then
+if [[ "${varVMHostInstall^^}" == "Y" || "${varMinikubeInstall^^}" == "Y" ]]; then
     mapfile -t vmHostPackages < <(awk 'NF && $1 !~ /^#/ { print }' "${DOTPKG}/cachyosVMPackages.txt")
     installPackages+=("${vmHostPackages[@]}")
 fi
 
-if [[ "${varPodmanInstall^^}" == "Y" || "${varMinikubeInstall^^}" == "Y" ]]; then
-    installPackages+=(podman)
-fi
-
 if [[ "${varPodmanInstall^^}" == "Y" ]]; then
-    installPackages+=(podman-compose)
+    # Select the same OCI runtime and network stack providers as this machine.
+    installPackages+=(podman podman-compose crun netavark passt)
 fi
 
 if [[ "${varMinikubeInstall^^}" == "Y" ]]; then
-    installPackages+=(minikube)
+    installPackages+=(minikube kubectl)
 fi
 
 install_packages "${installPackages[@]}"
@@ -197,13 +194,13 @@ if [[ "${varKanataInstall^^}" == "Y" ]]; then
 fi
 
 # VM host setup
-if [[ "${varVMHostInstall^^}" == "Y" ]]; then
+if [[ "${varVMHostInstall^^}" == "Y" || "${varMinikubeInstall^^}" == "Y" ]]; then
     run_module vm_host.sh
     echo "Please review ${DOTPKG}/cachyosVirtualizationInstructions.md for VM creation notes."
 fi
 
 # Rootless Podman setup
-if [[ "${varPodmanInstall^^}" == "Y" || "${varMinikubeInstall^^}" == "Y" ]]; then
+if [[ "${varPodmanInstall^^}" == "Y" ]]; then
     run_module podman_setup.sh
 fi
 
