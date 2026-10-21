@@ -155,7 +155,7 @@ fi
 
 ##### COMPLETERS #####
 if command -v mise &>/dev/null; then
-    mise completion bash > /etc/bash_completion.d/mise
+    source <(mise completion bash)
 fi
 
 if command -v carapace &>/dev/null; then
