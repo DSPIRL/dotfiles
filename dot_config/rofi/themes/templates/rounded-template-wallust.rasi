@@ -8,7 +8,11 @@
     spacing: 0px;
 }
 window {
-    location: center;
+    /* Keep the top edge fixed, regardless of the number of results. */
+    location: north;
+    anchor: north;
+    x-offset: 0;
+    y-offset: 25%;
     width: 600px;
     border-radius: 18px;
     border: 1px;
