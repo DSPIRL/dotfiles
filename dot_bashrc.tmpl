@@ -154,6 +154,10 @@ if command -v oh-my-posh &>/dev/null; then
 fi
 
 ##### COMPLETERS #####
+if command -v mise &>/dev/null; then
+    mise completion bash > /etc/bash_completion.d/mise
+fi
+
 if command -v carapace &>/dev/null; then
     export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense'
     source <(carapace _carapace)
