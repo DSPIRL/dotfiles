@@ -1,0 +1,20 @@
+[metadata]
+name = "shell-paths"
+description = "Select files and directories, shallow by default"
+requirements = ["fd", "bat", "eza"]
+
+[source]
+command = [
+  { name = "Current directory", run = "fd --exact-depth 1 --hidden --ignore-case --type file --type directory . \"${TV_SEARCH_ROOT:-.}\" | sed 's#^\\./##'" },
+  { name = "Recursive", run = "fd --hidden --ignore-case --type file --type directory . \"${TV_SEARCH_ROOT:-.}\" | sed 's#^\\./##'" },
+]
+
+[preview]
+command = "if [ -d '{}' ]; then eza --icons --tree --level=2 --color=always '{}'; else bat --style=numbers --color=always '{}'; fi"
+env = { BAT_THEME = "ansi" }
+
+[ui.preview_panel]
+hidden = false
+
+[keybindings]
+alt-r = "cycle_sources"

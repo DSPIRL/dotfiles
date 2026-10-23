@@ -17,31 +17,13 @@ if command -v fzf &>/dev/null; then
   export FZF_DEFAULT_OPTS_FILE="${HOME}/.config/fzf/.fzfrc"
   # export FZF_DEFAULT_OPTS="--style full --height 80% --popup center,40% --layout reverse --border top --extended --multi --preview 'cat {}'"
   # export FZF_CTRL_T_OPTS="--preview='less {}' --bind shift-up:preview-page-up,shift-down:preview-page-down"
-  export FZF_CTRL_T_COMMAND="fd --hidden --ignore-case"
+  # Let Television own Ctrl+T.
+  export FZF_CTRL_T_COMMAND=""
   export FZF_ALT_C_COMMAND=""
+  # Let Atuin own Ctrl-R instead of fzf's history widget.
+  export FZF_CTRL_R_COMMAND=""
 
   source <(fzf --zsh)
-
-  fzf-path-widget() {
-    local token prefix output selected quoted selection
-    token="${LBUFFER##*[[:space:]]}"
-    prefix="${LBUFFER[1,$(( ${#LBUFFER} - ${#token} ))]}"
-    output="$(${HOME}/.local/scripts/fzf-path-widget "$token")" || return
-    [[ -n "$output" ]] || return
-    selected=("${(@f)output}")
-    (( ${#selected} )) || return
-
-    quoted=()
-    for selection in "${selected[@]}"; do
-      quoted+=("${(q)selection}")
-    done
-
-    LBUFFER="${prefix}${(j: :)quoted}"
-    zle reset-prompt
-  }
-
-  zle -N fzf-path-widget
-  bindkey '^T' fzf-path-widget
 fi
 
 ##### WORKTRUNK #####
@@ -225,6 +207,98 @@ fi
 
 ##### KEYBINDS #####
 bindkey -e                        # Force emacs key bindings (EDITOR/VISUAL containing 'vi' triggers vi mode)
+
+if command -v tv &>/dev/null; then
+  tv-path-widget() {
+    local original_buffer original_cursor token prefix output selected quoted selection
+    original_buffer=$BUFFER
+    original_cursor=$CURSOR
+    token="${LBUFFER##*[[:space:]]}"
+    prefix="${LBUFFER[1,$(( ${#LBUFFER} - ${#token} ))]}"
+    output="$(${HOME}/.local/scripts/tv-path-widget "$token")" || output=
+    if [[ -z "$output" ]]; then
+      BUFFER=$original_buffer
+      CURSOR=$original_cursor
+      zle reset-prompt
+      return
+    fi
+    selected=("${(@f)output}")
+    (( ${#selected} )) || return
+
+    quoted=()
+    for selection in "${selected[@]}"; do
+      quoted+=("${(q)selection}")
+    done
+
+    LBUFFER="${prefix}${(j: :)quoted}"
+    zle reset-prompt
+  }
+
+  zle -N tv-path-widget
+  bindkey '^T' tv-path-widget
+
+  if command -v carapace &>/dev/null; then
+    tv-carapace-widget() {
+      local original_buffer original_cursor before after token prefix output nospace selection quoted replacement
+      local completion_line command_name alias_expansion seen_aliases alias_depth
+      original_buffer=$BUFFER
+      original_cursor=$CURSOR
+      before=$LBUFFER
+      after=$RBUFFER
+      token="${before##*[[:space:]]}"
+      prefix="${before[1,$(( ${#before} - ${#token} ))]}"
+      [[ -n "${before//[[:space:]]/}" ]] || return
+
+      completion_line="${before#"${before%%[![:space:]]*}"}"
+      seen_aliases=" "
+      for (( alias_depth = 0; alias_depth < 8; alias_depth++ )); do
+        command_name="${completion_line%%[[:space:]]*}"
+        [[ -n "$command_name" && "$seen_aliases" != *" $command_name "* ]] || break
+        alias_expansion="${aliases[$command_name]-}"
+        [[ -n "$alias_expansion" ]] || break
+        seen_aliases+="$command_name "
+        completion_line="${alias_expansion}${completion_line#"$command_name"}"
+      done
+
+      output="$(
+        CARAPACE_COMPLINE="$completion_line" \
+        CARAPACE_SHELL=zsh \
+        CARAPACE_SHELL_ALIASES="${(k)aliases}" \
+        CARAPACE_SHELL_BUILTINS="$(print -roC1 -- ${(k)builtins})" \
+        CARAPACE_SHELL_FUNCTIONS="$(print -l ${(ok)functions})" \
+        CARAPACE_SHELL_VARIABLES="$(print -l ${(ok)parameters})" \
+        "${HOME}/.local/scripts/tv-carapace-completion" "$completion_line" "$token"
+      )" || output=
+      if [[ "$output" != *$'\001'* ]]; then
+        BUFFER=$original_buffer
+        CURSOR=$original_cursor
+        zle reset-prompt
+        return
+      fi
+
+      nospace="${output%%$'\001'*}"
+      selection="${output#*$'\001'}"
+      selection="${selection%%$'\n'*}"
+      if [[ -z "$selection" ]]; then
+        BUFFER=$original_buffer
+        CURSOR=$original_cursor
+        zle reset-prompt
+        return
+      fi
+
+      quoted="${(q)selection}"
+      replacement="$quoted"
+      [[ "$nospace" == true || -n "$after" ]] || replacement+=" "
+
+      LBUFFER="${prefix}${replacement}"
+      zle reset-prompt
+    }
+
+    zle -N tv-carapace-widget
+    bindkey '^@' tv-carapace-widget
+  fi
+fi
+
 autoload -U edit-command-line
 zle -N edit-command-line
 bindkey '^O' edit-command-line
@@ -244,6 +318,13 @@ __tmux_session_fzf_widget() {
 
 zle -N __tmux_session_fzf_widget
 bindkey '^[s' __tmux_session_fzf_widget
+
+##### ATUIN #####
+if command -v atuin &>/dev/null; then
+  # Prefer the managed XDG config over Atuin's legacy ~/.atuin/config.toml.
+  export ATUIN_CONFIG_DIR="${XDG_CONFIG_HOME:-${HOME}/.config}/atuin"
+  eval "$(atuin init zsh --disable-ai --disable-up-arrow)"
+fi
 
 ##### ZSH PLUGINS #####
 {{- if $isDarwin }}

@@ -3,6 +3,7 @@ alacritty
 at
 aspell
 aspell-en
+atuin
 bat
 btop
 carapace-bin
@@ -35,6 +36,7 @@ ripgrep
 rust-analyzer
 silicon
 superfile
+television
 tree
 ttf-hack-nerd
 ttf-jetbrains-mono

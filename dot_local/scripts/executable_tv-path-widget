@@ -28,8 +28,10 @@ if [[ $token == */* ]]; then
   fi
 fi
 
-if command -v fd >/dev/null 2>&1; then
-  fd --hidden --ignore-case --type=file --type=directory . "$search_root" | sed 's#^\./##'
-else
-  find "$search_root" \( -type f -o -type d \) 2>/dev/null | sed 's#^\./##'
-fi | fzf --query "$query"
+if ! command -v tv >/dev/null 2>&1; then
+  echo "tv-path-widget: television is not installed" >&2
+  exit 1
+fi
+
+TV_SEARCH_ROOT="$search_root" \
+  tv shell-paths --input "$query" --inline --no-status-bar </dev/tty

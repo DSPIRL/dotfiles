@@ -1,1 +1,2 @@
 .config/xdg-desktop-portal/portals.conf
+.local/scripts/fzf-path-widget
