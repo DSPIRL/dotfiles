@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+set -eu
+
+line=${1-}
+query=${2-}
+trimmed=${line#"${line%%[![:space:]]*}"}
+[[ -n $trimmed ]] || exit 0
+
+command_name=${trimmed%%[[:space:]]*}
+command_name=${command_name##*/}
+completion_json=
+
+for suffix in "''" "'" '"'; do
+  if completion_json=$(printf '%s%s\n' "$line" "$suffix" | xargs carapace "$command_name" nushell 2>/dev/null); then
+    break
+  fi
+  completion_json=
+done
+
+[[ -n $completion_json ]] || exit 0
+candidate_file=$(mktemp)
+trap 'rm -f "$candidate_file"' EXIT
+
+printf '%s' "$completion_json" | jq -r '
+  map(
+    .value as $value
+    | {
+        nospace: (if ($value | endswith(" ")) then "false" else "true" end),
+        value: ($value | sub(" +$"; "")),
+        display: (.display // ($value | sub(" +$"; ""))),
+        description: (.description // "")
+      }
+  ) as $items
+  | ([ $items[].display | length ] | max // 0 | if . > 36 then 36 else . end) as $width
+  | $items[]
+  | (.display | if length > $width then .[0:($width - 1)] + "…" else . end) as $short
+  | ($short + (" " * ($width - ($short | length)))) as $padded
+  | [
+      .nospace,
+      .value,
+      .display,
+      .description,
+      (if .description == "" then $padded else ($padded + " │ " + .description) end)
+    ]
+  | @tsv
+' >"$candidate_file"
+
+[[ -s $candidate_file ]] || exit 0
+selection=$(
+  TV_CARAPACE_CANDIDATES="$candidate_file" \
+    tv \
+      --source-command 'cat "$TV_CARAPACE_CANDIDATES"' \
+      --source-display '{split:\t:4}' \
+      --input="$query" \
+      --input-header 'Carapace completions' \
+      --inline \
+      --no-status-bar \
+      --no-preview \
+      --no-sort \
+      </dev/tty
+) || exit $?
+
+[[ -n $selection ]] || exit 0
+selection=${selection%%$'\n'*}
+IFS=$'\t' read -r nospace value _ <<<"$selection"
+[[ -n $value ]] || exit 0
+printf '%s\001%s\n' "$nospace" "$value"

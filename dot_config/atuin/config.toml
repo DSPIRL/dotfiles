@@ -1,0 +1,7 @@
+invert = true
+
+# Preserve ignore-space behavior and omit exact, argument-free history noise.
+history_filter = [
+  '^ ',
+  '^(?:bg|fg|c|clear|history|exit|q|pwd|ls|ll|la|l|cd)$',
+]

@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -eu
+
+if engine=$(command -v podman 2>/dev/null); then
+  exec "$engine" "$@"
+elif engine=$(command -v docker 2>/dev/null); then
+  exec "$engine" "$@"
+else
+  echo "container-engine: neither Podman nor Docker is installed" >&2
+  exit 127
+fi

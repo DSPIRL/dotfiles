@@ -1,3 +1,4 @@
+atuin
 bat
 btop
 cfn-lint
@@ -7,12 +8,14 @@ fzf
 ghostty
 htop
 jj
+jq
 neovim
 nushell
 oh-my-posh
 posting
 raycast
 silicon
+television
 ttf-jetbrains-mono
 ttf-jetbrains-mono-nerd
 zoxide
