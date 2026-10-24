@@ -108,6 +108,7 @@ fi
 
 varParuInstall="N"
 varHyprlandInstall="N"
+varFingerprintSetup="N"
 varKanataInstall="N"
 varBraveInstall="N"
 varLazyVimInstall="N"
@@ -122,6 +123,9 @@ read -rp 'Do you want to install paru? (Y/N): ' varParuInstall
 echo ""
 echo '##### SYSTEM SETUP #####'
 read -rp 'Do you want to install Hyprland, Quickshell controls, idle locking, and greetd? (Y/N): ' varHyprlandInstall
+if [[ "${HOSTNAME:-$(hostname)}" == *laptop* ]]; then
+    read -rp 'Do you want to configure fingerprint unlock for Hyprlock and KeePassXC? (Y/N): ' varFingerprintSetup
+fi
 read -rp 'Do you want to install and setup VM host tools? (Y/N): ' varVMHostInstall
 read -rp 'Do you want to install and setup rootless Podman? (Y/N): ' varPodmanInstall
 read -rp 'Do you want to install Minikube with KVM/libvirt? (Y/N): ' varMinikubeInstall
@@ -170,6 +174,11 @@ install_oh_my_posh
 # Hyprland setup
 if [[ "${varHyprlandInstall^^}" == "Y" ]]; then
     bash "${DOTSCRIPTS}/executable_hyprland_install.sh" || exit 1
+fi
+
+# Fingerprint setup is offered only on hosts using the repository's laptop naming convention.
+if [[ "${varFingerprintSetup^^}" == "Y" ]]; then
+    run_module fingerprint_setup.sh setup
 fi
 
 # Brave setup

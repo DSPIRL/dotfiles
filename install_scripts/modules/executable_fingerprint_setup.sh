@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
 
-# Secure fingerprint setup for Hyprlock on Arch-based systems.
+# Secure fingerprint setup for Hyprlock and KeePassXC Quick Unlock on Arch-based systems.
 #
 # Quick usage:
 #   ./executable_fingerprint_setup.sh setup
 #       Install dependencies, remove fingerprint authentication from privileged
-#       PAM services, restrict fprintd with polkit, verify the rendered Hyprlock
-#       configuration, enroll the configured fingers, and audit the result.
+#       PAM services other than polkit, restrict fprintd access, enable fingerprint
+#       authentication for polkit, verify the rendered Hyprlock configuration,
+#       enroll the configured fingers, and audit the result.
 #
 #   ./executable_fingerprint_setup.sh enroll
 #       Enroll missing fingers and verify one scan. Override the defaults with:
 #       FPRINT_FINGERS="left-index-finger right-middle-finger" ./executable_fingerprint_setup.sh enroll
+#
+#   ./executable_fingerprint_setup.sh quick-unlock
+#       Enable fingerprint authentication for polkit, including KeePassXC Quick Unlock.
 #
 #   ./executable_fingerprint_setup.sh audit
 #       Make no configuration changes; report hardware and security status.
@@ -24,9 +28,11 @@
 # Important security behavior:
 #   - Fingerprints unlock Hyprlock through its parallel fprintd integration.
 #   - Password fallback and pam_faillock remain enabled.
-#   - Fingerprints are removed from sudo and are not enabled for su, polkit
-#     privilege prompts, or global PAM authentication.
-#   - Verification is limited to the configured active local user.
+#   - Fingerprints authenticate all polkit prompts, including KeePassXC Quick Unlock.
+#   - Fingerprints are removed from sudo and are not enabled for su, login, or
+#     global PAM authentication.
+#   - Verification is limited to the configured active local user and root-run
+#     authentication helpers.
 #   - Enrollment and deletion through fprintd require root authorization.
 #
 # Configuration environment variables:
@@ -40,6 +46,8 @@ set -Eeuo pipefail
 readonly scriptName="${0##*/}"
 readonly expectedDeviceId="${FPRINT_DEVICE_ID:-27c6:6594}"
 readonly policyFile="/etc/polkit-1/rules.d/49-hyprlock-fingerprint.rules"
+readonly polkitPamFile="/etc/pam.d/polkit-1"
+readonly vendorPolkitPamFile="/usr/lib/pam.d/polkit-1"
 readonly stateDir="/var/lib/hyprlock-fingerprint-setup"
 readonly backupDir="${stateDir}/backups"
 
@@ -67,10 +75,11 @@ die() {
 
 usage() {
     cat <<EOF
-Usage: ${scriptName} [setup|enroll|audit|clear-storage]
+Usage: ${scriptName} [setup|quick-unlock|enroll|audit|clear-storage]
 
 Actions:
-  setup          Securely configure fingerprint unlock, then enroll and audit.
+  setup          Configure Hyprlock and polkit fingerprint unlock, then enroll and audit.
+  quick-unlock   Enable polkit fingerprint authentication for KeePassXC Quick Unlock.
   enroll         Enroll missing configured fingers and verify one scan.
   audit          Check hardware, packages, PAM, polkit, enrollment, and sleep.
   clear-storage  Permanently erase every template stored inside the reader.
@@ -82,9 +91,11 @@ Environment:
                               (default: right-index-finger left-index-finger)
   FPRINT_SKIP_FIRMWARE_CHECK  Set to 1 to skip fwupd metadata/update checks
 
-The setup intentionally enables fingerprints only through Hyprlock's parallel
-fprintd support. It does not enable fingerprint authentication for sudo, su,
-polkit privilege prompts, or global PAM authentication.
+The setup enables fingerprints through Hyprlock's parallel fprintd support and
+as a sufficient authentication method for all polkit prompts, including
+KeePassXC Quick Unlock. It does not enable fingerprint authentication for sudo,
+su, login, or global PAM authentication. Polkit falls back to the system-auth
+password path after three failed scans or a thirty-second timeout.
 
 clear-storage also removes Windows Hello templates from the reader, requires
 explicit interactive confirmation, and does not delete /var/lib/fprint data.
@@ -116,7 +127,7 @@ if (($# > 1)); then
 fi
 
 case "${action}" in
-    setup | enroll | audit | clear-storage) ;;
+    setup | quick-unlock | enroll | audit | clear-storage) ;;
     help | -h | --help)
         usage
         exit 0
@@ -256,6 +267,42 @@ harden_sudo_pam() {
     run_root mv -f -- "${stagedFile}" "${pamFile}"
 }
 
+install_polkit_pam() {
+    local stagedFile
+
+    if [[ ! -f "${vendorPolkitPamFile}" ]]; then
+        die "Expected vendor polkit PAM file does not exist: ${vendorPolkitPamFile}"
+    fi
+    if [[ ! -f /usr/lib/security/pam_fprintd.so ]]; then
+        die "pam_fprintd is not installed. Install the fprintd package first."
+    fi
+    if run_root test -e "${polkitPamFile}" && \
+        ! run_root grep -q '^# Managed by executable_fingerprint_setup.sh$' "${polkitPamFile}"; then
+        die "Refusing to overwrite an unmanaged polkit PAM file: ${polkitPamFile}"
+    fi
+
+    if run_root test -e "${polkitPamFile}"; then
+        backup_root_file "${polkitPamFile}" polkit-1
+    fi
+
+    stagedFile="$(mktemp)"
+    temporaryFiles+=("${stagedFile}")
+    cat >"${stagedFile}" <<'EOF'
+#%PAM-1.0
+# Managed by executable_fingerprint_setup.sh
+# Fingerprint applies to all polkit authentication; password remains the fallback.
+
+auth       sufficient   pam_fprintd.so max-tries=5 timeout=30
+auth       include      system-auth
+account    include      system-auth
+password   include      system-auth
+session    include      system-auth
+EOF
+
+    run_root install -o root -g root -m 0644 "${stagedFile}" "${polkitPamFile}"
+    log "Enabled fingerprint authentication with password fallback for polkit."
+}
+
 install_polkit_policy() {
     local ruleFile
 
@@ -268,10 +315,11 @@ install_polkit_policy() {
     temporaryFiles+=("${ruleFile}")
     cat >"${ruleFile}" <<EOF
 // Managed by executable_fingerprint_setup.sh
-// Fingerprints unlock only the active local Hyprlock session for ${targetUser}.
+// Fingerprint verification is limited to the active local session for ${targetUser}.
 polkit.addRule(function (action, subject) {
     if (action.id == "net.reactivated.fprint.device.verify") {
-        if (subject.user == "${targetUser}" && subject.local && subject.active) {
+        if (subject.user == "root" ||
+            (subject.user == "${targetUser}" && subject.local && subject.active)) {
             return polkit.Result.YES;
         }
         return polkit.Result.NO;
@@ -509,8 +557,9 @@ audit_warn() {
 
 audit_setup() {
     local packageName listOutput pamMatches pamService pamFile policyMetadata recentErrors
+    local fingerprintLine passwordLine
     local -a restrictedPamServices=(
-        sudo sudo-i su su-l polkit-1
+        sudo sudo-i su su-l
         system-auth system-local-login system-login system-remote-login system-services
         login greetd hyprlock
     )
@@ -518,7 +567,7 @@ audit_setup() {
     auditFailures=0
     log "Auditing the fingerprint setup for ${targetUser}."
 
-    for packageName in fprintd libfprint usbutils fwupd hyprlock python-gobject; do
+    for packageName in fprintd libfprint usbutils fwupd hyprlock python-gobject polkit; do
         if pacman -Q "${packageName}" >/dev/null 2>&1; then
             audit_pass "Package installed: ${packageName}"
         else
@@ -581,10 +630,29 @@ audit_setup() {
     done
 
     if [[ -z "${pamMatches}" ]]; then
-        audit_pass "Fingerprint authentication is absent from privileged and global PAM services"
+        audit_pass "Fingerprint authentication is absent from sudo, su, login, and global PAM services"
     else
         pamMatches="${pamMatches%$'\n'}"
         audit_fail "Fingerprint authentication remains in restricted PAM services: ${pamMatches//$'\n'/, }"
+    fi
+
+    if run_root test -f "${polkitPamFile}" && \
+        run_root grep -Fqx '# Managed by executable_fingerprint_setup.sh' "${polkitPamFile}"; then
+        fingerprintLine="$(run_root awk '/^[[:space:]]*auth[[:space:]]+sufficient[[:space:]]+pam_fprintd\.so/ { print NR; exit }' "${polkitPamFile}")"
+        passwordLine="$(run_root awk '/^[[:space:]]*auth[[:space:]]+include[[:space:]]+system-auth/ { print NR; exit }' "${polkitPamFile}")"
+        if [[ -n "${fingerprintLine}" && -n "${passwordLine}" ]] && ((fingerprintLine < passwordLine)); then
+            audit_pass "polkit uses fingerprint authentication with system-auth password fallback"
+        else
+            audit_fail "polkit fingerprint authentication or password fallback is incorrectly ordered"
+        fi
+        policyMetadata="$(run_root stat -c '%a %U %G' "${polkitPamFile}")"
+        if [[ "${policyMetadata}" == "644 root root" ]]; then
+            audit_pass "polkit PAM override ownership and permissions are secure"
+        else
+            audit_fail "Unexpected polkit PAM override metadata: ${policyMetadata}"
+        fi
+    else
+        audit_fail "Managed polkit fingerprint PAM override is missing"
     fi
 
     if grep -q 'pam_faillock\.so' /etc/pam.d/system-auth; then
@@ -594,9 +662,10 @@ audit_setup() {
     fi
 
     if run_root test -f "${policyFile}" && \
-        run_root grep -Fq "subject.user == \"${targetUser}\" && subject.local && subject.active" "${policyFile}" && \
+        run_root grep -Fq 'if (subject.user == "root" ||' "${policyFile}" && \
+        run_root grep -Fq "(subject.user == \"${targetUser}\" && subject.local && subject.active))" "${policyFile}" && \
         run_root grep -Fq 'subject.user == "root" ? polkit.Result.YES : polkit.Result.NO' "${policyFile}"; then
-        audit_pass "polkit restricts verification to ${targetUser} and enrollment to root"
+        audit_pass "polkit restricts verification to ${targetUser} or root helpers and enrollment to root"
     else
         audit_fail "Managed user-restricted polkit policy is missing or incorrect"
     fi
@@ -652,13 +721,24 @@ case "${action}" in
         require_commands
         ensure_supported_device
         install_polkit_policy
+        install_polkit_pam
         verify_hyprlock_config
         check_sleep_mode
         check_firmware_updates
         enroll_fingers
         audit_setup
-        log "Secure Hyprlock fingerprint setup is complete."
+        log "Secure Hyprlock and KeePassXC Quick Unlock fingerprint setup is complete."
         log "Root backups of changed PAM files are in ${backupDir}."
+        ;;
+    quick-unlock)
+        run_root true
+        require_commands
+        if ! lsusb -d "${expectedDeviceId}" >/dev/null 2>&1; then
+            die "Expected fingerprint reader ${expectedDeviceId} was not found by lsusb."
+        fi
+        install_polkit_policy
+        install_polkit_pam
+        log "KeePassXC Quick Unlock can now authenticate through polkit with a fingerprint."
         ;;
     enroll)
         require_commands
