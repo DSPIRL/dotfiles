@@ -9,12 +9,17 @@ trimmed=${line#"${line%%[![:space:]]*}"}
 command_name=${trimmed%%[[:space:]]*}
 command_name=${command_name##*/}
 completion_json=
+completers=("$command_name")
+[[ $trimmed == "$command_name" ]] && completers+=(_carapace)
 
-for suffix in "''" "'" '"'; do
-  if completion_json=$(printf '%s%s\n' "$line" "$suffix" | xargs carapace "$command_name" nushell 2>/dev/null); then
-    break
-  fi
-  completion_json=
+for completer in "${completers[@]}"; do
+  for suffix in "''" "'" '"'; do
+    if completion_json=$(printf '%s%s\n' "$line" "$suffix" | xargs carapace "$completer" nushell 2>/dev/null); then
+      break
+    fi
+    completion_json=
+  done
+  [[ -n $completion_json ]] && break
 done
 
 [[ -n $completion_json ]] || exit 0
