@@ -1,0 +1,31 @@
+# walli machine-local configuration. Theme refresh uses the same script as Waypaper.
+# TOML strings are literal: no variables, ~ expansion, or shell interpolation.
+# Wallpaper roots, tags and per-image preferences live in the catalog.
+
+[application]
+timeout_seconds = 30
+refresh = ['/home/athe/.local/scripts/wallust-refresh']
+# namespace = 'optional-awww-namespace'
+
+# Refresh receives selected Wallust flags, then the absolute image path.
+# Other hooks receive fixed arguments, then the absolute image path.
+# Scripts can also read WALLI_WALLPAPER_PATH, WALLI_WALLPAPER_ID,
+# WALLI_LIBRARY_ID, WALLI_OUTPUTS (JSON), and selected WALLI_BACKEND,
+# WALLI_COLORSPACE, WALLI_PALETTE overrides (absent when inherited).
+# Actions run sequentially after successful rendering; --no-hooks skips them.
+
+# [[hooks]]
+# name = 'notify'
+# command = ['/absolute/path/to/script', 'fixed argument']
+# timeout_seconds = 30
+
+# Shared awww defaults for walli CLI and GUI; per-Apply choices override fields.
+[renderer]
+filter = 'Lanczos3'
+resize = 'crop'
+fill_color = 'ffffff'
+transition_type = 'any'
+transition_duration = 1.0
+transition_angle = 45.0
+transition_fps = 60
+transition_step = 3
