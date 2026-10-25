@@ -31,6 +31,9 @@ Item {
     if (mode !== "light" && mode !== "dark") return;
     run([scripts + "toggle-breeze-theme.sh", mode]);
   }
+  function monitorResolution(wide) {
+    run([scripts + "desktop-settings.sh", "monitor-resolution", wide ? "enable" : "disable"]);
+  }
 
   Timer {
     id: refreshTimer
@@ -76,6 +79,12 @@ Item {
   }
   FileView {
     path: root.stateDir + "effects/low-effects"
+    printErrors: false
+    watchChanges: true
+    onFileChanged: { reload(); root.refresh(); }
+  }
+  FileView {
+    path: root.stateDir + "effects/monitor-resolution"
     printErrors: false
     watchChanges: true
     onFileChanged: { reload(); root.refresh(); }
