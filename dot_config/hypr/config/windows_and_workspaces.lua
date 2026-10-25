@@ -100,42 +100,42 @@ wr("workspace 10", { tag = "games" })
 
 -- Tag rules
 wr("float on", { tag = "terminal" })
-wr("size (monitor_w*0.8) (monitor_h*0.8)", { tag = "terminal" })
+wr("size (monitor_h*1.4) (monitor_h*0.8)", { tag = "terminal" })
 wr("opacity 0.9 override 0.8 override 1.0 override", { tag = "terminal" })
 wr("opacity 0.9 override 0.8 override", { tag = "emacs" })
 
 wr("float on", { tag = "im" })
-wr("size (monitor_w*0.6) (monitor_h*0.6)", { tag = "im" })
+wr("size (monitor_h*0.9) (monitor_h*0.7)", { tag = "im" })
 wr("opacity 0.9 override 0.8 override", { tag = "im" })
 wr("center on", { tag = "im" })
 
 wr("float on", { tag = "vpns" })
-wr("size (monitor_w*0.1) (monitor_h*0.1)", { tag = "vpns" })
+wr("size (monitor_h*0.18) (monitor_h*0.1)", { tag = "vpns" })
 wr("center on", { tag = "vpns" })
 
 wr("float on", { class = [[^([Kk]ee[Pp]ass[Xx][Cc]|org.keepassxc.KeePassXC)$]], title = [[ - KeePassXC$]] })
-wr("size (monitor_w*0.5) (monitor_h*0.5)", { class = [[^([Kk]ee[Pp]ass[Xx][Cc]|org.keepassxc.KeePassXC)$]], title = [[ - KeePassXC$]] })
+wr("size (monitor_h*0.89) (monitor_h*0.5)", { class = [[^([Kk]ee[Pp]ass[Xx][Cc]|org.keepassxc.KeePassXC)$]], title = [[ - KeePassXC$]] })
 wr("center on", { class = [[^([Kk]ee[Pp]ass[Xx][Cc]|org.keepassxc.KeePassXC)$]], title = [[ - KeePassXC$]] })
 wr("no_blur on", { class = [[^([Kk]ee[Pp]ass[Xx][Cc]|org.keepassxc.KeePassXC)$]], title = [[^KeePassXC$]] }, "keepassxc-menu-no-blur")
 
 wr("float on", { tag = "wallpaper" })
-wr("size (monitor_w*0.7) (monitor_h*0.8)", { tag = "wallpaper" })
+wr("size (monitor_h*1.24) (monitor_h*0.8)", { tag = "wallpaper" })
 wr("opacity 0.9 override 0.8 override", { tag = "wallpaper" })
 
 wr("float on", { tag = "dictionary" })
-wr("size (monitor_w*0.1) (monitor_h*0.1)", { tag = "dictionary" })
+wr("size (monitor_h*0.18) (monitor_h*0.1)", { tag = "dictionary" })
 wr("center on", { tag = "dictionary" })
 
 wr("float on", { tag = "emoji" })
-wr("size (monitor_w*0.1) (monitor_h*0.1)", { tag = "emoji" })
+wr("size (monitor_h*0.18) (monitor_h*0.1)", { tag = "emoji" })
 wr("center on", { tag = "emoji" })
 
 wr("float on", { tag = "settings" })
-wr("size (monitor_w*0.7) (monitor_h*0.7)", { tag = "settings" })
+wr("size (monitor_h*1.24) (monitor_h*0.7)", { tag = "settings" })
 wr("opacity 0.9 override 0.8 override", { tag = "settings" })
 
 wr("float on", { tag = "file-manager" })
-wr("size (monitor_w*0.7) (monitor_h*0.7)", { tag = "file-manager" })
+wr("size (monitor_h*1.24) (monitor_h*0.7)", { tag = "file-manager" })
 wr("opacity 0.9 override 0.8 override", { tag = "file-manager" })
 
 wr("opacity 0.95 override 0.8 override", { tag = "browser" })
@@ -158,21 +158,21 @@ wr("float on", { class = [[^([Ss]team)$]], title = [[negative:^([Ss]team)$]] })
 wr("float on", { class = [[([Tt]hunar)]], title = [[negative:(.*[Tt]hunar.*)]] })
 
 wr("float on", { title = [[^(Add Folder to Workspace)$]] })
-wr("size (monitor_w*0.7) (monitor_h*0.6)", { title = [[^(Add Folder to Workspace)$]] })
+wr("size (monitor_h*1.24) (monitor_h*0.6)", { title = [[^(Add Folder to Workspace)$]] })
 wr("center on", { title = [[^(Add Folder to Workspace)$]] })
 
 wr("float on", { title = [[^(Save As)$]] })
-wr("size (monitor_w*0.7) (monitor_h*0.6)", { title = [[^(Save As)$]] })
+wr("size (monitor_h*1.24) (monitor_h*0.6)", { title = [[^(Save As)$]] })
 wr("center on", { title = [[^(Save As)$]] })
 wr("float on", { class = [[^()$]], title = [[^(Save File)$]] })
 wr("float on", { class = [[^()$]], title = [[^(Open File)$]] })
 
 wr("float on", { initial_title = [[(Open Files)]] })
-wr("size (monitor_w*0.7) (monitor_h*0.6)", { initial_title = [[(Open Files)]] })
+wr("size (monitor_h*1.24) (monitor_h*0.6)", { initial_title = [[(Open Files)]] })
 
 wr("float on", { title = [[^(SDDM Background)$]] })
 wr("center on", { title = [[^(SDDM Background)$]] })
-wr("size (monitor_w*0.16) (monitor_h*0.12)", { title = [[^(SDDM Background)$]] })
+wr("size (monitor_h*0.28) (monitor_h*0.12)", { title = [[^(SDDM Background)$]] })
 
 -- Opacity
 wr("opacity 1.0 override 0.95 override 1.0 override", { tag = "projects" })
@@ -185,8 +185,8 @@ wr("opacity 0.9 override 0.8 override", { class = [[^(seahorse)$]] })
 wr("opacity 0.95 override 0.75 override", { title = [[^(Picture-in-Picture)$]] })
 
 -- Size
-wr("size (monitor_w*0.6) (monitor_h*0.7)", { class = [[^([Ww]hatsapp-for-linux|ZapZap|com.rtosta.zapzap)$]] })
-wr("size (monitor_w*0.6) (monitor_h*0.7)", { class = [[^([Ff]erdium)$]] })
+wr("size (monitor_h*0.9) (monitor_h*0.7)", { class = [[^([Ww]hatsapp-for-linux|ZapZap|com.rtosta.zapzap)$]] })
+wr("size (monitor_h*0.9) (monitor_h*0.7)", { class = [[^([Ff]erdium)$]] })
 
 -- Pinning and extras
 wr("pin on", { title = [[^(Picture-in-Picture)$]] })
