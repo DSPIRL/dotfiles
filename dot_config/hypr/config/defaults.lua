@@ -24,7 +24,7 @@ return {
   editLastScreenshot = "spectacle --edit-existing /tmp/hyprshot/latest.png",
 
   music = scripts .. "/ncspot.sh",
-  wallpaperGui = scripts .. "/waypaper.sh",
+  wallpaperGui = scripts .. "/walli.sh",
   telegram = "telegram",
   discord = "discord",
 
