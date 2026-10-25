@@ -214,7 +214,17 @@ PanelWindow {
             defaultDevice: root.bar.defaultAudioSource
             input: true
           }
-          Heading { text: "DISPLAYS"; visible: root.bar.showLaptopBrightnessControl || root.bar.ddcBrightnessState.displayCount > 0 || root.bar.ddcBrightnessState.error.length > 0 }
+          Heading { text: "DISPLAYS"; visible: root.desktop.values.bigMonitorAvailable || root.bar.showLaptopBrightnessControl || root.bar.ddcBrightnessState.displayCount > 0 || root.bar.ddcBrightnessState.error.length > 0 }
+          ControlToggle {
+            visible: Boolean(root.desktop.values.bigMonitorAvailable)
+            width: parent.width
+            wallust: root.wallust
+            text: "Full ultrawide resolution"
+            subtitle: checked ? "5120 × 1440" : "2560 × 1440"
+            enabled: root.ready
+            checked: Boolean(root.desktop.values.bigMonitorWide)
+            onToggled: root.desktop.monitorResolution(checked)
+          }
           LaptopBrightnessControl {
             visible: root.bar.showLaptopBrightnessControl
             width: parent.width

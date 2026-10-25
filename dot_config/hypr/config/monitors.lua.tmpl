@@ -16,6 +16,19 @@ local M = {}
 --- Show a Hyprland notification whenever the layout changes.
 local NOTIFY = true
 
+local home = os.getenv("HOME")
+local state_home = os.getenv("XDG_STATE_HOME")
+if not state_home or state_home == "" then state_home = home .. "/.local/state" end
+local BIG_MONITOR_STATE = state_home .. "/hypr/effects/monitor-resolution"
+
+local function big_monitor_wide()
+  local file = io.open(BIG_MONITOR_STATE, "r")
+  if not file then return true end
+  local value = file:read("*l")
+  file:close()
+  return value ~= "disabled"
+end
+
 {{ if .chezmoi.hostname | contains "laptop" -}}
 --- Built-in ThinkPad panel.
 local PRIMARY = {
@@ -25,20 +38,25 @@ local PRIMARY = {
   scale = 1.0,
 }
 
+local BIG_PRIMARY = false
+local BIG_MODES = { wide = "5120x1440@120.0", compact = "2560x1440@239.97" }
+
 --- Layouts for known external displays. First match wins. `match` is compared
 --- case-insensitively against the monitor description (substring) and against
 --- the connector name (exact) -- see `hyprctl monitors`.
 ---
 --- Per-entry fields:
----   external  HL.MonitorSpec bits applied to the external screen
----   primary   overrides merged into PRIMARY while this dock is active
----   clamshell disable the built-in panel when (and only when) its lid closes
+---   external          HL.MonitorSpec bits applied to the external screen
+---   big_monitor       use BIG_MODES and expose the control-center toggle
+---   primary_positions built-in panel positions for wide / compact mode
+---   clamshell         disable the built-in panel when (and only when) its lid closes
 local DOCKS = {
   {
     match = "Odyssey G93SC",
-    external = { mode = "5120x1440@120.0", position = "0x0", scale = 1 },
-    -- Keep the 1920px laptop panel centred underneath the ultrawide while open.
-    primary = { position = "1600x1440" },
+    big_monitor = true,
+    external = { position = "0x0", scale = 1 },
+    -- Keep the 1920px laptop panel centred underneath the external display.
+    primary_positions = { wide = "1600x1440", compact = "320x1440" },
     clamshell = true,
   },
 }
@@ -46,12 +64,12 @@ local DOCKS = {
 --- Desktop main display.
 local PRIMARY = {
   output = "DP-1",
-  mode = "5120x1440@240",
-  -- mode = "2560x1440@239.97",
   position = "0x0",
   scale = 1,
 }
 
+local BIG_PRIMARY = true
+local BIG_MODES = { wide = "5120x1440@240", compact = "2560x1440@239.97" }
 local DOCKS = {}
 {{- end }}
 
@@ -109,6 +127,16 @@ local function merge(base, override)
   return out
 end
 
+local function big_mode()
+  return big_monitor_wide() and BIG_MODES.wide or BIG_MODES.compact
+end
+
+local function primary_spec(override)
+  local spec = merge(PRIMARY, override)
+  if BIG_PRIMARY then spec.mode = big_mode() end
+  return spec
+end
+
 local function set_monitor(spec)
   local ok, err = pcall(hl.monitor, spec)
   if not ok then
@@ -133,6 +161,21 @@ local function dock_for(mon)
   return nil
 end
 
+local function big_monitor_connected()
+  for _, mon in ipairs(hl.get_monitors() or {}) do
+    local dock = dock_for(mon)
+    if (BIG_PRIMARY and mon.name == PRIMARY.output) or (dock and dock.big_monitor) then
+      return true
+    end
+  end
+  return false
+end
+
+function M.big_monitor_status()
+  if not big_monitor_connected() then return "unavailable" end
+  return big_monitor_wide() and "wide" or "compact"
+end
+
 --- Every connected monitor that is not the built-in / main panel.
 --- `ignore` is the output name of a monitor that is currently going away.
 local function externals(ignore)
@@ -153,7 +196,7 @@ function M.apply(ignore)
   local ext = externals(ignore)
 
   if #ext == 0 then
-    set_monitor(merge(PRIMARY, { disabled = false }))
+    set_monitor(primary_spec({ disabled = false }))
     notify("undocked: " .. PRIMARY.output .. " only")
     return
   end
@@ -169,13 +212,19 @@ function M.apply(ignore)
 
   for _, mon in ipairs(ext) do
     local profile = dock_for(mon)
-    set_monitor(merge({ output = mon.name, disabled = false }, profile and profile.external or FALLBACK))
+    local spec = merge({ output = mon.name, disabled = false }, profile and profile.external or FALLBACK)
+    if profile and profile.big_monitor then spec.mode = big_mode() end
+    set_monitor(spec)
   end
 
   if dock and dock.clamshell and M.is_lid_closed() then
     set_monitor({ output = PRIMARY.output, disabled = true })
   else
-    set_monitor(merge(PRIMARY, merge({ position = "auto", disabled = false }, dock and dock.primary or {})))
+    local primary_override = merge({ position = "auto", disabled = false }, dock and dock.primary or {})
+    if dock and dock.big_monitor and dock.primary_positions then
+      primary_override.position = big_monitor_wide() and dock.primary_positions.wide or dock.primary_positions.compact
+    end
+    set_monitor(primary_spec(primary_override))
   end
 
   local names = {}

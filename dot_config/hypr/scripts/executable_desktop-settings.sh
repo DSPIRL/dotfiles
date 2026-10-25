@@ -6,12 +6,12 @@ state_dir="${XDG_STATE_HOME:-${HOME}/.local/state}/hypr/effects"
 config_dir="${HOME}/.config/hypr/config"
 
 usage() {
-  printf 'Usage: %s status | {blur|opacity|low-effects} [status|enable|disable|toggle]\n' "${0##*/}" >&2
+  printf 'Usage: %s status | {blur|opacity|low-effects|monitor-resolution} [status|enable|disable|toggle]\n' "${0##*/}" >&2
   exit 2
 }
 
 feature="${1:-status}"
-case "$feature" in status|blur|opacity|low-effects) ;; *) usage ;; esac
+case "$feature" in status|blur|opacity|low-effects|monitor-resolution) ;; *) usage ;; esac
 operation="${2:-toggle}"
 case "$operation" in status|enable|disable|toggle) ;; *) usage ;; esac
 [[ $# -le 2 ]] || usage
@@ -36,6 +36,9 @@ for name in blur opacity low-effects; do
     printf '%s\n' "$value" >"$state_dir/$name"
   fi
 done
+if [[ ! -f "$state_dir/monitor-resolution" ]]; then
+  printf '%s\n' enabled >"$state_dir/monitor-resolution"
+fi
 
 read_value() {
   local value
@@ -56,10 +59,14 @@ if [[ "$feature" == status ]]; then
   night=false; idle=false
   pgrep -u "$UID" -x hyprsunset >/dev/null 2>&1 && night=true
   pgrep -u "$UID" -x hypridle >/dev/null 2>&1 && idle=true
-  printf '{"blur":%s,"opacity":%s,"lowEffects":%s,"effectiveBlur":%s,"effectiveOpacity":%s,"theme":"%s","nightLight":%s,"idleRunning":%s,"bluetoothSettings":%s,"networkSettings":%s,"nightLightAvailable":%s,"lockAvailable":%s}\n' \
+  monitor_status=$(hyprctl repl 'return require("config.monitors").big_monitor_status()' 2>/dev/null || true)
+  monitor_available=false
+  [[ "$monitor_status" == wide || "$monitor_status" == compact ]] && monitor_available=true
+  printf '{"blur":%s,"opacity":%s,"lowEffects":%s,"effectiveBlur":%s,"effectiveOpacity":%s,"theme":"%s","nightLight":%s,"idleRunning":%s,"bluetoothSettings":%s,"networkSettings":%s,"nightLightAvailable":%s,"lockAvailable":%s,"bigMonitorAvailable":%s,"bigMonitorWide":%s}\n' \
     "$(boolean "$blur")" "$(boolean "$opacity")" "$(boolean "$low")" \
     "$(boolean "$effective_blur")" "$(boolean "$effective_opacity")" "$theme" "$night" "$idle" \
-    "$(available blueman-manager)" "$(available nmtui)" "$(available hyprsunset)" "$(available hyprlock)"
+    "$(available blueman-manager)" "$(available nmtui)" "$(available hyprsunset)" "$(available hyprlock)" \
+    "$monitor_available" "$([[ "$monitor_status" == wide ]] && printf true || printf false)"
   exit 0
 fi
 
@@ -76,16 +83,21 @@ tmp=$(mktemp "$state_dir/.preference.XXXXXX")
 trap 'rm -f "$tmp"' EXIT
 printf '%s\n' "$next" >"$tmp"
 mv -f "$tmp" "$state_dir/$feature"
-apply_effects() {
-  local result errors
-  result=$(hyprctl repl 'require("config.effects").apply(); return "effects-applied"') &&
-    [[ "$result" == effects-applied ]] &&
-    errors=$(hyprctl configerrors) && [[ -z "$errors" ]]
+apply_preference() {
+  local result errors expected
+  if [[ "$feature" == monitor-resolution ]]; then
+    result=$(hyprctl repl 'require("config.monitors").apply(); return "monitors-applied"')
+    expected=monitors-applied
+  else
+    result=$(hyprctl repl 'require("config.effects").apply(); return "effects-applied"')
+    expected=effects-applied
+  fi
+  [[ "$result" == "$expected" ]] && errors=$(hyprctl configerrors) && [[ -z "$errors" ]]
 }
 
-if ! apply_effects; then
+if ! apply_preference; then
   printf '%s\n' "$previous" >"$state_dir/$feature"
-  apply_effects >/dev/null 2>&1 || true
+  apply_preference >/dev/null 2>&1 || true
   printf 'Could not apply %s; restored previous preference.\n' "$feature" >&2
   exit 1
 fi
