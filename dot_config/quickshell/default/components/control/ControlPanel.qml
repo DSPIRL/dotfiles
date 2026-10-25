@@ -319,7 +319,7 @@ PanelWindow {
             wallust: root.wallust
             text: "Change wallpaper  ›"
             enabled: root.ready
-            onClicked: root.bar.runCommand([root.desktop.scripts + "waypaper.sh"])
+            onClicked: root.bar.runCommand([root.desktop.scripts + "walli.sh"])
           }
           ControlToggle {
             width: parent.width

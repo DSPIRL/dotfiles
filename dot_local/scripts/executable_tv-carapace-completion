@@ -61,7 +61,6 @@ selection=$(
       --inline \
       --no-status-bar \
       --no-preview \
-      --no-sort \
       </dev/tty
 ) || exit $?
 
