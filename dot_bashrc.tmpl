@@ -252,6 +252,13 @@ if command -v chezmoi &>/dev/null; then
 fi
 
 ##### KEYBINDS #####
+if command -v navi &>/dev/null; then
+    # Navi defaults to Ctrl+G; preserve Emacs abort and use Ctrl+J instead.
+    eval "$(navi widget bash)"
+    bind '"\C-g": abort'
+    bind -x '"\C-j": _navi_widget'
+fi
+
 # Bind Ctrl+O to edit command in vim
 bind '"\C-o": edit-and-execute-command'
 

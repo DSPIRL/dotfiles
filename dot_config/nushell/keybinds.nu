@@ -58,3 +58,37 @@ $env.config.keybindings ++= [
         event: { send: menu name: working_dirs_cd_menu}
     }
 ]
+
+export def navi_widget [] {
+    let current_input = (commandline)
+    let last_command = ($current_input | navi fn widget::last_command | str trim)
+
+    if ($last_command | is-empty) {
+        ^navi --print | complete | get stdout
+    } else {
+        let find = $"($last_command)_NAVIEND"
+        let replacement = (^navi --print --query $last_command | complete | get stdout)
+
+        if ($replacement | str trim | is-empty) {
+            $current_input
+        } else {
+            $"($current_input)_NAVIEND" | str replace $find $replacement
+        }
+    }
+    | str trim
+    | commandline edit --replace $in
+
+    commandline set-cursor --end
+}
+
+if (which navi | is-not-empty) {
+    $env.config.keybindings ++= [
+        {
+            name: navi
+            modifier: control
+            keycode: char_j
+            mode: [emacs, vi_normal, vi_insert]
+            event: { send: executehostcommand cmd: navi_widget }
+        }
+    ]
+}

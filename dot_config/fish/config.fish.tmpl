@@ -526,6 +526,15 @@ function mp4togif
 end
 
 ##### KEYBINDS #####
+if command -q navi
+    # Navi defaults to Ctrl+G; use Ctrl+J instead.
+    navi widget fish | source
+    bind --erase \cg
+    bind --mode insert --erase \cg
+    bind \cj _navi_smart_replace
+    bind --mode insert \cj _navi_smart_replace
+end
+
 bind \co edit_command_buffer
 if functions -q __fzf_path_widget
     bind \ct __fzf_path_widget

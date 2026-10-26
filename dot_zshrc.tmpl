@@ -210,6 +210,13 @@ fi
 ##### KEYBINDS #####
 bindkey -e                        # Force emacs key bindings (EDITOR/VISUAL containing 'vi' triggers vi mode)
 
+if command -v navi &>/dev/null; then
+  # Navi defaults to Ctrl+G; preserve Emacs abort and use Ctrl+J instead.
+  eval "$(navi widget zsh)"
+  bindkey -M emacs '^G' send-break
+  bindkey -M emacs '^J' _navi_widget
+fi
+
 if command -v tv &>/dev/null; then
   tv-path-widget() {
     local original_buffer original_cursor token prefix output selected quoted selection
