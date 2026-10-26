@@ -389,6 +389,32 @@ Supported: 1Password, Bitwarden, LastPass, pass, macOS Keychain, KeePassXC, Vaul
 
 ---
 
+## Shell Startup Benchmarks
+
+`bench-shell` is available from bash, zsh, and fish via `~/.local/scripts` and requires `hyperfine`.
+
+```sh
+bench-shell                 # Compare all installed bash/zsh/fish shells
+bench-shell zsh             # Test one shell
+bench-shell bash zsh        # Compare selected shells
+bench-shell --login zsh     # Include login-shell initialization
+```
+
+Each benchmark uses two warmups and ten timed runs with the shell's normal interactive configuration. Missing shells are skipped by default; explicitly requesting a missing shell is an error. Measurements include initialization and exit hooks, but not first-prompt rendering, Ghostty shell integration, or terminal window creation. Run from the same directory and environment for useful before/after comparisons; startup scripts execute on every run.
+
+### CLI Benchmarks
+
+`bench-cli` uses the same two warmups and ten timed runs to benchmark or compare CLI commands:
+
+```sh
+bench-cli 'git status --short'
+bench-cli 'rg --files' 'fd --type f'
+```
+
+Quote each complete command as one argument. Commands run directly, without interpreting pipes, redirects, variables, or wildcards; output is suppressed. Every run executes the command's actual work and side effects, so avoid destructive commands. Results reflect the current directory, environment, and warmed filesystem caches. Use `hyperfine` directly for custom run counts, shell expressions, or export options.
+
+---
+
 ## Quick Reference
 
 | Task                               | Command                                              |
