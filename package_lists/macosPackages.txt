@@ -9,6 +9,7 @@ ghostty
 htop
 jj
 jq
+navi
 neovim
 nushell
 oh-my-posh

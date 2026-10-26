@@ -21,6 +21,7 @@ imagemagick
 jq
 keepassxc
 lsof
+navi
 ncspot
 neovim
 nix
