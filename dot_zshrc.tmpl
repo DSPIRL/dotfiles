@@ -22,8 +22,8 @@ if command -v fzf &>/dev/null; then
   # Let Television own Ctrl+T.
   export FZF_CTRL_T_COMMAND=""
   export FZF_ALT_C_COMMAND=""
-  # Let Atuin own Ctrl-R instead of fzf's history widget.
-  export FZF_CTRL_R_COMMAND=""
+  # Provide Ctrl-R history search as a fallback; Atuin overrides it below when installed.
+  unset FZF_CTRL_R_COMMAND
 
   source <(fzf --zsh)
 fi
@@ -99,7 +99,8 @@ if command -v walli &>/dev/null; then
     source <(walli completions zsh)
 fi
 
-if command -v chezmoi &>/dev/null; then
+# Reuse compinit/Carapace registrations; generate only when neither provides one.
+if command -v chezmoi &>/dev/null && [[ -z "${_comps[chezmoi]-}" ]]; then
   eval "$(chezmoi completion zsh)"
 fi
 
@@ -204,7 +205,10 @@ fi
 ##### MISE-EN-PLACE #####
 if command -v mise &>/dev/null; then
     eval "$(mise activate zsh --shims)"
-    source <(mise completion zsh)
+    # Keep activation, but avoid regenerating completions already registered above.
+    if [[ -z "${_comps[mise]-}" ]]; then
+      source <(mise completion zsh)
+    fi
 fi
 
 ##### KEYBINDS #####

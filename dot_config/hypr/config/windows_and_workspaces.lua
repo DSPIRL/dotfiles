@@ -199,6 +199,12 @@ wr("fullscreen on", { tag = "games" })
 -- Layer rules
 lr("ignore_alpha 0.1", { namespace = "quickshell" })
 lr("ignore_alpha 0", { namespace = "rofi" })
+-- Keep normal window animations, but make the launcher appear instantly.
+hl.layer_rule({
+  name = "rofi-no-animation",
+  match = { namespace = "rofi" },
+  no_anim = true,
+})
 lr("ignore_alpha 0", { namespace = "notifications" })
 
 -- The opacity override must follow app-specific opacity rules.

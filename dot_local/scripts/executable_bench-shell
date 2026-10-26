@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+flags=-i
+case "${1:-}" in
+    -h|--help)
+        printf '%s\n' \
+            'Usage: bench-shell [--login] [bash|zsh|fish ...]' \
+            'Default: compare all installed shells (2 warmups, 10 timed runs).' \
+            'Use --login to include login-shell initialization.' \
+            'Measures initialization and exit, not prompt rendering or terminal launch.'
+        exit 0
+        ;;
+    -l|--login)
+        flags=-li
+        shift
+        ;;
+esac
+
+if ! command -v hyperfine >/dev/null 2>&1; then
+    printf '%s\n' 'bench-shell: hyperfine is required.' >&2
+    exit 1
+fi
+
+shells=("$@")
+if [[ $# -eq 0 ]]; then
+    shells=(bash zsh fish)
+fi
+
+commands=()
+for shell in "${shells[@]}"; do
+    case "$shell" in
+        bash|zsh|fish) ;;
+        *) printf 'bench-shell: unsupported shell: %s\n' "$shell" >&2; exit 2 ;;
+    esac
+    if ! command -v "$shell" >/dev/null 2>&1; then
+        if [[ $# -gt 0 ]]; then
+            printf 'bench-shell: %s is not installed.\n' "$shell" >&2
+            exit 1
+        fi
+        printf 'bench-shell: skipping %s (not installed).\n' "$shell" >&2
+        continue
+    fi
+    commands+=("$shell $flags -c exit")
+done
+
+if [[ ${#commands[@]} -eq 0 ]]; then
+    printf '%s\n' 'bench-shell: no supported shells found.' >&2
+    exit 1
+fi
+
+printf '%s\n' 'Timing shell initialization and exit (not prompt rendering or terminal launch).'
+exec hyperfine --shell=none --warmup 2 --runs 10 "${commands[@]}"

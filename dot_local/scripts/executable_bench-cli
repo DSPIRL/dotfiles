@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+case "${1:-}" in
+    ''|-h|--help)
+        printf '%s\n' \
+            'Usage: bench-cli "command [args ...]" ["other command [args ...]" ...]' \
+            'Example: bench-cli "rg --files" "fd --type f"' \
+            'Runs each command directly: 2 warmups, 10 timed runs.' \
+            'Quote each complete command; pipes, redirects, and shell expansion are not interpreted.' \
+            'Commands execute repeatedly, including any side effects; output is suppressed.'
+        if [[ $# -eq 0 || -z "$1" ]]; then exit 2; fi
+        exit 0
+        ;;
+esac
+
+if ! command -v hyperfine >/dev/null 2>&1; then
+    printf '%s\n' 'bench-cli: hyperfine is required.' >&2
+    exit 1
+fi
+
+exec hyperfine --shell=none --warmup 2 --runs 10 -- "$@"
