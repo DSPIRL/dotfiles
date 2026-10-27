@@ -5,11 +5,12 @@ Rectangle {
   id: root
   required property var bar
   required property var wallust
-  implicitHeight: 76
+  implicitHeight: contents.implicitHeight + 24
   height: implicitHeight
   radius: 12
   color: wallust.barCard
   Column {
+    id: contents
     x: 12; y: 12
     width: parent.width - 24
     spacing: 5

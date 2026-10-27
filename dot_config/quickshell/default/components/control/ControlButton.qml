@@ -6,9 +6,10 @@ Button {
   id: root
   required property var wallust
   property string subtitle: ""
+  property string symbol: ""
   property bool highlightedState: checked
-  implicitHeight: Math.max(subtitle.length > 0 ? 68 : 36, contentItem.implicitHeight + topPadding + bottomPadding)
-  implicitWidth: Math.max(60, labelMetrics.advanceWidth + 28)
+  implicitHeight: Math.max(subtitle.length > 0 ? 68 : 36, root.contentItem.implicitHeight + topPadding + bottomPadding)
+  implicitWidth: Math.max(60, labelMetrics.advanceWidth + 28 + (symbol.length > 0 ? glyph.implicitWidth + 12 : 0))
   leftPadding: 12
   rightPadding: 12
   topPadding: 8
@@ -21,18 +22,29 @@ Button {
 
   background: Rectangle {
     radius: 14
-    color: root.highlightedState ? root.wallust.barActive : root.hovered ? root.wallust.barButtonHover : root.wallust.barCard
-    border.width: root.activeFocus ? 2 : 1
+    color: root.highlightedState ? root.wallust.barActive : root.hovered ? root.wallust.barButtonHover : root.flat ? "transparent" : root.wallust.barCard
+    border.width: root.activeFocus ? 2 : root.flat ? 0 : 1
     border.color: root.activeFocus ? root.wallust.barAccentText : root.wallust.barSeparator
     // Disabled control-center buttons dim labels, not their configured fill opacity.
     opacity: root.enabled || root.wallust.controlCenter ? 1 : 0.55
     Behavior on color { enabled: !root.wallust.lowEffects; ColorAnimation { duration: 140 } }
   }
   contentItem: Item {
-    implicitHeight: labels.implicitHeight
+    implicitHeight: Math.max(labels.implicitHeight, root.symbol.length > 0 ? glyph.implicitHeight : 0)
+    Text {
+      id: glyph
+      visible: root.symbol.length > 0
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      text: root.symbol
+      font: Style.Typography.controlTileIconFont
+      color: root.highlightedState ? root.wallust.barAccentText : root.wallust.barText
+      opacity: root.enabled ? 1 : 0.55
+    }
     Column {
       id: labels
       anchors.left: parent.left
+      anchors.leftMargin: root.symbol.length > 0 ? glyph.implicitWidth + 12 : 0
       anchors.right: parent.right
       anchors.verticalCenter: parent.verticalCenter
       spacing: 3
@@ -40,15 +52,17 @@ Button {
       Text {
         width: parent.width
         text: root.text
+        textFormat: Text.PlainText
         font: root.font
         color: root.highlightedState ? root.wallust.barAccentText : root.wallust.barText
         elide: Text.ElideRight
-        horizontalAlignment: root.subtitle.length > 0 ? Text.AlignLeft : Text.AlignHCenter
+        horizontalAlignment: root.subtitle.length > 0 || root.symbol.length > 0 ? Text.AlignLeft : Text.AlignHCenter
       }
       Text {
         width: parent.width
         visible: root.subtitle.length > 0
         text: root.subtitle
+        textFormat: Text.PlainText
         font: Style.Typography.controlHintFont
         color: root.wallust.barMutedText
         elide: Text.ElideRight

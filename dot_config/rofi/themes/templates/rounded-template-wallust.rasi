@@ -10,11 +10,11 @@
     spacing: 0px;
 }
 window {
-    /* Keep the search field fixed as results change. */
+    /* Shared top-center position for every launcher, independent of height. */
     location: north;
     anchor: north;
     x-offset: 0;
-    y-offset: 25%;
+    y-offset: 18%;
     width: calc(95% min 600px);
     border-radius: @window-radius;
     border: 1px;

@@ -11,6 +11,12 @@ Rectangle {
   property bool input: false
   property bool expanded: !input
   property bool chooseDevice: false
+  function dismissDetails() {
+    if (!chooseDevice) return false;
+    chooseDevice = false;
+    deviceChooser.forceActiveFocus();
+    return true;
+  }
   readonly property bool available: Boolean(defaultDevice && defaultDevice.audio)
   readonly property bool muted: available && defaultDevice.audio.muted
   implicitHeight: contents.implicitHeight + 24
@@ -52,6 +58,7 @@ Rectangle {
       onMoved: root.bar.setAudioDeviceVolume(root.defaultDevice, value / 100)
     }
     ControlButton {
+      id: deviceChooser
       visible: root.expanded
       width: parent.width
       wallust: root.wallust
@@ -76,6 +83,7 @@ Rectangle {
           onClicked: {
             root.bar.setDefaultAudioDevice(modelData, root.input);
             root.chooseDevice = false;
+            deviceChooser.forceActiveFocus();
           }
         }
       }

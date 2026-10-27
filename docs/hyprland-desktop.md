@@ -5,15 +5,20 @@ The desktop uses the existing Quickshell configuration, Wallust accents, and neu
 ## Controls and shortcuts
 
 - `Super+A`: open/close controls on the focused monitor.
-- **Quick**: network settings (`nmtui`), Bluetooth settings (`blueman-manager`), night light, keep awake, audio devices/mute/volume, display brightness, and quiet notifications.
-- **Desktop**: CPU/RAM/temperature (click for `btop`), software updates and refresh, screen color picker, low-effects mode, blur, configured transparency, shell glass, glass/control/window opacity sliders, blur size, light/dark theme, wallpaper, bar visibility, and maintenance tools.
+- Controls open in a top-right, screen-constrained 640 × 740 logical-pixel frame. Category icons retain text labels; narrow screens scroll the category strip. Quick is initial, and the last category is remembered until the shell restarts.
+- **Quick**: network settings (`nmtui`), Bluetooth settings (`blueman-manager`), Night light, Keep awake, Quiet notifications, output mute/volume, laptop brightness (or the first adjustable external display), and Audio/Display shortcuts. Network/Bluetooth buttons open existing tools; they are not radio toggles.
+- **Music**: MPRIS artwork, title/artist/album, player selection, playback and capability-gated seeking. Missing players/artwork have fallbacks; only local file and HTTPS artwork URLs are loaded. Metadata is plain text. Position refreshes only while visible and playing, pausing during scrubbing. This is playback control, not a library manager; the Spotify bar remains unchanged.
+- **Look & Feel**: shell glass, independent glass/control/window opacity, compositor-wide blur, light/dark theme, wallpaper, screen color picker and bar visibility.
+- **Audio**: output/input devices, mute and volume. Only one device-selection submenu opens at once; Escape dismisses it before closing controls.
+- **Display**: Night light, laptop/DDC brightness, monitor resolution and detection refresh.
+- **System**: CPU/RAM/temperature (click for `btop`), software updates, diagnostics and maintenance. Low-effects mode, Lock and Session remain in the shared footer on every category.
 - `Super+N`: open/close notification history. The bar has no notification or control-center button; these shortcuts remain available.
 - `Super+Shift+B`: show/hide the bar with a 200 ms, 12 px slide-and-fade (up to hide, down to show; no bounce). Low-effects mode makes the toggle instant. Controls remain accessible while it is hidden.
 - `Super+Ctrl+R`: reload Hyprland.
 - `Super+Shift+C`: toggle a centered, half-width floating window. Its height leaves room for both borders within the usable screen area; toggle again to restore its previous state.
 - Active-window borders use the wallpaper-derived gradient without continuous rotation.
 - `Super+Shift+L`: lock. Navigation, workspace movement, screenshots, and the exit shortcut are unchanged.
-- Tab/Shift+Tab move focus; Space activates controls; Enter also activates buttons. Arrow keys adjust sliders. Escape closes controls or backs out of session actions.
+- Tab/Shift+Tab move focus; Space/Enter activate controls. Left/Right switch categories while a category has focus; Home/End select the first/last. Drag sliders or use arrow keys to adjust them. The mouse wheel scrolls the page—even over a focused slider—and never changes slider values. Escape dismisses an audio device submenu or backs out of session confirmation/actions before closing controls. Closing resets detail menus and confirmations, not the selected category.
 
 The former blur, opacity, performance, theme, diagnostics, and monitor-reapply shortcuts are replaced by the menu. Their scripts remain available for custom shortcuts.
 
@@ -34,7 +39,7 @@ The managed source is `dot_config/quickshell/default/Typography.qml`. Its editab
 - **Bar**: `barSize` changes every pill's text (default 14 logical pixels). Clock and workspace weights remain explicit; `barIconSize`/`barIconWeight` are independent.
 - **Notifications**: title, body, metadata, and action sizes/weights. These apply to both popup and history-card content.
 - **Notification center**: the panel title, empty state, header buttons, and decorative icon, independent of notification content.
-- **Control center**: title, section headings, labels, emphasized buttons, hints, messages, metrics, and icons.
+- **Control center**: title, section headings, labels, emphasized buttons, hints, messages, metrics, and icons. `controlTileIconSize` controls the larger dashboard/category glyphs (default 20); `controlIconSize` retains the smaller device-control glyphs. Neither changes bar icons.
 
 Area families/weights inherit shared defaults until explicitly overridden. Use positive pixel sizes and named weights such as `Font.Normal`, `Font.Medium`, `Font.DemiBold`, and `Font.Bold`. Font families must be installed; unavailable faces/weights may fall back or be synthesized. Tray icons/application logos are images, not fonts.
 
@@ -44,7 +49,9 @@ Typography is trusted QML configuration, not a runtime preference database. It p
 
 ## Rofi appearance
 
-The existing application, run, window, search, calculator, clipboard, emoji, and image-grid launchers share a Quickshell-like glass theme: a translucent gradient, 26-pixel outer corners, quiet card selections, and wallpaper accents. Hyprland supplies backdrop blur; there is no screenshot/refraction shader. Search-only modes keep the same padded input surface as the main launcher.
+The existing application, run, window, search, calculator, clipboard, emoji, and image-grid launchers share a Quickshell-like glass theme: a translucent gradient, 26-pixel outer corners, quiet card selections, and wallpaper accents. Hyprland supplies backdrop blur; there is no screenshot/refraction shader. Search-only modes keep the same padded input surface as the main launcher. All eight launcher configs share the same top-center anchor and 18% vertical offset in `rofi/themes/templates/rounded-template-wallust.rasi`; different window heights/widths do not move that anchor. Change placement there, not in individual mode configs.
+
+The application launcher alone (`config-apps.rasi`) uses 42-pixel icons, name-only rows, separators, and six visible results (four on short displays). Generic names, keywords and desktop comments are searchable: `drun-match-fields` includes `name,generic,exec,categories,keywords,comment`, while `drun-display-format` shows only `{name}`. Other modes retain their own compact/grid layouts.
 
 Edit `~/.config/rofi/appearance.rasi` through chezmoi for Rofi-only fonts and corner radii. The default text is `Noto Sans 14px` (explicit Pango pixels, not 14 points); emoji grids use a larger emoji font. Layout lives in `rofi/themes/templates/rounded-template-wallust.rasi`, with grid-specific overrides. Close and reopen Rofi after applying edits; neither Quickshell nor Hyprland needs a reload.
 
@@ -83,12 +90,12 @@ The bar uses three floating glass sections: workspaces (plus Spotify on wide scr
 
 Shell glass is enabled by default and independently controls transparency of the bar, control center, and notifications. Configured transparency enables the Hyprland window-opacity slider for normal application windows. Its uniform percentage overrides the existing per-app opacity rules; `100%` is opaque and fullscreen windows always remain opaque. Turning the feature off or enabling low-effects mode forces normal windows opaque too, without erasing the saved percentage. It does not affect shell glass or an application's own background-alpha setting. Backdrop blur controls frosting independently: with blur off, glass remains transparent but unfrosted.
 
-**Super+A → Desktop → Appearance & effects** is collapsed by default and collapses again when controls close. Low-effects mode stays outside it for quick access. Settings are grouped by their target:
+**Super+A → Look & Feel** replaces the old Desktop/Appearance disclosure. The category itself keeps niche settings off Quick; Low-effects stays in the persistent footer. Settings remain grouped by target:
 
 - **Shell surfaces**: Shell glass, Glass opacity, and Control opacity. These affect shell backgrounds and control-center fills, not application windows.
 - **Application windows**: Configured transparency and Hyprland window opacity.
 - **Backdrop blur**: the shared compositor blur switch and strength, affecting blur-enabled windows and shell surfaces independently of opacity.
-- **Theme & wallpaper**: light/dark theme and wallpaper selection.
+- **Theme & wallpaper**: two flat rows, without an enclosing card. Theme choices show an accent pill/checkmark only for the selected option; Wallpaper is a separate hoverable action row. Keyboard-focus outlines remain visible, and narrow/larger-font layouts wrap the selector rather than nesting another card.
 
 The four sliders remain independent:
 
@@ -101,7 +108,7 @@ Shell fill previews update immediately. One serialized, latest-value queue throt
 
 Low-effects mode overrides blur, configured transparency, shell glass, animations, and shadows without erasing their saved preferences. The menu shows effective state and disables overridden switches. Turning off Shell glass makes glass backgrounds opaque; control opacity remains independent. Low-effects mode forces both glass backgrounds and control fills opaque. Shell animations also stop in low-effects mode.
 
-System statistics refresh only while the control center's Desktop tab is visible. Software updates use `checkupdates` on startup and every 15 minutes, with a manual Refresh button; a failed check is unavailable, not zero updates. Updating opens the existing terminal with `paru -Syu` (or `sudo pacman -Syu` when `paru` is absent). The color picker closes controls before sampling, so it does not sample the panel itself.
+System statistics refresh only while System is visible. Software updates use `checkupdates` on the first System visit and every 15 minutes while visible, with a manual Refresh button. System remains instantiated after first use so in-flight checks can finish and results are cached for 15 minutes across page switches/reopens; hidden timers pause. A failed check is unavailable, not zero updates. Updating opens the existing terminal with `paru -Syu` (or `sudo pacman -Syu` when `paru` is absent). The color picker closes controls before sampling, so it does not sample the panel itself.
 
 Theme state remains in `${XDG_STATE_HOME:-~/.local/state}/hypr/breeze-theme`. The existing theme script updates application themes and Rofi surfaces; Quickshell observes the same preference. `wallust-refresh` applies Hyprland border/group colors directly, reapplies Rofi's selected light/dark surface after generating wallpaper colors, and restarts an already-running Quickshell to load its new palette. Hyprland deliberately loads its generated Lua palette with `dofile`, not `require`, to keep wallpaper updates out of its config watcher. Running `wallust run` directly updates the file but does not apply Hyprland colors until the next refresh or config reload. Update both the Quickshell fallback palette and its Wallust template when changing shared style tokens.
 
@@ -157,6 +164,8 @@ qs ipc call control isKeepingAwake
 ```
 
 Run `bash tests/desktop-settings.sh` for isolated migration, idempotence, override, rollback, concurrency, Lua/CLI agreement, runtime rule reuse, and colors-only wallpaper refresh checks. These tests use compositor doubles; they do not prove live window geometry preservation. `lua tests/centered-window.lua` checks border clearance and toggle restoration without modifying live windows. Installer checks in `tests/hyprland-installer.sh` stub all installation/deployment commands; they do not install packages or modify services.
+
+Run `bash tests/control-center.sh` for the native category window with mocked actions, audio details, MPRIS selection/capabilities/disappearance, narrow layout, larger category text, lifecycle, and session confirmation. It requires an unlocked Wayland session and skips otherwise; no real media/device/session actions execute. Existing shell-only tests still work offscreen.
 
 Run `bash tests/session-preferences.sh` for saved quiet/keep-awake choices, cold night-light restoration, rapid keep-awake toggles, lock-fd cleanup, failure retention, and idle-only inhibitor teardown. Night-light, compositor, and inhibitor commands are mocked in an isolated HOME; no real session or locking is changed.
 
