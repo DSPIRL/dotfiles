@@ -1,0 +1,10 @@
+/* Rofi-only typography and geometry; wallpaper generation never edits this.
+ * Pango's explicit px suffix matches Quickshell's logical-pixel sizing.
+ * Typography.qml is intentionally not parsed or shared with Rofi. */
+* {
+    text-font: "Noto Sans 14px";
+    selected-font: "Noto Sans Semi-Bold 14px";
+    emoji-font: "Noto Color Emoji 28px";
+    window-radius: 26px;
+    card-radius: 14px;
+}

@@ -1,33 +1,24 @@
 import QtQuick
+import ".."
+import "../.." as Style
 
-Rectangle {
+GlassSurface {
   id: root
 
   property var bar
-  property var wallust
   property var clock
 
-  implicitWidth: clockLabel.implicitWidth + 22
-  implicitHeight: 32
-  radius: implicitHeight / 2
-  color: clockMouse.containsMouse ? wallust.barHover : wallust.barBackground
-  border.width: 1
-  border.color: wallust.barBorder
-
-  Behavior on color {
-    ColorAnimation {
-      duration: 120
-    }
-  }
+  implicitWidth: clockLabel.implicitWidth + 32
+  implicitHeight: 36
+  hovered: clockMouse.containsMouse
 
   Text {
     id: clockLabel
 
     anchors.centerIn: parent
-    text: Qt.formatDateTime(clock.date, bar.width < 1000 ? "HH:mm" : "HH:mm  ·  d MMM")
+    text: Qt.formatDateTime(clock.date, bar.width < 1000 ? "HH:mm" : "ddd, d MMM   ·   HH:mm")
     color: wallust.barText
-    font.family: wallust.textFont
-    font.pixelSize: 15
+    font: Style.Typography.barClockFont
   }
 
   MouseArea {

@@ -1,4 +1,5 @@
 import QtQuick
+import "../.." as Style
 
 Rectangle {
   id: root
@@ -16,8 +17,7 @@ Rectangle {
       width: parent.width
       text: root.bar.laptopBrightnessState.available ? "Laptop brightness  ·  " + Math.round(slider.value) + "%" : "brightnessctl is not installed"
       color: root.wallust.barText
-      font.family: root.wallust.textFont
-      font.pixelSize: 13
+      font: Style.Typography.controlLabelFont
     }
     ControlSlider {
       id: slider

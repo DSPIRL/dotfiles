@@ -1,21 +1,14 @@
 import QtQuick
+import ".."
 
-Rectangle {
+GlassSurface {
   id: root
 
   property var bar
-  property var wallust
-  property var utilityState
-  property var utilityStatsProcess
-  property var updatesProcess
   property var networkState
 
-  implicitWidth: rightRow.implicitWidth + 22
-  implicitHeight: 32
-  radius: implicitHeight / 2
-  color: wallust.barBackground
-  border.width: 1
-  border.color: wallust.barBorder
+  implicitWidth: rightRow.implicitWidth + 24
+  implicitHeight: 36
 
   Row {
     id: rightRow
@@ -25,14 +18,6 @@ Rectangle {
 
     SystemTraySection {
       wallust: root.wallust
-    }
-
-    UtilityDrawer {
-      bar: root.bar
-      wallust: root.wallust
-      utilityState: root.utilityState
-      utilityStatsProcess: root.utilityStatsProcess
-      updatesProcess: root.updatesProcess
     }
 
     StatusIndicators {

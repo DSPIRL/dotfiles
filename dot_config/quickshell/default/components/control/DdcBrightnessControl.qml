@@ -1,4 +1,5 @@
 import QtQuick
+import "../.." as Style
 
 Rectangle {
   id: root
@@ -18,8 +19,7 @@ Rectangle {
       width: parent.width
       text: root.ddcDisplay.monitor + "  ·  " + Math.round(slider.value) + "%"
       color: root.wallust.barText
-      font.family: root.wallust.textFont
-      font.pixelSize: 13
+      font: Style.Typography.controlLabelFont
       elide: Text.ElideRight
     }
     ControlSlider {

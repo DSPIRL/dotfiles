@@ -228,20 +228,53 @@ apply_gsettings() {
   gsettings set org.gnome.desktop.interface color-scheme "$color_preference" >/dev/null 2>&1 || true
 }
 
-refresh_shell_theme() {
-  local mode="$1" file="${HOME}/.config/rofi/wallust/colors-rofi.rasi"
-  local accent="#9FC5F0" background="#171B22FA" foreground="#E8EDF5" border="#FFFFFF26" surface="#242B35"
-  if [[ -r "$file" ]]; then
-    accent=$(awk '/selected-background:/ { gsub(/[;[:space:]]/, "", $2); print $2; exit }' "$file")
-    [[ "$accent" =~ ^#[[:xdigit:]]{6}$ ]] || accent="#9FC5F0"
-  fi
-  if [[ "$mode" == light ]]; then
-    background="#F4F5F7FA"; foreground="#202733"; border="#00000026"; surface="#E5E8ED"
-  fi
+# This path only writes Rofi colors; it never changes GTK/KDE/session settings.
+refresh_shell_theme() (
+  local file="${HOME}/.config/rofi/wallust/colors-rofi.rasi"
   mkdir -p "$(dirname "$file")"
-  printf '* {\n selected-text: #171B22;\n selected-background: %s;\n normal-text: %s;\n normal-background: transparent;\n prompt-text: %s;\n prompt-background: transparent;\n window-background: %s;\n window-border: %s;\n scrollbar-filled: %s;\n scrollbar-empty: %s;\n error-message: %s;\n error-message-border: %s;\n}\n' \
-    "$accent" "$foreground" "$foreground" "$background" "$border" "$accent" "$surface" "$foreground" "$border" > "$file"
-}
+  exec 9>"${file}.lock"
+  flock 9
+
+  # Read the latest preferences after taking the palette lock.
+  local mode accent low=disabled low_file
+  mode=$(current_mode)
+  low_file="${XDG_STATE_HOME:-${HOME}/.local/state}/hypr/effects/low-effects"
+  if [[ -r "$low_file" ]]; then read -r low <"$low_file" || true; fi
+  accent=""
+  if [[ -r "$file" ]]; then
+    accent=$(awk '$1 == "accent:" { gsub(/;/, "", $2); print $2; exit }' "$file")
+    # Preserve accents from the pre-glass palette on first use.
+    if [[ ! "$accent" =~ ^#[[:xdigit:]]{6}$ ]]; then
+      accent=$(awk '$1 == "selected-background:" { gsub(/;/, "", $2); print $2; exit }' "$file")
+    fi
+  fi
+  [[ "$accent" =~ ^#[[:xdigit:]]{6}$ ]] || accent="#9FC5F0"
+
+  local foreground="#F4F6FC" muted="#C2CADB" border="#FFFFFF38"
+  local top="#30374666" bottom="#1A202C66" surface="#29314080" surface_border="#FFFFFF18"
+  local selected="${accent}38" selected_border="${accent}66" selected_text="$foreground"
+  local scrollbar="#A1B0CB24" error="#FF9CAA"
+  if [[ "$mode" == light ]]; then
+    foreground="#101827"; muted="#29354A"; border="#FFFFFF66"
+    top="#FFFFFF66"; bottom="#EAF0F866"; surface="#E2E6ED80"; surface_border="#0F203820"
+    selected_text="$foreground"; scrollbar="#FFFFFF38"; error="#AD1930"
+  fi
+  # Fail solid for a corrupt preference as well as enabled low-effects mode.
+  if [[ "$low" != disabled ]]; then
+    top="#181D27"; bottom="$top"; surface="#293140"; scrollbar="#293140"
+    if [[ "$mode" == light ]]; then top="#F0F2F6"; bottom="$top"; surface="#E2E6ED"; scrollbar="#E2E6ED"; fi
+    selected="#38465A"; [[ "$mode" != light ]] || selected="#CED9E8"
+    selected_border="$accent"; selected_text="$foreground"
+  fi
+
+  local tmp
+  tmp=$(mktemp "${file}.XXXXXX")
+  trap 'rm -f "$tmp"' EXIT
+  printf '* {\n accent: %s;\n selected-text: %s;\n selected-background: %s;\n selected-border: %s;\n normal-text: %s;\n muted-text: %s;\n normal-background: transparent;\n prompt-text: %s;\n prompt-background: transparent;\n window-background: %s;\n window-bottom: %s;\n window-image: linear-gradient(to bottom, %s, %s);\n window-border: %s;\n surface-background: %s;\n surface-border: %s;\n scrollbar-filled: %s;\n scrollbar-empty: %s;\n error-message: %s;\n error-message-border: %s;\n}\n' \
+    "$accent" "$selected_text" "$selected" "$selected_border" "$foreground" "$muted" "$muted" \
+    "$top" "$bottom" "$top" "$bottom" "$border" "$surface" "$surface_border" "$accent" "$scrollbar" "$error" "$error" >"$tmp"
+  mv -f "$tmp" "$file"
+)
 
 apply_mode() {
   local mode="$1"
@@ -292,7 +325,7 @@ apply_mode() {
   write_xsettingsd "$gtk_theme" "$gtk_icon_theme" "$cursor_theme"
   apply_gsettings "$gtk_theme" "$gtk_icon_theme" "$cursor_theme" "$color_preference"
   apply_runtime_settings "$cursor_theme"
-  refresh_shell_theme "$mode"
+  refresh_shell_theme
 
   # notify "Applied Breeze ${mode}"
 }
@@ -314,7 +347,7 @@ case "${1:-toggle}" in
     current_mode
     ;;
   refresh-shell)
-    refresh_shell_theme "$(current_mode)"
+    refresh_shell_theme
     ;;
   *)
     printf 'Usage: %s [apply|toggle|dark|light|status|refresh-shell]\n' "${0##*/}" >&2

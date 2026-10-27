@@ -2,6 +2,9 @@ import QtQuick
 import QtQuick.Controls
 import Quickshell
 import Quickshell.Wayland
+import ".."
+import "../control"
+import "../.." as Style
 
 PanelWindow {
   id: root
@@ -28,88 +31,76 @@ PanelWindow {
   WlrLayershell.namespace: "quickshell"
 
   onVisibleChanged: if (visible) {
-    notificationPanelContent.forceActiveFocus();
+    closeButton.forceActiveFocus();
   }
 
-  Rectangle {
+  GlassSurface {
     id: notificationPanelContent
 
     anchors.fill: parent
     focus: true
-    implicitHeight: notificationPanelColumn.implicitHeight + 24
-    radius: 18
-    color: wallust.panelBackground
-    border.width: 1
-    border.color: wallust.barBorder
+    implicitHeight: notificationPanelColumn.implicitHeight + 40
+    wallust: root.wallust
+    radius: 26
 
     Keys.onEscapePressed: bar.notificationPanelOpen = false
 
     Column {
       id: notificationPanelColumn
 
-      x: 12
-      y: 12
-      width: parent.width - 24
-      spacing: 10
+      x: 20
+      y: 20
+      width: parent.width - 40
+      spacing: 12
 
       Row {
+        id: panelHeader
         width: parent.width
-        height: 28
+        height: Math.max(36, title.implicitHeight, clearAllButton.height, closeButton.height)
         spacing: 8
 
         Text {
-          width: parent.width - clearAllButton.width - parent.spacing
+          id: title
+          width: parent.width - closeButton.width - parent.spacing - (clearAllButton.visible ? clearAllButton.width + parent.spacing : 0)
           anchors.verticalCenter: parent.verticalCenter
           text: bar.notificationCount === 1 ? "1 notification" : bar.notificationCount + " notifications"
           color: wallust.barText
-          font.family: wallust.textFont
-          font.pixelSize: 15
-          font.bold: true
+          font: Style.Typography.centerTitleFont
+          elide: Text.ElideRight
         }
 
-        Rectangle {
+        ControlButton {
           id: clearAllButton
-
           visible: bar.notificationCount > 0
-          width: clearAllLabel.implicitWidth + 16
-          height: 26
-          radius: 13
-          color: clearAllMouse.containsMouse ? wallust.barHover : "transparent"
-          border.width: 1
-          border.color: wallust.barBorder
-
-          Text {
-            id: clearAllLabel
-
-            anchors.centerIn: parent
-            text: "Clear"
-            color: wallust.barText
-            font.family: wallust.textFont
-            font.pixelSize: 13
-          }
-
-          MouseArea {
-            id: clearAllMouse
-
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-
-            onClicked: bar.clearNotifications()
-          }
+          width: Math.max(64, implicitWidth)
+          wallust: root.wallust
+          font: Style.Typography.centerButtonFont
+          text: "Clear"
+          Accessible.name: "Clear all notifications"
+          onClicked: root.bar.clearNotifications()
+        }
+        ControlButton {
+          id: closeButton
+          width: Math.max(40, font.pixelSize + 24)
+          wallust: root.wallust
+          font: Style.Typography.centerButtonFont
+          text: "×"
+          Accessible.name: "Close notifications"
+          onClicked: root.bar.notificationPanelOpen = false
         }
       }
 
       Rectangle {
         visible: bar.notificationCount === 0
         width: parent.width
-        height: 104
-        radius: 14
-        color: "transparent"
+        height: Math.max(104, emptyState.implicitHeight + 32)
+        radius: 18
+        color: wallust.barCard
         border.width: 1
-        border.color: wallust.barBorder
+        border.color: wallust.barSeparator
 
         Column {
+          id: emptyState
           anchors.centerIn: parent
           spacing: 8
 
@@ -117,16 +108,14 @@ PanelWindow {
             anchors.horizontalCenter: parent.horizontalCenter
             text: "󰂚"
             color: wallust.barMutedText
-            font.family: "Hack Nerd Font"
-            font.pixelSize: 24
+            font: Style.Typography.centerIconFont
           }
 
           Text {
             anchors.horizontalCenter: parent.horizontalCenter
             text: "No notifications"
             color: wallust.barMutedText
-            font.family: wallust.textFont
-            font.pixelSize: 14
+            font: Style.Typography.centerEmptyFont
           }
         }
       }
@@ -134,7 +123,7 @@ PanelWindow {
       Flickable {
         visible: bar.notificationCount > 0
         width: parent.width
-        height: Math.min(Math.max(0, root.maximumHeight - 62), notificationList.implicitHeight)
+        height: Math.min(Math.max(0, root.maximumHeight - panelHeader.height - 52), notificationList.implicitHeight)
         contentWidth: width
         contentHeight: notificationList.implicitHeight
         clip: true

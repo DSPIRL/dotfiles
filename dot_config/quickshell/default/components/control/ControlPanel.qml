@@ -2,7 +2,10 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Window
 import Quickshell
+import Quickshell.Io
 import Quickshell.Wayland
+import ".."
+import "../.." as Style
 
 PanelWindow {
   id: root
@@ -11,13 +14,14 @@ PanelWindow {
   readonly property var desktop: bar.desktopState
   property bool desktopTab: false
   property bool toolsExpanded: false
+  property bool effectsExpanded: false
   property bool sessionOpen: false
   property string confirmation: ""
   readonly property bool ready: desktop.loaded && !desktop.busy
 
   visible: Boolean(bar.controlPanelOpen)
   implicitWidth: Math.min(440, screen ? screen.width - 24 : 440)
-  implicitHeight: Math.min(screen ? screen.height - margins.top - 16 : 740, Math.max(360, body.implicitHeight + 182))
+  implicitHeight: Math.min(screen ? screen.height - margins.top - 16 : 740, Math.max(360, body.implicitHeight + Math.max(182, scroll.y + footer.implicitHeight + 34)))
   color: "transparent"
   screen: bar.screen
   focusable: visible
@@ -27,7 +31,7 @@ PanelWindow {
   WlrLayershell.namespace: "quickshell"
 
   onVisibleChanged: {
-    if (!visible) { sessionOpen = false; confirmation = ""; return; }
+    if (!visible) { effectsExpanded = false; sessionOpen = false; confirmation = ""; return; }
     closeButton.forceActiveFocus();
     desktop.refresh();
     if (bar.ddcBrightnessState) bar.ddcBrightnessState.refresh();
@@ -53,19 +57,149 @@ PanelWindow {
     }
   }
 
+  QtObject {
+    id: utilityState
+
+    property int cpuUsage: 0
+    property int memoryUsage: 0
+    property int temperature: 0
+    property bool hasTemperature: false
+    property int updatesCount: -1
+  }
+
+  Process {
+    id: utilityStatsProcess
+
+    command: [
+      "sh",
+      "-c",
+      "read -r _ u1 n1 s1 i1 w1 q1 sq1 st1 _ < /proc/stat; t1=$((u1+n1+s1+i1+w1+q1+sq1+st1)); id1=$((i1+w1)); sleep 0.2; read -r _ u2 n2 s2 i2 w2 q2 sq2 st2 _ < /proc/stat; t2=$((u2+n2+s2+i2+w2+q2+sq2+st2)); id2=$((i2+w2)); dt=$((t2-t1)); did=$((id2-id1)); if [ $dt -gt 0 ]; then cpu=$(( (100*(dt-did))/dt )); else cpu=0; fi; memTotal=$(grep -m1 '^MemTotal:' /proc/meminfo | tr -s ' ' | cut -d' ' -f2); memAvail=$(grep -m1 '^MemAvailable:' /proc/meminfo | tr -s ' ' | cut -d' ' -f2); memTotal=${memTotal:-0}; memAvail=${memAvail:-0}; if [ $memTotal -gt 0 ] 2>/dev/null; then mem=$(( (100*(memTotal-memAvail))/memTotal )); else mem=0; fi; temp=-1; for f in /sys/class/thermal/thermal_zone*/temp; do if [ -r $f ]; then raw=$(cat $f); if [ $raw -gt 0 ] 2>/dev/null; then temp=$((raw/1000)); break; fi; fi; done; printf '%s;%s;%s\n' $cpu $mem $temp"
+    ]
+
+    stdout: StdioCollector {
+      id: utilityStatsStdout
+      waitForEnd: true
+    }
+
+    onExited: function(exitCode, exitStatus) {
+      if (exitCode !== 0) {
+        return;
+      }
+
+      const line = utilityStatsStdout.text.trim();
+      const parts = line.split(";");
+      if (parts.length < 3) {
+        return;
+      }
+
+      utilityState.cpuUsage = parseInt(parts[0], 10) || 0;
+      utilityState.memoryUsage = parseInt(parts[1], 10) || 0;
+
+      const parsedTemp = parseInt(parts[2], 10);
+      utilityState.hasTemperature = !Number.isNaN(parsedTemp) && parsedTemp >= 0;
+      utilityState.temperature = utilityState.hasTemperature ? parsedTemp : 0;
+    }
+  }
+
+  Timer {
+    interval: 8000
+    running: root.visible && root.desktopTab && !root.sessionOpen
+    repeat: true
+    triggeredOnStart: true
+
+    onTriggered: if (!utilityStatsProcess.running) {
+      utilityStatsProcess.running = true;
+    }
+  }
+
+  Process {
+    id: updatesProcess
+
+    command: ["sh", "-c", "command -v checkupdates >/dev/null 2>&1 || exit 1; updates=$(checkupdates 2>/dev/null); code=$?; if [ \"$code\" -eq 2 ]; then echo 0; elif [ \"$code\" -eq 0 ]; then printf '%s\\n' \"$updates\" | wc -l; else exit \"$code\"; fi"]
+
+    stdout: StdioCollector {
+      id: updatesStdout
+      waitForEnd: true
+    }
+
+    onExited: function(exitCode, exitStatus) {
+      if (exitCode !== 0) {
+        utilityState.updatesCount = -1;
+        return;
+      }
+
+      const parsed = parseInt(updatesStdout.text.trim(), 10);
+      utilityState.updatesCount = Number.isNaN(parsed) ? -1 : parsed;
+    }
+  }
+
+  Timer {
+    interval: 900000
+    running: true
+    repeat: true
+    triggeredOnStart: true
+
+    onTriggered: if (!updatesProcess.running) {
+      updatesProcess.running = true;
+    }
+  }
+
+  // Let the panel disappear before the picker captures the screen.
+  Timer {
+    id: colorPickerTimer
+    interval: 180
+    onTriggered: root.bar.runHyprScript("colorpicker.sh")
+  }
+
   component Heading: Text {
     width: parent.width
-    font.family: root.wallust.textFont
-    font.pixelSize: 11
-    font.weight: Font.DemiBold
+    font: Style.Typography.controlHeadingFont
     color: root.wallust.barMutedText
+  }
+  component EffectSlider: Column {
+    id: settingRoot
+    required property string setting
+    required property string label
+    property string subtitle: ""
+    property string suffix: "%"
+    property bool available: true
+    readonly property var spec: root.desktop.numericSettings[setting]
+    width: parent.width
+    spacing: 4
+    Text {
+      x: 12; width: parent.width - 24
+      text: settingRoot.label + " · " + root.desktop[settingRoot.spec.field] + settingRoot.suffix
+      font: Style.Typography.controlLabelFont
+      color: root.wallust.barText
+      wrapMode: Text.Wrap
+    }
+    ControlSlider {
+      x: 12; width: parent.width - 24
+      wallust: root.wallust
+      from: settingRoot.spec.minimum
+      to: settingRoot.spec.maximum
+      value: root.desktop[settingRoot.spec.field]
+      enabled: root.desktop.loaded && settingRoot.available
+      opacity: enabled ? 1 : 0.45
+      Accessible.name: settingRoot.label
+      onMoved: root.desktop.setNumericSetting(settingRoot.setting, value)
+    }
+    Text {
+      x: 12; width: parent.width - 24
+      text: settingRoot.subtitle
+      font: Style.Typography.controlHintFont
+      color: root.wallust.barMutedText
+      wrapMode: Text.Wrap
+    }
   }
   component Group: Rectangle {
     default property alias contents: groupContents.data
     width: parent.width
     implicitHeight: groupContents.implicitHeight + 16
-    radius: 12
+    radius: 16
     color: root.wallust.barCard
+    border.width: 1
+    border.color: root.wallust.barSeparator
     Column {
       id: groupContents
       x: 4; y: 8
@@ -74,13 +208,10 @@ PanelWindow {
     }
   }
 
-  Rectangle {
+  GlassSurface {
     anchors.fill: parent
-    radius: 18
-    color: root.wallust.panelBackground
-    border.width: 1
-    border.color: root.wallust.barBorder
-    clip: true
+    wallust: root.wallust
+    radius: 26
     Keys.onEscapePressed: {
       if (root.sessionOpen) { root.sessionOpen = false; root.confirmation = ""; }
       else root.bar.controlPanelOpen = false;
@@ -94,15 +225,13 @@ PanelWindow {
       Text {
         width: parent.width - closeButton.width - 8
         anchors.verticalCenter: parent.verticalCenter
-        text: root.sessionOpen ? "Session" : "Controls"
-        font.family: root.wallust.textFont
-        font.pixelSize: 21
-        font.weight: Font.DemiBold
+        text: root.sessionOpen ? "Session" : "Control Center"
+        font: Style.Typography.controlTitleFont
         color: root.wallust.barText
       }
       ControlButton {
         id: closeButton
-        width: 40
+        width: Math.max(40, font.pixelSize + 24)
         wallust: root.wallust
         text: "×"
         Accessible.name: "Close controls"
@@ -111,7 +240,7 @@ PanelWindow {
     }
     Row {
       id: tabs
-      x: 20; y: 62
+      x: 20; y: header.y + header.implicitHeight + 10
       width: parent.width - 40
       spacing: 6
       visible: !root.sessionOpen
@@ -133,7 +262,7 @@ PanelWindow {
 
     Flickable {
       id: scroll
-      x: 20; y: root.sessionOpen ? 64 : 112
+      x: 20; y: root.sessionOpen ? header.y + header.implicitHeight + 12 : tabs.y + tabs.implicitHeight + 14
       width: parent.width - 40
       height: Math.max(0, footer.y - y - 14)
       contentWidth: width
@@ -151,8 +280,7 @@ PanelWindow {
           text: root.desktop.error
           wrapMode: Text.Wrap
           color: root.wallust.barCritical
-          font.family: root.wallust.textFont
-          font.pixelSize: 12
+          font: Style.Typography.controlMessageFont
         }
         Column {
           visible: !root.desktopTab && !root.sessionOpen
@@ -183,19 +311,19 @@ PanelWindow {
               width: (parent.width - 8) / 2
               wallust: root.wallust
               text: "Night light"
-              subtitle: root.desktop.values.nightLight ? "Warm display · 4000 K" : "Off"
-              highlightedState: Boolean(root.desktop.values.nightLight)
-              enabled: root.ready && Boolean(root.desktop.values.nightLightAvailable)
-              onClicked: root.desktop.run([root.desktop.scripts + "hyprsunset.sh", root.desktop.values.nightLight ? "disable" : "enable"])
+              subtitle: root.desktop.values.nightLight ? "Warm display · 4000 K · saved" : root.desktop.values.nightLightWanted ? "Saved on · currently inactive" : "Off"
+              highlightedState: Boolean(root.desktop.values.nightLightWanted)
+              enabled: root.ready && Boolean(root.desktop.values.nightLightAvailable || root.desktop.values.nightLightWanted)
+              onClicked: root.desktop.effect("night-light", !root.desktop.values.nightLightWanted)
             }
             ControlButton {
               width: (parent.width - 8) / 2
               wallust: root.wallust
               text: "Keep awake"
-              subtitle: root.desktop.values.idleRunning ? (root.desktop.keepAwake ? "Until shell exits · locking still works" : "Off") : "Idle service not running"
-              highlightedState: root.desktop.keepAwake
-              enabled: Boolean(root.desktop.values.idleRunning)
-              onClicked: root.desktop.keepAwake = !root.desktop.keepAwake
+              subtitle: root.desktop.keepAwakeRequested && root.desktop.keepAwakeFailed ? "Saved on · inhibitor unavailable" : root.desktop.keepAwake ? "Saved on · manual locking still works" : "Off"
+              highlightedState: root.desktop.keepAwakeRequested
+              enabled: root.desktop.loaded
+              onClicked: root.desktop.setKeepAwake(!root.desktop.keepAwakeRequested)
             }
           }
           Heading { text: "SOUND" }
@@ -246,23 +374,73 @@ PanelWindow {
             width: parent.width
             text: root.bar.ddcBrightnessState.error
             color: root.wallust.barCritical
-            font.family: root.wallust.textFont
-            font.pixelSize: 12
+            font: Style.Typography.controlMessageFont
             wrapMode: Text.Wrap
           }
           ControlToggle {
             width: parent.width
             wallust: root.wallust
             text: "Quiet notifications"
-            subtitle: "Keep history; allow critical alerts"
+            subtitle: "Saved; keeps history and critical alerts"
+            enabled: root.desktop.loaded
             checked: root.desktop.quiet
-            onToggled: root.desktop.quiet = checked
+            onToggled: root.desktop.setQuiet(checked)
           }
         }
         Column {
           visible: root.desktopTab && !root.sessionOpen
           width: parent.width
           spacing: 12
+          Heading { text: "SYSTEM" }
+          Row {
+            width: parent.width
+            spacing: 8
+            Repeater {
+              model: ["CPU", "RAM", "TEMP"]
+              ControlButton {
+                required property var modelData
+                width: (body.width - 16) / 3
+                wallust: root.wallust
+                text: modelData === "CPU" ? utilityState.cpuUsage + "%" : modelData === "RAM" ? utilityState.memoryUsage + "%" : utilityState.hasTemperature ? utilityState.temperature + "°C" : "—"
+                font: Style.Typography.controlMetricFont
+                subtitle: modelData
+                Accessible.name: modelData + " " + text + ". Open system monitor"
+                onClicked: root.bar.launchTerminal("btop -p 2")
+              }
+            }
+          }
+          Row {
+            width: parent.width
+            spacing: 8
+            ControlButton {
+              width: parent.width - refreshUpdates.width - 8
+              wallust: root.wallust
+              text: "Software updates  ›"
+              subtitle: updatesProcess.running ? "Checking…" : utilityState.updatesCount < 0 ? "Check unavailable · try Refresh" : utilityState.updatesCount + " available"
+              onClicked: {
+                root.bar.launchTerminalShell("if command -v paru >/dev/null 2>&1; then paru -Syu; else sudo pacman -Syu; fi");
+                root.bar.controlPanelOpen = false;
+              }
+            }
+            ControlButton {
+              id: refreshUpdates
+              width: 76
+              height: 68
+              wallust: root.wallust
+              text: "Refresh"
+              enabled: !updatesProcess.running
+              onClicked: updatesProcess.running = true
+            }
+          }
+          ControlButton {
+            width: parent.width
+            wallust: root.wallust
+            text: "Pick a screen color  ›"
+            onClicked: {
+              root.bar.controlPanelOpen = false;
+              colorPickerTimer.restart();
+            }
+          }
           Heading { text: "DESKTOP EFFECTS" }
           Group {
             ControlToggle {
@@ -274,52 +452,109 @@ PanelWindow {
               checked: Boolean(root.desktop.values.lowEffects)
               onToggled: root.desktop.effect("low-effects", checked)
             }
-            ControlToggle {
-              width: parent.width
-              wallust: root.wallust
-              text: "Backdrop blur"
-              subtitle: root.desktop.values.lowEffects ? "Off — low-effects mode (preference saved)" : "Windows and shell surfaces"
-              enabled: root.ready && !root.desktop.values.lowEffects
-              checked: Boolean(root.desktop.values.effectiveBlur)
-              onToggled: root.desktop.effect("blur", checked)
-            }
-            ControlToggle {
-              width: parent.width
-              wallust: root.wallust
-              text: "Configured transparency"
-              subtitle: root.desktop.values.lowEffects ? "Off — low-effects mode (preference saved)" : "Hyprland rules; app opacity is separate"
-              enabled: root.ready && !root.desktop.values.lowEffects
-              checked: Boolean(root.desktop.values.effectiveOpacity)
-              onToggled: root.desktop.effect("opacity", checked)
-            }
-          }
-          Heading { text: "APPEARANCE" }
-          Row {
-            width: parent.width
-            spacing: 8
-            ControlButton {
-              width: (parent.width - 8) / 2
-              wallust: root.wallust
-              text: "Light theme"
-              highlightedState: root.desktop.values.theme === "light"
-              enabled: root.ready
-              onClicked: root.desktop.theme("light")
-            }
-            ControlButton {
-              width: (parent.width - 8) / 2
-              wallust: root.wallust
-              text: "Dark theme"
-              highlightedState: root.desktop.values.theme !== "light"
-              enabled: root.ready
-              onClicked: root.desktop.theme("dark")
-            }
           }
           ControlButton {
             width: parent.width
             wallust: root.wallust
-            text: "Change wallpaper  ›"
-            enabled: root.ready
-            onClicked: root.bar.runCommand([root.desktop.scripts + "walli.sh"])
+            text: root.effectsExpanded ? "Appearance & effects  ▴" : "Appearance & effects  ▾"
+            Accessible.name: root.effectsExpanded ? "Collapse appearance and effects" : "Expand appearance and effects"
+            onClicked: root.effectsExpanded = !root.effectsExpanded
+          }
+          Column {
+            visible: root.effectsExpanded
+            width: parent.width
+            spacing: 12
+            Heading { text: "SHELL SURFACES" }
+            Group {
+              ControlToggle {
+                width: parent.width
+                wallust: root.wallust
+                text: "Shell glass"
+                subtitle: root.desktop.values.lowEffects ? "Off — low-effects mode (preference saved)" : "Bar, control center and notifications; blur is separate"
+                enabled: root.ready && !root.desktop.values.lowEffects
+                checked: Boolean(root.desktop.values.effectiveShellGlass)
+                onToggled: root.desktop.effect("shell-glass", checked)
+              }
+              EffectSlider {
+                setting: "glass-opacity"
+                label: "Glass opacity"
+                available: Boolean(root.desktop.values.effectiveShellGlass)
+                subtitle: available ? "All shell glass backgrounds; control opacity is separate" : "Enable Shell glass; low-effects mode overrides it"
+              }
+              EffectSlider {
+                setting: "control-opacity"
+                label: "Control opacity"
+                available: !root.desktop.values.lowEffects
+                subtitle: available ? "Control-center buttons/cards only; text and icons stay opaque" : "Off — low-effects mode (preference saved)"
+              }
+            }
+            Heading { text: "APPLICATION WINDOWS" }
+            Group {
+              ControlToggle {
+                width: parent.width
+                wallust: root.wallust
+                text: "Configured transparency"
+                subtitle: root.desktop.values.lowEffects ? "Off — low-effects mode (preference saved)" : "Normal application windows; shell glass is separate"
+                enabled: root.ready && !root.desktop.values.lowEffects
+                checked: Boolean(root.desktop.values.effectiveOpacity)
+                onToggled: root.desktop.effect("opacity", checked)
+              }
+              EffectSlider {
+                setting: "window-opacity"
+                label: "Hyprland window opacity"
+                available: Boolean(root.desktop.values.effectiveOpacity)
+                subtitle: available ? "Overrides per-app opacity rules; fullscreen stays opaque" : "Enable Configured transparency; low-effects mode overrides it"
+              }
+            }
+            Heading { text: "BACKDROP BLUR" }
+            Group {
+              ControlToggle {
+                width: parent.width
+                wallust: root.wallust
+                text: "Backdrop blur"
+                subtitle: root.desktop.values.lowEffects ? "Off — low-effects mode (preference saved)" : "Windows and shell surfaces; opacity is separate"
+                enabled: root.ready && !root.desktop.values.lowEffects
+                checked: Boolean(root.desktop.values.effectiveBlur)
+                onToggled: root.desktop.effect("blur", checked)
+              }
+              EffectSlider {
+                setting: "blur-size"
+                label: "Hyprland blur size"
+                suffix: ""
+                available: Boolean(root.desktop.values.effectiveBlur)
+                subtitle: available ? "Compositor-wide; passes unchanged; higher values cost more GPU" : "Enable Backdrop blur; low-effects mode overrides it"
+              }
+            }
+            Heading { text: "THEME & WALLPAPER" }
+            Group {
+              Row {
+                width: parent.width
+                spacing: 8
+                ControlButton {
+                  width: (parent.width - 8) / 2
+                  wallust: root.wallust
+                  text: "Light theme"
+                  highlightedState: root.desktop.values.theme === "light"
+                  enabled: root.ready
+                  onClicked: root.desktop.theme("light")
+                }
+                ControlButton {
+                  width: (parent.width - 8) / 2
+                  wallust: root.wallust
+                  text: "Dark theme"
+                  highlightedState: root.desktop.values.theme !== "light"
+                  enabled: root.ready
+                  onClicked: root.desktop.theme("dark")
+                }
+              }
+              ControlButton {
+                width: parent.width
+                wallust: root.wallust
+                text: "Change wallpaper  ›"
+                enabled: root.ready
+                onClicked: root.bar.runCommand([root.desktop.scripts + "walli.sh"])
+              }
+            }
           }
           ControlToggle {
             width: parent.width
@@ -366,8 +601,7 @@ PanelWindow {
           Text {
             width: parent.width
             text: root.confirmation.length > 0 ? "Confirm " + root.confirmation + "? Unsaved work may be lost." : "Choose a session action."
-            font.family: root.wallust.textFont
-            font.pixelSize: 13
+            font: Style.Typography.controlLabelFont
             color: root.wallust.barText
             wrapMode: Text.Wrap
           }
@@ -428,8 +662,7 @@ PanelWindow {
           anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
           text: root.desktop.busy ? "Working…" : "Super+A"
           color: root.wallust.barMutedText
-          font.family: root.wallust.textFont
-          font.pixelSize: 11
+          font: Style.Typography.controlHintFont
         }
       }
     }

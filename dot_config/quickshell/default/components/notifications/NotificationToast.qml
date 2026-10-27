@@ -2,6 +2,9 @@ import QtQuick
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Widgets
+import ".."
+import "../control"
+import "../.." as Style
 
 PanelWindow {
   id: root
@@ -12,7 +15,7 @@ PanelWindow {
   property var timer
 
   visible: bar && bar.toastVisible && notification && !bar.notificationPanelOpen && !bar.controlPanelOpen
-  implicitWidth: 440
+  implicitWidth: Math.min(440, screen ? screen.width - 24 : 440)
   implicitHeight: toastContent.implicitHeight
   color: "transparent"
   screen: bar ? bar.screen : null
@@ -31,14 +34,13 @@ PanelWindow {
     timer.stop();
   }
 
-  Rectangle {
+  GlassSurface {
     id: toastContent
 
-    implicitHeight: toastColumn.implicitHeight + 20
+    implicitHeight: toastColumn.implicitHeight + 32
     anchors.fill: parent
-    radius: 18
-    color: wallust.panelBackground
-    border.width: 1
+    wallust: root.wallust
+    radius: 26
     border.color: bar.notificationAccent(notification)
 
     MouseArea {
@@ -60,7 +62,7 @@ PanelWindow {
       anchors.left: parent.left
       anchors.right: parent.right
       anchors.top: parent.top
-      anchors.margins: 10
+      anchors.margins: 16
       spacing: 8
 
       Row {
@@ -83,9 +85,7 @@ PanelWindow {
             text: notification ? (notification.summary && notification.summary.length > 0 ? notification.summary : notification.appName) : ""
             color: wallust.barText
             elide: Text.ElideRight
-            font.family: wallust.textFont
-            font.pixelSize: 14
-            font.bold: true
+            font: Style.Typography.notificationTitleFont
           }
 
           Text {
@@ -94,36 +94,21 @@ PanelWindow {
             text: notification ? notification.appName : ""
             color: wallust.barMutedText
             elide: Text.ElideRight
-            font.family: wallust.textFont
-            font.pixelSize: 12
+            font: Style.Typography.notificationMetaFont
           }
         }
 
-        Rectangle {
+        ControlButton {
           id: toastDismissButton
-
-          width: 24
-          height: 24
-          radius: 12
-          color: toastDismissMouse.containsMouse ? wallust.barHover : "transparent"
-
-          Text {
-            anchors.centerIn: parent
-            text: "󰅖"
-            color: wallust.barMutedText
-            font.family: "Hack Nerd Font"
-            font.pixelSize: 13
-          }
-
-          MouseArea {
-            id: toastDismissMouse
-
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-
-            onClicked: bar.toastVisible = false
-          }
+          width: Math.max(32, font.pixelSize + 8)
+          height: Math.max(32, contentItem.implicitHeight + 8)
+          leftPadding: 4
+          rightPadding: 4
+          wallust: root.wallust
+          font: Style.Typography.notificationActionFont
+          text: "×"
+          Accessible.name: "Hide notification popup"
+          onClicked: root.bar.toastVisible = false
         }
       }
 
@@ -136,8 +121,7 @@ PanelWindow {
         wrapMode: Text.Wrap
         maximumLineCount: 3
         elide: Text.ElideRight
-        font.family: wallust.textFont
-        font.pixelSize: 13
+        font: Style.Typography.notificationBodyFont
       }
     }
   }

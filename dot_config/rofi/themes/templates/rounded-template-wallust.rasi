@@ -1,6 +1,8 @@
-/* Quiet surfaces shared with the Quickshell controls. */
+/* Glass material matching Quickshell; frosting comes from Hyprland. */
+@import "~/.config/rofi/appearance.rasi"
+
 * {
-    font: "Noto Sans 12";
+    font: @text-font;
     background-color: transparent;
     text-color: @normal-text;
     margin: 0px;
@@ -8,44 +10,71 @@
     spacing: 0px;
 }
 window {
-    /* Keep the top edge fixed, regardless of the number of results. */
+    /* Keep the search field fixed as results change. */
     location: north;
     anchor: north;
     x-offset: 0;
     y-offset: 25%;
-    width: 600px;
-    border-radius: 18px;
+    width: calc(95% min 600px);
+    border-radius: @window-radius;
     border: 1px;
-    background-color: @window-background;
     border-color: @window-border;
+    background-image: @window-image;
 }
 mainbox { padding: 20px; }
 inputbar {
-    background-color: @scrollbar-empty;
-    border-radius: 10px;
+    background-color: @surface-background;
+    border: 1px;
+    border-color: @surface-border;
+    border-radius: @card-radius;
     spacing: 8px;
     children: [ entry ];
 }
 entry {
     expand: true;
     placeholder: "Search…";
-    placeholder-color: @normal-text;
+    placeholder-color: @muted-text;
     padding: 12px;
 }
-message { margin: 12px 0 0; border-radius: 10px; }
+message {
+    margin: 12px 0 0;
+    border-radius: @card-radius;
+    background-color: @surface-background;
+}
 textbox { padding: 8px 12px; }
 listview {
+    /* A quiet inner card keeps text readable over bright backgrounds. */
+    background-color: @surface-background;
+    border: 1px;
+    border-color: @surface-border;
+    border-radius: @card-radius;
+    padding: 4px;
     margin: 12px 0 0;
     lines: 8;
     columns: 1;
     fixed-height: false;
     scrollbar: true;
+    spacing: 4px;
 }
-scrollbar { width: 3px; background-color: @scrollbar-empty; handle-color: @scrollbar-filled; }
-element { padding: 10px 12px; margin: 2px 0; spacing: 10px; border-radius: 10px; }
-element selected normal, element selected active {
+scrollbar {
+    width: 3px;
+    background-color: @scrollbar-empty;
+    handle-color: @scrollbar-filled;
+    border-radius: 2px;
+}
+element {
+    padding: 10px 12px;
+    spacing: 10px;
+    border: 1px;
+    border-color: transparent;
+    border-radius: @card-radius;
+}
+element selected normal, element selected active, element selected urgent {
     background-color: @selected-background;
+    border-color: @selected-border;
     text-color: @selected-text;
+    font: @selected-font;
 }
+element normal urgent, element alternate urgent { text-color: @error-message; }
 element-icon { size: 1.3em; vertical-align: 0.5; }
-element-text { vertical-align: 0.5; text-color: inherit; }
+element-text { vertical-align: 0.5; text-color: inherit; font: inherit; }

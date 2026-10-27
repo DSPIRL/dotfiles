@@ -1,11 +1,12 @@
 import QtQuick
 import QtQuick.Controls
+import "../.." as Style
 
 Switch {
   id: root
   required property var wallust
   property string subtitle: ""
-  implicitHeight: subtitle.length > 0 ? 58 : 42
+  implicitHeight: Math.max(subtitle.length > 0 ? 58 : 42, contentItem.implicitHeight + 16)
   leftPadding: 12
   rightPadding: 12
   hoverEnabled: true
@@ -31,12 +32,13 @@ Switch {
       height: 14
       radius: 7
       color: root.wallust.lightMode ? "#FFFFFF" : "#171B22"
-      Behavior on x { NumberAnimation { duration: 100 } }
+      Behavior on x { enabled: !root.wallust.lowEffects; NumberAnimation { duration: 100 } }
     }
   }
   contentItem: Item {
-    implicitHeight: root.subtitle.length > 0 ? 34 : 18
+    implicitHeight: labels.implicitHeight
     Column {
+      id: labels
       anchors.left: parent.left
       anchors.verticalCenter: parent.verticalCenter
       width: parent.width - 50
@@ -46,8 +48,7 @@ Switch {
         width: parent.width
         text: root.text
         color: root.wallust.barText
-        font.family: root.wallust.textFont
-        font.pixelSize: 13
+        font: Style.Typography.controlLabelFont
         elide: Text.ElideRight
       }
       Text {
@@ -55,8 +56,7 @@ Switch {
         visible: root.subtitle.length > 0
         text: root.subtitle
         color: root.wallust.barMutedText
-        font.family: root.wallust.textFont
-        font.pixelSize: 11
+        font: Style.Typography.controlHintFont
         elide: Text.ElideRight
       }
     }

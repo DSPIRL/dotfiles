@@ -2,7 +2,7 @@
 
 /* ---- Mainbox ---- */
 mainbox {
-  children: [ "entry", "message" ];
+  children: [ "inputbar", "message" ];
   height: inherit;
 }
 
@@ -18,4 +18,4 @@ entry {
   placeholder: " 🧮 Calculate";
 }
 
-listview {enable: false;}
+listview {enabled: false;}

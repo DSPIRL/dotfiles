@@ -23,17 +23,32 @@ QtObject {
   readonly property color color15: "{{color15}}"
 
   property bool lightMode: false
-  readonly property string textFont: "Noto Sans"
-  readonly property string iconFont: "Hack Nerd Font"
-  readonly property color panelBackground: lightMode ? "#F4F5F7" : "#171B22"
-  readonly property color barBackground: lightMode ? "#F0F4F5F7" : "#F0171B22"
-  readonly property color barCard: lightMode ? "#E5E8ED" : "#242B35"
-  readonly property color barBorder: lightMode ? "#26000000" : "#26FFFFFF"
-  readonly property color barText: lightMode ? "#202733" : "#E8EDF5"
-  readonly property color barMutedText: lightMode ? "#566171" : "#A7B2C3"
-  readonly property color barAccentText: lightMode ? Qt.darker(color12, 1.4) : Qt.lighter(color12, 1.3)
-  readonly property color barHover: lightMode ? "#14000000" : "#18FFFFFF"
-  readonly property color barActive: Qt.rgba(barAccentText.r, barAccentText.g, barAccentText.b, 0.18)
-  readonly property color barSeparator: barBorder
-  readonly property color barCritical: lightMode ? "#B42332" : "#FF8993"
+  property bool lowEffects: false
+  property bool solidSurfaces: false
+  property bool controlCenter: false
+  property real glassOpacity: 0.4
+  property real controlOpacity: 1
+  readonly property color panelBackground: lightMode ? "#F0F2F6" : "#181D27"
+  // Keep the tint light; backdrop blur and reflective edges supply the material.
+  readonly property color glassTop: solidSurfaces ? panelBackground : (lightMode ? "#FFFFFF" : "#303746")
+  readonly property color glassBottom: solidSurfaces ? panelBackground : (lightMode ? "#EAF0F8" : "#1A202C")
+  readonly property color glassInnerEdge: lightMode ? "#38FFFFFF" : "#18FFFFFF"
+  readonly property color controlBase: lightMode ? "#E2E6ED" : "#293140"
+  readonly property real controlAlpha: lowEffects ? 1 : Math.max(0, Math.min(1, controlOpacity))
+  function controlFill(tint) {
+    return Qt.rgba(tint.r, tint.g, tint.b, controlAlpha);
+  }
+  readonly property color barCard: controlCenter ? controlFill(controlBase) : solidSurfaces ? controlBase : (lightMode ? "#38FFFFFF" : "#24A1B0CB")
+  readonly property color barBorder: lightMode ? "#66FFFFFF" : "#38FFFFFF"
+  readonly property color barText: lightMode ? "#101827" : "#F4F6FC"
+  readonly property color barMutedText: lightMode ? "#29354A" : "#C2CADB"
+  readonly property color barAccentText: lightMode ? Qt.darker(color12, 1.8) : Qt.lighter(color12, 1.5)
+  readonly property color barHover: lightMode ? "#180F2038" : "#20FFFFFF"
+  readonly property color barButtonHover: controlCenter ? controlFill(Qt.tint(controlBase, barHover)) : Qt.tint(barCard, barHover)
+  readonly property color barActive: {
+    const accent = Qt.rgba(barAccentText.r, barAccentText.g, barAccentText.b, lightMode ? 0.16 : 0.22);
+    return controlCenter ? controlFill(Qt.tint(controlBase, accent)) : accent;
+  }
+  readonly property color barSeparator: lightMode ? "#200F2038" : "#28FFFFFF"
+  readonly property color barCritical: lightMode ? "#AD1930" : "#FF9CAA"
 }
