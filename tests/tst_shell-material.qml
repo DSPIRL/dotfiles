@@ -42,6 +42,7 @@ Item {
       property int width: 1920
       property bool spotifyVisible: true
       property string spotifyDisplay: "Test track"
+      property string audioGlyph: "󰕾"
       property real sinkVolume: 0.38
       property bool sinkMuted: false
       property string bluetoothIcon: ""
@@ -50,7 +51,7 @@ Item {
       property int batteryPercent: 67
       property var displayBattery: ({state: 0})
       property color batteryTextColor: "#ff0000"
-      function volumeIcon(volume, muted) { return "󰕾"; }
+      function volumeIcon(volume, muted) { return audioGlyph; }
       function batteryIcon(percent, state) { return "󰁹"; }
     }
   }
@@ -239,10 +240,30 @@ Item {
         // The row and its text can each snap half a pixel when centered.
         fuzzyCompare(position.y + label.height / 2, 12, 1);
       }
-      for (const value of ["󰕾", "", "󰤨", "󰁹", "󰐥"]) {
+      for (const value of ["", "󰤨", "󰁹", "󰐥"]) {
         const icon = findText(indicators, value);
         compare(icon.font.family, Style.Typography.iconFamily);
         compare(icon.font.pixelSize, Style.Typography.barIconSize);
+      }
+      const audioIcon = findText(indicators, "󰕾");
+      compare(audioIcon.font.pixelSize, Style.Typography.barAudioIconSize);
+      compare(audioIcon.font.family, Style.Typography.iconFamily);
+      const originalAudioWidth = audioIcon.parent.implicitWidth;
+      for (const glyph of ["󰝟", "󰕿", "󰖀", "󰕾"]) {
+        bar.audioGlyph = glyph;
+        compare(audioIcon.width, Style.Typography.barAudioIconSize);
+        compare(audioIcon.parent.implicitWidth, originalAudioWidth, "Volume state must not change icon spacing");
+        compare(findText(indicators, "38%").font.pixelSize, Style.Typography.barSize);
+      }
+      const savedAudioSize = Style.Typography.barAudioIconSize;
+      try {
+        Style.Typography.barAudioIconSize = 22;
+        compare(audioIcon.font.pixelSize, 22);
+        compare(audioIcon.width, 22);
+        compare(findText(indicators, "").font.pixelSize, Style.Typography.barIconSize);
+        compare(findText(indicators, "38%").font.pixelSize, Style.Typography.barSize);
+      } finally {
+        Style.Typography.barAudioIconSize = savedAudioSize;
       }
       compare(findText(indicators, "67%").color, bar.batteryTextColor);
       compare(findText(indicators, "󰁹").color, bar.batteryTextColor);

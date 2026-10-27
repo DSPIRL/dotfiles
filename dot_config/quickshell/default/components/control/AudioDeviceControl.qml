@@ -31,21 +31,29 @@ Rectangle {
     spacing: 6
     Row {
       width: parent.width
+      height: Math.max(muteButton.implicitHeight, detailsButton.implicitHeight)
       spacing: 8
       ControlButton {
+        id: muteButton
+        objectName: root.input ? "microphoneMute" : "outputMute"
         wallust: root.wallust
-        width: 42
-        text: root.input ? (root.muted ? "" : "") : root.bar.volumeIcon(root.available ? root.defaultDevice.audio.volume : 0, root.muted)
-        font: root.muted ? Style.Typography.controlEmphasisIconFont : Style.Typography.controlIconFont
+        width: height
+        height: parent.height
+        leftPadding: 8
+        rightPadding: 8
+        text: root.input ? (root.muted ? "󰍭" : "󰍬") : root.bar.volumeIcon(root.available ? root.defaultDevice.audio.volume : 0, root.muted)
+        font: root.muted ? Style.Typography.controlEmphasisTileIconFont : Style.Typography.controlTileIconFont
         highlightedState: root.muted
         enabled: root.available
-        Accessible.name: root.input ? "Mute microphone" : "Mute output"
+        Accessible.name: (root.muted ? "Unmute " : "Mute ") + (root.input ? "microphone" : "output")
         onClicked: root.bar.toggleAudioDeviceMute(root.defaultDevice)
       }
       ControlButton {
+        id: detailsButton
         wallust: root.wallust
-        width: parent.width - 50
-        text: (root.input ? "Microphone" : "Output") + "  ·  " + (root.available ? (root.muted ? "Muted" : Math.round(root.defaultDevice.audio.volume * 100) + "%") : "Unavailable") + (root.input ? (root.expanded ? "  ▴" : "  ▾") : "")
+        width: parent.width - muteButton.width - parent.spacing
+        height: parent.height
+        text: (root.input ? "Microphone" : "Output") + "  ·  " + (root.available ? (root.muted ? "Muted" : Math.round(root.defaultDevice.audio.volume * 100) + "%") : "Unavailable") + (root.expanded ? "  ▴" : "  ▾")
         onClicked: root.expanded = !root.expanded
       }
     }

@@ -518,14 +518,14 @@ PanelWindow {
     }
 
     if (volume <= 0.33) {
-      return "";
+      return "󰕿";
     }
 
     if (volume <= 0.66) {
-      return "";
+      return "󰖀";
     }
 
-    return "";
+    return "󰕾";
   }
 
   function batteryIcon(percent, state) {

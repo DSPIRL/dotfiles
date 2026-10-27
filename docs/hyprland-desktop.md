@@ -36,10 +36,10 @@ chezmoi edit --apply ~/.config/quickshell/default/Typography.qml
 The managed source is `dot_config/quickshell/default/Typography.qml`. Its editable settings are grouped above the derived font roles:
 
 - **Defaults**: `textFamily`, `iconFamily`, `normalWeight`, `emphasisWeight`, and icon weights.
-- **Bar**: `barSize` changes every pill's text (default 14 logical pixels). Clock and workspace weights remain explicit; `barIconSize`/`barIconWeight` are independent.
+- **Bar**: `barSize` changes every pill's text (default 14 logical pixels). Clock and workspace weights remain explicit; `barIconSize`/`barIconWeight` are independent. `barAudioIconSize` defaults to 20 for optical balance of Material volume glyphs with the other 14-pixel icons. Its fixed-width slot prevents state-dependent crowding; bar height and text sizing are unchanged.
 - **Notifications**: title, body, metadata, and action sizes/weights. These apply to both popup and history-card content.
 - **Notification center**: the panel title, empty state, header buttons, and decorative icon, independent of notification content.
-- **Control center**: title, section headings, labels, emphasized buttons, hints, messages, metrics, and icons. `controlTileIconSize` controls the larger dashboard/category glyphs (default 20); `controlIconSize` retains the smaller device-control glyphs. Neither changes bar icons.
+- **Control center**: title, section headings, labels, emphasized buttons, hints, messages, metrics, and icons. `controlTileIconSize` controls dashboard/category and mute glyphs (default 20), with normal/emphasis weights; `controlIconSize` retains the small-icon font role. Neither changes bar icons. Audio and Quick mute targets are 40-pixel squares at the default typography, growing with text, and their adjacent headers match their height. Speaker/microphone glyphs use the same Material icon set.
 
 Area families/weights inherit shared defaults until explicitly overridden. Use positive pixel sizes and named weights such as `Font.Normal`, `Font.Medium`, `Font.DemiBold`, and `Font.Bold`. Font families must be installed; unavailable faces/weights may fall back or be synthesized. Tray icons/application logos are images, not fonts.
 

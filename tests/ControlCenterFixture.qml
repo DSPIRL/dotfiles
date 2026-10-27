@@ -78,7 +78,7 @@ ShellRoot {
     function toggleAudioDeviceMute(node) { desktop.actions.push("mute"); }
     function setDdcBrightness(display, value, maximum) { desktop.actions.push("ddc-brightness"); }
     function launchNetworkTui() { desktop.actions.push("network"); }
-    function volumeIcon(volume, muted) { return "♪"; }
+    function volumeIcon(volume, muted) { return muted ? "󰝟" : "󰕾"; }
     function runCommand(command) { desktop.actions.push(command); }
     function runHyprScript(command) { desktop.actions.push(command); }
     function launchTerminal(command) { desktop.actions.push(command); }
@@ -187,6 +187,8 @@ ShellRoot {
             check(panel.category === "quick" && page(), "Quick must be the initial page");
             check(label("Quick").height >= label("Quick").contentItem.implicitHeight + 16, "Category labels clipped");
             check(label("Low effects").visible, "Low effects not available");
+            const quickMute=named("quickOutputMute");
+            check(quickMute.width === quickMute.height && quickMute.font.pixelSize === Style.Typography.controlTileIconSize, "Quick mute icon geometry inconsistent");
             brightness.displays=[{monitor:"Synthetic monitor",current:50,maximum:100,display:7}];
             check(label("Synthetic monitor  ·  50%"), "Quick external brightness missing");
             brightness.displays=[];
@@ -246,6 +248,24 @@ ShellRoot {
           case 8: {
             const controls=page().children.filter(o => o.chooseDevice !== undefined);
             check(controls.length === 2, "Audio controls missing");
+            for (const control of controls) {
+              const prefix=control.input ? "Microphone" : "Output";
+              const header=walk(control,o => typeof o.text === "string" && o.text.startsWith(prefix));
+              check(header && header.text.endsWith("▴"), prefix + " expanded indicator missing");
+              const mute=named(control.input ? "microphoneMute" : "outputMute");
+              check(mute.width === mute.height && mute.height === header.height && mute.height >= 40, prefix + " mute target/header misaligned");
+              check(Math.abs(header.x - mute.x - mute.width - 8) < 0.01, prefix + " icon spacing inconsistent");
+              check(mute.font.pixelSize === Style.Typography.controlTileIconSize, prefix + " icon too small");
+              header.clicked();
+              check(!control.expanded && header.text.endsWith("▾"), prefix + " collapsed indicator missing");
+              header.clicked();
+              check(control.expanded && header.text.endsWith("▴"), prefix + " expanded indicator stale");
+            }
+            audioNode.audio.muted=true;
+            check(named("microphoneMute").text === "󰍭" && named("outputMute").text === "󰝟", "Muted glyphs not from the same icon set");
+            check(named("outputMute").font.pixelSize === Style.Typography.controlTileIconSize && named("outputMute").Accessible.name === "Unmute output", "Muted sizing/action label changed");
+            audioNode.audio.muted=false;
+            check(named("microphoneMute").text === "󰍬", "Unmuted microphone glyph inconsistent");
             controls[0].chooseDevice=true;
             controls[1].chooseDevice=true;
             check(!controls[0].chooseDevice, "Multiple device menus expanded");
