@@ -1,5 +1,6 @@
 local wezterm = require("wezterm")
 local config = {}
+local use_wallust = true -- Set to false to use the retained color scheme below.
 
 -- COLOR SCHEME --
 -- color_scheme = 'Catpuccin Mocha'
@@ -43,7 +44,7 @@ if operatingSystem == "Darwin" then
 else
 	config.enable_wayland = true
 	config.window_decorations = "TITLE | RESIZE"
-	config.window_background_opacity = 1.0
+	config.window_background_opacity = 0.90
 	config.enable_tab_bar = false
 	config.font_size = 13
 end
@@ -51,25 +52,38 @@ end
 config.adjust_window_size_when_changing_font_size = false
 config.hide_mouse_cursor_when_typing = true
 config.anti_alias_custom_block_glyphs = true
-config.font = wezterm.font("JetBrainsMono Nerd Font")
+config.font = wezterm.font("Hack Nerd Font")
 
 config.initial_cols = 150
 config.initial_rows = 50
 
--- MY COLOR SCHEME ---
-config.colors = {
-	foreground = "#CBE0F0",
-	background = "#080811",
-	cursor_bg = "#47FF9C",
-	cursor_border = "#47FF9C",
-	cursor_fg = "#011423",
-	selection_bg = "#033259",
-	selection_fg = "#CBE0F0",
-	ansi = { "#214969", "#E52E2E", "#44FFB1", "#FFE073", "#0FC5ED", "#a277ff", "#24EAF7", "#24EAF7" },
-	brights = { "#214969", "#E52E2E", "#44FFB1", "#FFE073", "#A277FF", "#a277ff", "#24EAF7", "#24EAF7" },
-}
+local wallust_colors
+if use_wallust then
+	local wallust_colors_path = wezterm.config_dir .. "/wallust.lua"
+	wezterm.add_to_config_reload_watch_list(wallust_colors_path)
+	local loaded, colors = pcall(dofile, wallust_colors_path)
+	if loaded and type(colors) == "table" then
+		wallust_colors = colors
+	end
+end
 
--- END MY COLOR SCHEME --
+if wallust_colors then
+	config.colors = wallust_colors
+else
+	-- MY COLOR SCHEME ---
+	config.colors = {
+		foreground = "#CBE0F0",
+		background = "#080811",
+		cursor_bg = "#47FF9C",
+		cursor_border = "#47FF9C",
+		cursor_fg = "#011423",
+		selection_bg = "#033259",
+		selection_fg = "#CBE0F0",
+		ansi = { "#214969", "#E52E2E", "#44FFB1", "#FFE073", "#0FC5ED", "#a277ff", "#24EAF7", "#24EAF7" },
+		brights = { "#214969", "#E52E2E", "#44FFB1", "#FFE073", "#A277FF", "#a277ff", "#24EAF7", "#24EAF7" },
+	}
+	-- END MY COLOR SCHEME --
+end
 
 -- config.window_background_image = "Users/raphi/.config/wezterm/painted.jpg"
 -- config.window_background_image_hsb = {
