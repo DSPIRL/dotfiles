@@ -1,19 +1,21 @@
 * {
-    selected-text: #171B22;
-    selected-background: {{color12}};
-
-    prompt-text: {{color0}};
-    prompt-background: transparent;
-
-    normal-text: #E8EDF5;
+    accent: {{color12}};
+    selected-text: #F4F6FC;
+    selected-background: {{color12}}38;
+    selected-border: {{color12}}66;
+    normal-text: #F4F6FC;
+    muted-text: #C2CADB;
     normal-background: transparent;
-
-    window-border: #FFFFFF26;
-    window-background: #171B22FA;
-
+    prompt-text: #C2CADB;
+    prompt-background: transparent;
+    window-border: #FFFFFF38;
+    window-background: #30374666;
+    window-bottom: #1A202C66;
+    window-image: linear-gradient(to bottom, #30374666, #1A202C66);
+    surface-background: #29314080;
+    surface-border: #FFFFFF18;
     scrollbar-filled: {{color12}};
-    scrollbar-empty: #242B35;
-
-    error-message: {{color7}};
-    error-message-border: {{color15}};
+    scrollbar-empty: #A1B0CB24;
+    error-message: #FF9CAA;
+    error-message-border: #FF9CAA;
 }

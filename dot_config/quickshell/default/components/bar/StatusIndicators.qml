@@ -1,4 +1,5 @@
 import QtQuick
+import "../.." as Style
 
 Row {
   id: root
@@ -15,18 +16,28 @@ Row {
     color: audioMouse.containsMouse ? wallust.barHover : "transparent"
 
     Behavior on color {
+      enabled: !root.wallust.lowEffects
       ColorAnimation {
         duration: 120
       }
     }
 
-    Text {
+    Row {
       id: audioLabel
       anchors.centerIn: parent
-      text: bar.defaultAudioSink ? bar.volumeIcon(bar.sinkVolume, bar.sinkMuted) + " " + Math.round(bar.sinkVolume * 100) + "%" : "󰝟 --"
-      color: wallust.barText
-      font.family: "Hack Nerd Font"
-      font.pixelSize: 15
+      spacing: 5
+      Text {
+        anchors.verticalCenter: parent.verticalCenter
+        text: root.bar.defaultAudioSink ? root.bar.volumeIcon(root.bar.sinkVolume, root.bar.sinkMuted) : "󰝟"
+        color: root.wallust.barText
+        font: Style.Typography.barIconFont
+      }
+      Text {
+        anchors.verticalCenter: parent.verticalCenter
+        text: root.bar.defaultAudioSink ? Math.round(root.bar.sinkVolume * 100) + "%" : "--"
+        color: root.wallust.barText
+        font: Style.Typography.barTextFont
+      }
     }
 
     MouseArea {
@@ -66,18 +77,29 @@ Row {
     color: bluetoothMouse.containsMouse ? wallust.barHover : "transparent"
 
     Behavior on color {
+      enabled: !root.wallust.lowEffects
       ColorAnimation {
         duration: 120
       }
     }
 
-    Text {
+    Row {
       id: bluetoothLabelView
       anchors.centerIn: parent
-      text: bar.bluetoothLabel.length > 0 ? bar.bluetoothIcon + " " + bar.bluetoothLabel : bar.bluetoothIcon
-      color: wallust.barText
-      font.family: "Hack Nerd Font"
-      font.pixelSize: 14
+      spacing: 5
+      Text {
+        anchors.verticalCenter: parent.verticalCenter
+        text: root.bar.bluetoothIcon
+        color: root.wallust.barText
+        font: Style.Typography.barIconFont
+      }
+      Text {
+        anchors.verticalCenter: parent.verticalCenter
+        visible: root.bar.bluetoothLabel.length > 0
+        text: root.bar.bluetoothLabel
+        color: root.wallust.barText
+        font: Style.Typography.barTextFont
+      }
     }
 
     MouseArea {
@@ -101,6 +123,7 @@ Row {
     color: networkMouse.containsMouse ? wallust.barHover : "transparent"
 
     Behavior on color {
+      enabled: !root.wallust.lowEffects
       ColorAnimation {
         duration: 120
       }
@@ -111,8 +134,7 @@ Row {
       anchors.centerIn: parent
       text: networkState.icon
       color: wallust.barText
-      font.family: "Hack Nerd Font"
-      font.pixelSize: 14
+      font: Style.Typography.barIconFont
     }
 
     MouseArea {
@@ -134,88 +156,34 @@ Row {
     color: batteryMouse.containsMouse ? wallust.barHover : "transparent"
 
     Behavior on color {
+      enabled: !root.wallust.lowEffects
       ColorAnimation {
         duration: 120
       }
     }
 
-    Text {
+    Row {
       id: batteryLabel
       anchors.centerIn: parent
-      text: bar.batteryIcon(bar.batteryPercent, bar.displayBattery.state) + " " + bar.batteryPercent + "%"
-      color: bar.batteryTextColor
-      font.family: "Hack Nerd Font"
-      font.pixelSize: 14
+      spacing: 5
+      Text {
+        anchors.verticalCenter: parent.verticalCenter
+        text: root.bar.batteryIcon(root.bar.batteryPercent, root.bar.displayBattery.state)
+        color: root.bar.batteryTextColor
+        font: Style.Typography.barIconFont
+      }
+      Text {
+        anchors.verticalCenter: parent.verticalCenter
+        text: root.bar.batteryPercent + "%"
+        color: root.bar.batteryTextColor
+        font: Style.Typography.barTextFont
+      }
     }
 
     MouseArea {
       id: batteryMouse
       anchors.fill: parent
       hoverEnabled: true
-    }
-  }
-
-  Rectangle {
-    implicitWidth: controlPanelLabel.implicitWidth + 12
-    implicitHeight: 24
-    radius: 10
-    color: controlPanelMouse.containsMouse || bar.controlPanelOpen ? wallust.barHover : "transparent"
-
-    Behavior on color {
-      ColorAnimation {
-        duration: 120
-      }
-    }
-
-    Text {
-      id: controlPanelLabel
-      anchors.centerIn: parent
-      text: "󰒓"
-      color: bar.controlPanelOpen ? wallust.color3 : wallust.barText
-      font.family: "Hack Nerd Font"
-      font.pixelSize: 14
-    }
-
-    MouseArea {
-      id: controlPanelMouse
-      anchors.fill: parent
-      hoverEnabled: true
-      acceptedButtons: Qt.LeftButton
-      cursorShape: Qt.PointingHandCursor
-
-      onClicked: bar.controlPanelOpen = !bar.controlPanelOpen
-    }
-  }
-
-  Rectangle {
-    implicitWidth: notificationLabel.implicitWidth + 12
-    implicitHeight: 24
-    radius: 10
-    color: notificationMouse.containsMouse ? wallust.barHover : "transparent"
-
-    Behavior on color {
-      ColorAnimation {
-        duration: 120
-      }
-    }
-
-    Text {
-      id: notificationLabel
-      anchors.centerIn: parent
-      text: bar.notificationCount > 0 ? " " + bar.notificationCount : ""
-      color: wallust.barText
-      font.family: "Hack Nerd Font"
-      font.pixelSize: 14
-    }
-
-    MouseArea {
-      id: notificationMouse
-      anchors.fill: parent
-      hoverEnabled: true
-      acceptedButtons: Qt.LeftButton
-      cursorShape: Qt.PointingHandCursor
-
-      onClicked: bar.notificationPanelOpen = !bar.notificationPanelOpen
     }
   }
 
@@ -234,6 +202,7 @@ Row {
     color: powerMouse.containsMouse ? wallust.barCritical : "transparent"
 
     Behavior on color {
+      enabled: !root.wallust.lowEffects
       ColorAnimation {
         duration: 120
       }
@@ -244,8 +213,7 @@ Row {
       anchors.centerIn: parent
       text: "󰐥"
       color: wallust.barText
-      font.family: "Hack Nerd Font"
-      font.pixelSize: 14
+      font: Style.Typography.barIconFont
     }
 
     MouseArea {

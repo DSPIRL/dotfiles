@@ -1,8 +1,15 @@
 -- Run from desktop-settings.sh: all files/state are in its temporary HOME.
 local configs, windows, layers = {}, {}, {}
+local opacity_updates = 0
 local function rule_store(store)
   return function(spec)
-    assert(not store[spec.name], "duplicate rule: " .. spec.name)
+    if spec.name == "opacity-toggle" then opacity_updates = opacity_updates + 1 end
+    -- Hyprland merges named rule declarations into the existing rule.
+    if store[spec.name] then
+      assert(spec.name == "opacity-toggle" or spec.name:match("^effects%-blur%-"), "unrelated rule redeclared")
+      for key, value in pairs(spec) do store[spec.name][key] = value end
+      return store[spec.name]
+    end
     function spec:set_enabled(enabled)
       assert(self.name == "opacity-toggle" or self.name:match("^effects%-blur%-"), "unrelated rule changed")
       self.enabled = enabled
@@ -32,7 +39,7 @@ local window_count, layer_count = count(windows), count(layers)
 local function preference(name, enabled)
   local path = os.getenv("XDG_STATE_HOME") .. "/hypr/effects/" .. name
   local file = assert(io.open(path, "w"))
-  file:write(enabled and "enabled\n" or "disabled\n")
+  file:write(type(enabled) == "boolean" and (enabled and "enabled\n" or "disabled\n") or tostring(enabled) .. "\n")
   file:close()
 end
 local function check(blur, opacity, low)
@@ -40,9 +47,13 @@ local function check(blur, opacity, low)
   assert(effects.blur == blur and effects.opacity == opacity and effects.low_effects == low)
   local config = configs[#configs]
   assert(config.decoration.blur.enabled == blur)
+  assert(config.decoration.blur.size == effects.blur_size)
+  assert(config.decoration.blur.passes == nil, "slider must not change blur passes")
   assert(config.decoration.shadow.enabled == not low)
   assert(config.animations.enabled == not low)
-  assert(windows["opacity-toggle"].enabled == not opacity)
+  local alpha = opacity and effects.window_opacity / 100 or 1
+  assert(windows["opacity-toggle"].enabled)
+  assert(windows["opacity-toggle"].opacity == string.format("%.2f override %.2f override 1.0 override", alpha, alpha))
   for _, namespace in ipairs({ "quickshell", "rofi", "notifications" }) do
     assert(layers["effects-blur-" .. namespace].enabled == blur)
   end
@@ -60,6 +71,30 @@ preference("opacity", true); preference("blur", false)
 check(false, true, false)
 preference("opacity", false)
 check(false, false, false)
+check(false, false, false)
+
+-- Numeric changes update the existing named rule and honor saved overrides.
+preference("window-opacity", 65); preference("blur-size", 11)
+preference("opacity", true); preference("blur", true)
+check(true, true, false)
+assert(effects.window_opacity == 65 and effects.blur_size == 11)
+local updates = opacity_updates
+check(true, true, false)
+assert(opacity_updates == updates, "unchanged opacity must not redeclare its rule")
+preference("low-effects", true)
+check(false, false, true)
+assert(effects.window_opacity == 65 and effects.blur_size == 11)
+preference("low-effects", false)
+check(true, true, false)
+preference("window-opacity", 0)
+check(true, true, false)
+preference("window-opacity", 100); preference("blur-size", 3)
+preference("opacity", false); preference("blur", false)
+check(false, false, false)
+
+-- The upgrade path reloads this module only, not monitor/window/layout modules.
+package.loaded["config.effects"] = nil
+effects = require("config.effects")
 check(false, false, false)
 
 local palette = os.getenv("HOME") .. "/.config/hypr/themes/wallust.lua"

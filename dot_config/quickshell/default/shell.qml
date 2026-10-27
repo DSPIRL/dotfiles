@@ -25,19 +25,29 @@ ShellRoot {
     id: awakeProcess
     command: ["systemd-inhibit", "--what=idle", "--mode=block", "--who=Quickshell", "--why=Keep awake", "sh", "-c", "read -r _"]
     stdinEnabled: true
+    property bool releasing: false
     stderr: StdioCollector { id: awakeError }
-    onStarted: if (!desktopSettings.keepAwake) write("\n")
+    onStarted: if (!desktopSettings.keepAwake) { releasing = true; write("\n"); }
     onExited: function(code) {
-      if (code !== 0 && desktopSettings.keepAwake)
-        desktopSettings.error = awakeError.text.trim() || "Could not inhibit automatic idle actions";
-      desktopSettings.keepAwake = false;
+      const resume = releasing && desktopSettings.keepAwake;
+      if (!releasing && desktopSettings.keepAwake) {
+        desktopSettings.error = awakeError.text.trim() || "Keep-awake inhibitor ended unexpectedly";
+        // Runtime failure is not a user request to erase the saved preference.
+        desktopSettings.keepAwakeFailed = true;
+      }
+      releasing = false;
+      if (resume) running = true;
     }
   }
   Connections {
     target: desktopSettings
     function onKeepAwakeChanged() {
-      if (desktopSettings.keepAwake) awakeProcess.running = true;
-      else if (awakeProcess.processId) awakeProcess.write("\n");
+      if (desktopSettings.keepAwake) {
+        if (!awakeProcess.running) awakeProcess.running = true;
+      } else if (awakeProcess.processId) {
+        awakeProcess.releasing = true;
+        awakeProcess.write("\n");
+      }
     }
   }
 
@@ -360,7 +370,7 @@ ShellRoot {
     function toggle(): void {
       shellRoot.notificationToggleGeneration += 1;
     }
-    function quiet(enabled: bool): void { desktopSettings.quiet = enabled; }
+    function quiet(enabled: bool): void { desktopSettings.setQuiet(enabled); }
     function isQuiet(): bool { return desktopSettings.quiet; }
   }
 
@@ -374,7 +384,7 @@ ShellRoot {
       shellRoot.sessionToggleGeneration += 1;
     }
     function keepAwake(enabled: bool): void {
-      desktopSettings.keepAwake = enabled && Boolean(desktopSettings.values.idleRunning);
+      desktopSettings.setKeepAwake(enabled);
     }
     function isKeepingAwake(): bool { return desktopSettings.keepAwake; }
   }

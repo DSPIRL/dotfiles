@@ -32,6 +32,8 @@ check_cmd checkupdates
 check_cmd playerctl
 
 check_file "$HOME/.config/quickshell/default/shell.qml"
+check_file "$HOME/.config/quickshell/default/Typography.qml"
+check_file "$HOME/.config/quickshell/default/qmldir"
 check_file "$HOME/.config/quickshell/default/components/BarWindow.qml"
 check_file "$HOME/.config/quickshell/default/components/control/ControlPanel.qml"
 check_file "$HOME/.config/quickshell/default/components/control/DesktopState.qml"

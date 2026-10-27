@@ -1,6 +1,11 @@
 @import "~/.config/rofi/config.rasi" 
 
+/* Rofi measures grid rows from the window font, not just element-text. */
+window { font: @emoji-font; }
+entry { font: @text-font; }
+
 textbox {
+    font: @text-font;
     vertical-align:   0.5;
     horizontal-align: 0.5;
 }
@@ -23,7 +28,7 @@ element {
 }
 
 element-text {
-    font: "Roboto 24";
+    font: @emoji-font;
     vertical-align:   0.5;
     horizontal-align: 0.5;
 }

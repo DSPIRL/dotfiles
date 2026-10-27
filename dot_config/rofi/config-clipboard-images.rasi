@@ -14,7 +14,17 @@ listview {
 }
 
 window {
-    width: 850px;
+    width: calc(95% min 850px);
+}
+
+@media (max-width: 760px) {
+    listview { columns: 2; }
+}
+@media (max-height: 900px) {
+    listview { lines: 2; }
+}
+@media (max-height: 650px) {
+    listview { lines: 1; }
 }
 
 element {

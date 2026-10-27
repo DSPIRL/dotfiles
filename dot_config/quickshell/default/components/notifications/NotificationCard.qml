@@ -1,5 +1,7 @@
 import QtQuick
 import Quickshell.Widgets
+import "../control"
+import "../.." as Style
 
 Rectangle {
   id: root
@@ -8,8 +10,8 @@ Rectangle {
   property var bar
   property var wallust
 
-  implicitHeight: notificationCardContent.implicitHeight + 20
-  radius: 14
+  implicitHeight: notificationCardContent.implicitHeight + 28
+  radius: 18
   color: notificationMouse.containsMouse ? Qt.tint(wallust.barCard, wallust.barHover) : wallust.barCard
   border.width: 1
   border.color: bar.notificationAccent(notification)
@@ -27,7 +29,7 @@ Rectangle {
     anchors.left: parent.left
     anchors.right: parent.right
     anchors.top: parent.top
-    anchors.margins: 10
+    anchors.margins: 14
     spacing: 8
 
     Row {
@@ -35,9 +37,9 @@ Rectangle {
       spacing: 10
 
       IconImage {
-        width: 14
-        height: 14
-        implicitSize: 10
+        width: 28
+        height: 28
+        implicitSize: 24
         source: bar.notificationIcon(notification)
       }
 
@@ -50,9 +52,7 @@ Rectangle {
           text: notification.summary && notification.summary.length > 0 ? notification.summary : notification.appName
           color: wallust.barText
           elide: Text.ElideRight
-          font.family: wallust.textFont
-          font.pixelSize: 14
-          font.bold: true
+          font: Style.Typography.notificationTitleFont
         }
 
         Text {
@@ -61,36 +61,21 @@ Rectangle {
           text: notification.appName
           color: wallust.barMutedText
           elide: Text.ElideRight
-          font.family: wallust.textFont
-          font.pixelSize: 12
+          font: Style.Typography.notificationMetaFont
         }
       }
 
-      Rectangle {
+      ControlButton {
         id: dismissButton
-
-        width: 24
-        height: 24
-        radius: 12
-        color: dismissMouse.containsMouse ? wallust.barHover : "transparent"
-
-        Text {
-          anchors.centerIn: parent
-          text: "󰅖"
-          color: wallust.barMutedText
-          font.family: "Hack Nerd Font"
-          font.pixelSize: 13
-        }
-
-        MouseArea {
-          id: dismissMouse
-
-          anchors.fill: parent
-          hoverEnabled: true
-          cursorShape: Qt.PointingHandCursor
-
-          onClicked: notification.dismiss()
-        }
+        width: Math.max(32, font.pixelSize + 8)
+        height: Math.max(32, contentItem.implicitHeight + 8)
+        leftPadding: 4
+        rightPadding: 4
+        wallust: root.wallust
+        font: Style.Typography.notificationActionFont
+        text: "×"
+        Accessible.name: "Dismiss notification"
+        onClicked: root.notification.dismiss()
       }
     }
 
@@ -103,8 +88,7 @@ Rectangle {
       wrapMode: Text.Wrap
       maximumLineCount: 6
       elide: Text.ElideRight
-      font.family: wallust.textFont
-      font.pixelSize: 13
+      font: Style.Typography.notificationBodyFont
     }
 
     Image {
@@ -116,7 +100,7 @@ Rectangle {
       clip: true
     }
 
-    Row {
+    Flow {
       visible: notification.actions.length > 0
       width: parent.width
       spacing: 6
@@ -124,38 +108,17 @@ Rectangle {
       Repeater {
         model: notification.actions
 
-        Rectangle {
+        ControlButton {
           required property var modelData
-          readonly property var action: modelData
-
-          width: actionLabel.implicitWidth + 16
-          height: 26
-          radius: 13
-          color: actionMouse.containsMouse ? wallust.barHover : "transparent"
-          border.width: 1
-          border.color: wallust.barBorder
-
-          Text {
-            id: actionLabel
-
-            anchors.centerIn: parent
-            text: action.text
-            color: wallust.barText
-            font.family: wallust.textFont
-            font.pixelSize: 12
-          }
-
-          MouseArea {
-            id: actionMouse
-
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-
-            onClicked: {
-              action.invoke();
-              notification.dismiss();
-            }
+          readonly property var notificationAction: modelData
+          width: Math.min(implicitWidth, parent.width)
+          height: Math.max(32, contentItem.implicitHeight + 8)
+          wallust: root.wallust
+          font: Style.Typography.notificationActionFont
+          text: notificationAction.text
+          onClicked: {
+            notificationAction.invoke();
+            root.notification.dismiss();
           }
         }
       }

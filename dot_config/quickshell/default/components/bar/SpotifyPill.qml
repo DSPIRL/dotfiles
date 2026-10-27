@@ -1,36 +1,26 @@
 import QtQuick
+import "../.." as Style
 
-Rectangle {
+Item {
   id: root
 
   property var bar
   property var wallust
 
   visible: bar.spotifyVisible
-  implicitWidth: bar.spotifyPlaying ? 250 : spotifyLabel.implicitWidth + 20
-  implicitHeight: 30
-  radius: implicitHeight / 2
-  color: spotifyMouse.containsMouse ? wallust.barHover : wallust.barBackground
-  border.width: 1
-  border.color: wallust.barBorder
-
-  Behavior on color {
-    ColorAnimation {
-      duration: 120
-    }
-  }
+  implicitWidth: 180
+  implicitHeight: 26
 
   Text {
     id: spotifyLabel
 
     anchors.centerIn: parent
-    width: bar.spotifyPlaying ? 230 : implicitWidth
+    width: parent.width - 16
     elide: Text.ElideRight
     horizontalAlignment: Text.AlignHCenter
     text: bar.spotifyDisplay
-    color: wallust.barText
-    font.family: "Hack Nerd Font"
-    font.pixelSize: 15
+    color: spotifyMouse.containsMouse ? wallust.barText : wallust.barMutedText
+    font: Style.Typography.barTextFont
   }
 
   MouseArea {

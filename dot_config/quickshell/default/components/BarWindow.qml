@@ -18,6 +18,8 @@ import "notifications"
 PanelWindow {
   id: barWindow
 
+  readonly property int pillMargin: 4
+
   anchors {
     top: true
     left: true
@@ -30,15 +32,59 @@ PanelWindow {
     right: 0
   }
 
-  implicitHeight: 38
-  visible: barVisible
+  implicitHeight: 36 + pillMargin * 2
+  // Keep the surface mapped so Hyprland cannot add a second show/hide animation.
+  // Once hidden it reserves no space and accepts no input.
+  visible: true
+  exclusionMode: ExclusionMode.Normal
+  exclusiveZone: barVisible || barReveal > 0 ? implicitHeight : 0
   color: "transparent"
 
+  property real barReveal: barVisible ? 1 : 0
+  readonly property bool barInteractive: barVisible && barReveal === 1
+
+  Behavior on barReveal {
+    enabled: !wallust.lowEffects
+    NumberAnimation {
+      id: revealAnimation
+      duration: 200
+      easing.type: Easing.OutCubic
+    }
+  }
+
   WlrLayershell.namespace: "quickshell"
+
+  // Only the glass islands receive input; gaps remain part of the desktop.
+  mask: Region {
+    Region { x: barWindow.pillMargin; y: barWindow.pillMargin; width: barWindow.barInteractive ? workspacePill.width : 0; height: workspacePill.height; radius: workspacePill.radius }
+    Region { x: barWindow.width - rightPill.width - barWindow.pillMargin; y: barWindow.pillMargin; width: barWindow.barInteractive ? rightPill.width : 0; height: rightPill.height; radius: rightPill.radius }
+    Region {
+      x: clockPill.x
+      y: clockPill.y
+      width: barWindow.barInteractive && clockPill.visible ? clockPill.width : 0
+      height: clockPill.height
+      radius: clockPill.radius
+    }
+  }
 
   Wallust.Colors {
     id: wallust
     lightMode: barWindow.desktopState && barWindow.desktopState.values.theme === "light"
+    lowEffects: Boolean(barWindow.desktopState && barWindow.desktopState.values.lowEffects)
+    onLowEffectsChanged: if (lowEffects) revealAnimation.complete()
+    glassOpacity: barWindow.desktopState ? barWindow.desktopState.glassOpacity / 100 : 0.4
+    solidSurfaces: lowEffects || !Boolean(barWindow.desktopState && barWindow.desktopState.values.effectiveShellGlass)
+  }
+
+  // Control fills have their own opacity, independent of shell glass.
+  Wallust.Colors {
+    id: controlColors
+    lightMode: wallust.lightMode
+    lowEffects: wallust.lowEffects
+    solidSurfaces: wallust.solidSurfaces
+    glassOpacity: wallust.glassOpacity
+    controlCenter: true
+    controlOpacity: barWindow.desktopState ? barWindow.desktopState.controlOpacity / 100 : 1
   }
 
   SystemClock {
@@ -211,8 +257,6 @@ PanelWindow {
 
     return wallust.barText;
   }
-
-  property bool toolsExpanded: false
 
   readonly property var spotifyPlayer: {
     const players = Mpris.players.values;
@@ -403,7 +447,8 @@ PanelWindow {
 
   function notificationIcon(notification) {
     if (notification && notification.appIcon && notification.appIcon.length > 0) {
-      return notification.appIcon;
+      const icon = notification.appIcon;
+      return icon.startsWith("/") || icon.indexOf(":") !== -1 ? icon : Quickshell.iconPath(icon);
     }
 
     return "";
@@ -422,7 +467,7 @@ PanelWindow {
   }
 
   function showNotificationToast(notification) {
-    if (!notification || !isFocusedMonitor() || (desktopState.quiet && notification.urgency !== NotificationUrgency.Critical)) {
+    if (!notification || !isFocusedMonitor() || ((!desktopState.loaded || desktopState.quiet) && notification.urgency !== NotificationUrgency.Critical)) {
       return;
     }
 
@@ -638,105 +683,37 @@ PanelWindow {
     }
   }
 
-  QtObject {
-    id: utilityState
-
-    property int cpuUsage: 0
-    property int memoryUsage: 0
-    property int temperature: 0
-    property bool hasTemperature: false
-    property bool hyprsunsetActive: false
-    property int updatesCount: -1
+  NotificationToast {
+    bar: barWindow
+    wallust: wallust
+    notification: barWindow.toastNotification
+    timer: toastTimer
   }
 
-  Process {
-    id: utilityStatsProcess
-
-    command: [
-      "sh",
-      "-c",
-      "read -r _ u1 n1 s1 i1 w1 q1 sq1 st1 _ < /proc/stat; t1=$((u1+n1+s1+i1+w1+q1+sq1+st1)); id1=$((i1+w1)); sleep 0.2; read -r _ u2 n2 s2 i2 w2 q2 sq2 st2 _ < /proc/stat; t2=$((u2+n2+s2+i2+w2+q2+sq2+st2)); id2=$((i2+w2)); dt=$((t2-t1)); did=$((id2-id1)); if [ $dt -gt 0 ]; then cpu=$(( (100*(dt-did))/dt )); else cpu=0; fi; memTotal=$(grep -m1 '^MemTotal:' /proc/meminfo | tr -s ' ' | cut -d' ' -f2); memAvail=$(grep -m1 '^MemAvailable:' /proc/meminfo | tr -s ' ' | cut -d' ' -f2); memTotal=${memTotal:-0}; memAvail=${memAvail:-0}; if [ $memTotal -gt 0 ] 2>/dev/null; then mem=$(( (100*(memTotal-memAvail))/memTotal )); else mem=0; fi; temp=-1; for f in /sys/class/thermal/thermal_zone*/temp; do if [ -r $f ]; then raw=$(cat $f); if [ $raw -gt 0 ] 2>/dev/null; then temp=$((raw/1000)); break; fi; fi; done; if pgrep -x hyprsunset >/dev/null 2>&1; then sunset=1; else sunset=0; fi; printf '%s;%s;%s;%s\n' $cpu $mem $temp $sunset"
-    ]
-
-    stdout: StdioCollector {
-      id: utilityStatsStdout
-      waitForEnd: true
-    }
-
-    onExited: function(exitCode, exitStatus) {
-      if (exitCode !== 0) {
-        return;
-      }
-
-      const line = utilityStatsStdout.text.trim();
-      const parts = line.split(";");
-      if (parts.length < 4) {
-        return;
-      }
-
-      utilityState.cpuUsage = parseInt(parts[0], 10) || 0;
-      utilityState.memoryUsage = parseInt(parts[1], 10) || 0;
-
-      const parsedTemp = parseInt(parts[2], 10);
-      utilityState.hasTemperature = !Number.isNaN(parsedTemp) && parsedTemp >= 0;
-      utilityState.temperature = utilityState.hasTemperature ? parsedTemp : 0;
-      utilityState.hyprsunsetActive = (parseInt(parts[3], 10) || 0) === 1;
-    }
+  NotificationPanel {
+    bar: barWindow
+    wallust: wallust
   }
 
-  Timer {
-    interval: 8000
-    running: barWindow.toolsExpanded
-    repeat: true
-    triggeredOnStart: true
-
-    onTriggered: if (!utilityStatsProcess.running) {
-      utilityStatsProcess.running = true;
-    }
-  }
-
-  Process {
-    id: updatesProcess
-
-    command: ["sh", "-c", "if command -v checkupdates >/dev/null 2>&1; then checkupdates 2>/dev/null | wc -l; else echo -1; fi"]
-
-    stdout: StdioCollector {
-      id: updatesStdout
-      waitForEnd: true
-    }
-
-    onExited: function(exitCode, exitStatus) {
-      if (exitCode !== 0) {
-        utilityState.updatesCount = -1;
-        return;
-      }
-
-      const parsed = parseInt(updatesStdout.text.trim(), 10);
-      utilityState.updatesCount = Number.isNaN(parsed) ? -1 : parsed;
-    }
-  }
-
-  Timer {
-    interval: 900000
-    running: true
-    repeat: true
-    triggeredOnStart: true
-
-    onTriggered: if (!updatesProcess.running) {
-      updatesProcess.running = true;
-    }
+  ControlPanel {
+    bar: barWindow
+    wallust: controlColors
   }
 
   Item {
     anchors.fill: parent
+    opacity: barWindow.barReveal
+    visible: barWindow.barReveal > 0
+    enabled: barWindow.barInteractive
+    transform: Translate { y: -12 * (1 - barWindow.barReveal) }
 
     RowLayout {
       anchors.fill: parent
-      anchors.leftMargin: 4
-      anchors.rightMargin: 4
-      anchors.topMargin: 2
-      anchors.bottomMargin: 2
-      spacing: 8
+      anchors.leftMargin: barWindow.pillMargin
+      anchors.rightMargin: barWindow.pillMargin
+      anchors.topMargin: barWindow.pillMargin
+      anchors.bottomMargin: barWindow.pillMargin
+      spacing: 12
 
       WorkspacePill {
         id: workspacePill
@@ -750,45 +727,18 @@ PanelWindow {
         id: rightPill
         bar: barWindow
         wallust: wallust
-        utilityState: utilityState
-        utilityStatsProcess: utilityStatsProcess
-        updatesProcess: updatesProcess
         networkState: networkState
       }
     }
 
-    NotificationToast {
-      bar: barWindow
-      wallust: wallust
-      notification: barWindow.toastNotification
-      timer: toastTimer
-    }
-
-    NotificationPanel {
-      bar: barWindow
-      wallust: wallust
-    }
-
-    ControlPanel {
-      bar: barWindow
-      wallust: wallust
-    }
-
     ClockPill {
       id: clockPill
-      anchors.verticalCenter: parent.verticalCenter
-      x: Math.max(workspacePill.width + 12, Math.min((parent.width - width) / 2, parent.width - rightPill.width - width - 12))
-      visible: parent.width > workspacePill.width + rightPill.width + width + 24
+      x: (parent.width - width) / 2
+      y: barWindow.pillMargin
+      visible: x > workspacePill.width + barWindow.pillMargin + 12 && x + width < parent.width - rightPill.width - barWindow.pillMargin - 12
       bar: barWindow
       wallust: wallust
       clock: clock
-    }
-    SpotifyPill {
-      anchors.verticalCenter: parent.verticalCenter
-      x: clockPill.x - width - 8
-      visible: barWindow.spotifyVisible && clockPill.visible && x > workspacePill.width + 12
-      bar: barWindow
-      wallust: wallust
     }
   }
 }

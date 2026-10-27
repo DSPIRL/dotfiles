@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import "../.." as Style
 
 Rectangle {
   id: root
@@ -29,7 +30,7 @@ Rectangle {
         wallust: root.wallust
         width: 42
         text: root.input ? (root.muted ? "" : "") : root.bar.volumeIcon(root.available ? root.defaultDevice.audio.volume : 0, root.muted)
-        font.family: root.wallust.iconFont
+        font: root.muted ? Style.Typography.controlEmphasisIconFont : Style.Typography.controlIconFont
         highlightedState: root.muted
         enabled: root.available
         Accessible.name: root.input ? "Mute microphone" : "Mute output"

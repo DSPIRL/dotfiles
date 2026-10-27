@@ -29,6 +29,7 @@ Row {
       }
 
       Behavior on color {
+        enabled: !root.wallust.lowEffects
         ColorAnimation {
           duration: 120
         }

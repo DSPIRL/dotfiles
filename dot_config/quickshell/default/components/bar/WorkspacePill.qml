@@ -1,19 +1,16 @@
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
+import ".."
+import "../.." as Style
 
-Rectangle {
+GlassSurface {
   id: root
 
   property var bar
-  property var wallust
 
-  implicitWidth: workspaceRow.implicitWidth + 10
-  implicitHeight: 32
-  radius: implicitHeight / 2
-  color: wallust.barBackground
-  border.width: 1
-  border.color: wallust.barBorder
+  implicitWidth: workspaceRow.implicitWidth + 16
+  implicitHeight: 36
 
   MouseArea {
     anchors.fill: parent
@@ -38,15 +35,17 @@ Rectangle {
         readonly property var workspace: modelData
 
         visible: workspace.id > 0
-        radius: 10
-        implicitWidth: workspaceLabel.implicitWidth + 16
-        implicitHeight: 24
+        radius: 13
+        implicitWidth: workspace.active ? 36 : 28
+        implicitHeight: 26
         border.width: workspace.urgent ? 1 : 0
         border.color: wallust.color3
         opacity: bar.hyprMonitor && workspace.monitor && workspace.monitor.id !== bar.hyprMonitor.id ? 0.55 : 1
         color: workspace.active ? wallust.barActive : (workspaceMouse.containsMouse ? wallust.barHover : "transparent")
 
+        Behavior on implicitWidth { enabled: !root.wallust.lowEffects; NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
         Behavior on color {
+          enabled: !root.wallust.lowEffects
           ColorAnimation {
             duration: 120
           }
@@ -58,8 +57,7 @@ Rectangle {
           anchors.centerIn: parent
           text: bar.workspaceText(workspace)
           color: workspace.active ? wallust.barAccentText : wallust.barMutedText
-          font.family: wallust.textFont
-          font.pixelSize: 16
+          font: workspace.active ? Style.Typography.barActiveWorkspaceFont : Style.Typography.barWorkspaceFont
         }
 
         MouseArea {
@@ -72,6 +70,12 @@ Rectangle {
           onClicked: workspace.activate()
         }
       }
+    }
+
+    SpotifyPill {
+      visible: bar.spotifyVisible && bar.width > 1200
+      bar: root.bar
+      wallust: root.wallust
     }
   }
 }
