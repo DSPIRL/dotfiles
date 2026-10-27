@@ -61,6 +61,7 @@ QtObject {
   property int controlMessageWeight: normalWeight
   property int controlMetricSize: 20
   property int controlMetricWeight: emphasisWeight
+  property int controlTileIconSize: 20
   property int controlIconSize: 13
   property int controlIconWeight: iconWeight
   property int controlEmphasisIconWeight: iconEmphasisWeight
@@ -89,6 +90,7 @@ QtObject {
   readonly property font controlHintFont: Qt.font({family: controlFamily, pixelSize: controlHintSize, weight: controlHintWeight})
   readonly property font controlMessageFont: Qt.font({family: controlFamily, pixelSize: controlMessageSize, weight: controlMessageWeight})
   readonly property font controlMetricFont: Qt.font({family: controlFamily, pixelSize: controlMetricSize, weight: controlMetricWeight})
+  readonly property font controlTileIconFont: Qt.font({family: iconFamily, pixelSize: controlTileIconSize, weight: controlIconWeight})
   readonly property font controlIconFont: Qt.font({family: iconFamily, pixelSize: controlIconSize, weight: controlIconWeight})
   readonly property font controlEmphasisIconFont: Qt.font({family: iconFamily, pixelSize: controlIconSize, weight: controlEmphasisIconWeight})
 }

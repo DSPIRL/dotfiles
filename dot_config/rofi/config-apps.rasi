@@ -1,6 +1,31 @@
-@import "~/.config/rofi/config.rasi" 
+@import "~/.config/rofi/config.rasi"
 
-/* ---- Entry ---- */
-entry {
-    placeholder: " 💻️ Apps";
+configuration {
+    show-icons: true;
+    drun-display-format: "{name}";
+    /* Retain generic/keyword matching; descriptions remain searchable, not visible. */
+    drun-match-fields: "name,generic,exec,categories,keywords,comment";
+}
+entry { placeholder: "Search applications…"; }
+listview {
+    lines: 6;
+    spacing: 0px;
+    padding: 6px;
+}
+element {
+    padding: 12px 14px;
+    spacing: 16px;
+    border: 0px 0px 1px 0px;
+    border-color: @surface-border;
+    border-radius: 0px;
+}
+element selected normal, element selected active, element selected urgent {
+    border: 1px;
+    border-color: @selected-border;
+    border-radius: @card-radius;
+}
+element-icon { size: 42px; vertical-align: 0.5; }
+/* Short displays retain the layout without pushing rows off screen. */
+@media ( max-height: 800px ) {
+    listview { lines: 4; }
 }

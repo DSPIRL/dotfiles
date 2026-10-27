@@ -10,7 +10,8 @@ Slider {
   implicitHeight: 28
   leftPadding: 7
   rightPadding: 7
-  wheelEnabled: true
+  // Let wheel events reach the page Flickable, even while the slider has focus.
+  wheelEnabled: false
 
   background: Rectangle {
     x: root.leftPadding
