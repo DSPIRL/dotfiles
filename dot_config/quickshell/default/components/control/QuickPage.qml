@@ -31,18 +31,26 @@ Column {
       spacing: 8
       Row {
         width: parent.width
+        height: Math.max(muteButton.implicitHeight, audioDetails.implicitHeight)
         spacing: 8
         ControlButton {
-          width: 44
+          id: muteButton
+          objectName: "quickOutputMute"
+          width: height
+          height: parent.height
+          leftPadding: 8
+          rightPadding: 8
           wallust: root.wallust
           text: root.bar.volumeIcon(root.bar.defaultAudioSink && root.bar.defaultAudioSink.audio ? root.bar.defaultAudioSink.audio.volume : 0, Boolean(root.bar.defaultAudioSink && root.bar.defaultAudioSink.audio && root.bar.defaultAudioSink.audio.muted))
-          font: Style.Typography.controlIconFont
+          font: Style.Typography.controlTileIconFont
           enabled: Boolean(root.bar.defaultAudioSink && root.bar.defaultAudioSink.audio)
-          Accessible.name: "Mute output"
+          Accessible.name: root.bar.defaultAudioSink && root.bar.defaultAudioSink.audio && root.bar.defaultAudioSink.audio.muted ? "Unmute output" : "Mute output"
           onClicked: root.bar.toggleAudioDeviceMute(root.bar.defaultAudioSink)
         }
         ControlButton {
-          width: parent.width - 52
+          id: audioDetails
+          width: parent.width - muteButton.width - parent.spacing
+          height: parent.height
           wallust: root.wallust
           text: root.bar.defaultAudioSink && root.bar.defaultAudioSink.audio ? "Output · " + (root.bar.defaultAudioSink.audio.muted ? "Muted" : Math.round(root.bar.defaultAudioSink.audio.volume * 100) + "%") + "  ›" : "Audio settings  ›"
           Accessible.name: "Open audio settings"

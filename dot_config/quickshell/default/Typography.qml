@@ -21,6 +21,8 @@ QtObject {
   property int barClockWeight: emphasisWeight
   property int barWorkspaceWeight: Font.Medium
   property int barActiveWorkspaceWeight: Font.Bold
+  // Material volume glyphs need a larger em to match neighboring icons optically.
+  property int barAudioIconSize: 20
   property int barIconSize: 14
   property int barIconWeight: iconWeight
 
@@ -71,6 +73,7 @@ QtObject {
   readonly property font barClockFont: Qt.font({family: barFamily, pixelSize: barSize, weight: barClockWeight})
   readonly property font barWorkspaceFont: Qt.font({family: barFamily, pixelSize: barSize, weight: barWorkspaceWeight})
   readonly property font barActiveWorkspaceFont: Qt.font({family: barFamily, pixelSize: barSize, weight: barActiveWorkspaceWeight})
+  readonly property font barAudioIconFont: Qt.font({family: iconFamily, pixelSize: barAudioIconSize, weight: barIconWeight})
   readonly property font barIconFont: Qt.font({family: iconFamily, pixelSize: barIconSize, weight: barIconWeight})
 
   readonly property font notificationTitleFont: Qt.font({family: notificationFamily, pixelSize: notificationTitleSize, weight: notificationTitleWeight})
@@ -91,6 +94,7 @@ QtObject {
   readonly property font controlMessageFont: Qt.font({family: controlFamily, pixelSize: controlMessageSize, weight: controlMessageWeight})
   readonly property font controlMetricFont: Qt.font({family: controlFamily, pixelSize: controlMetricSize, weight: controlMetricWeight})
   readonly property font controlTileIconFont: Qt.font({family: iconFamily, pixelSize: controlTileIconSize, weight: controlIconWeight})
+  readonly property font controlEmphasisTileIconFont: Qt.font({family: iconFamily, pixelSize: controlTileIconSize, weight: controlEmphasisIconWeight})
   readonly property font controlIconFont: Qt.font({family: iconFamily, pixelSize: controlIconSize, weight: controlIconWeight})
   readonly property font controlEmphasisIconFont: Qt.font({family: iconFamily, pixelSize: controlIconSize, weight: controlEmphasisIconWeight})
 }

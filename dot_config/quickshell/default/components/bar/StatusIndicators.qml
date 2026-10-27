@@ -28,9 +28,12 @@ Row {
       spacing: 5
       Text {
         anchors.verticalCenter: parent.verticalCenter
+        // A stable em-wide slot contains Nerd Font overhangs in every state.
+        width: Style.Typography.barAudioIconSize
+        horizontalAlignment: Text.AlignHCenter
         text: root.bar.defaultAudioSink ? root.bar.volumeIcon(root.bar.sinkVolume, root.bar.sinkMuted) : "󰝟"
         color: root.wallust.barText
-        font: Style.Typography.barIconFont
+        font: Style.Typography.barAudioIconFont
       }
       Text {
         anchors.verticalCenter: parent.verticalCenter
