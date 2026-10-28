@@ -102,7 +102,7 @@ local animations = {
 	{ leaf = "workspacesOut", enabled = true, speed = 3.5, bezier = "workspaceSmooth", style = "slide" },
 	-- Hyprland applies these to all special workspaces, not only the dropdown.
 	{ leaf = "specialWorkspaceIn", enabled = true, speed = 3.5, bezier = "workspaceSmooth", style = "slidevert top" },
-	{ leaf = "specialWorkspaceOut", enabled = true, speed = 3.5, bezier = "workspaceSmooth", style = "slidevert bottom" },
+	{ leaf = "specialWorkspaceOut", enabled = true, speed = 3.85, bezier = "workspaceSmooth", style = "slidevert bottom" },
 }
 
 for _, animation in ipairs(animations) do
