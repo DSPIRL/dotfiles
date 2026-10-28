@@ -32,7 +32,7 @@ hl.config({
 		inactive_opacity = 1.0,
 		fullscreen_opacity = 1.0,
 		dim_strength = 0.1,
-		dim_special = 0.8,
+		dim_special = 0,
 
 		shadow = {
 			range = 20,
@@ -45,7 +45,7 @@ hl.config({
 		blur = {
 			size = 3,
 			passes = 3,
-			xray = true,
+			xray = false,
 			ignore_opacity = true,
 			vibrancy = 0.2,
 			popups = true,
@@ -100,6 +100,9 @@ local animations = {
 	{ leaf = "workspaces", enabled = true, speed = 3.5, bezier = "workspaceSmooth" },
 	{ leaf = "workspacesIn", enabled = true, speed = 3.5, bezier = "workspaceSmooth", style = "slide" },
 	{ leaf = "workspacesOut", enabled = true, speed = 3.5, bezier = "workspaceSmooth", style = "slide" },
+	-- Hyprland applies these to all special workspaces, not only the dropdown.
+	{ leaf = "specialWorkspaceIn", enabled = true, speed = 3.5, bezier = "workspaceSmooth", style = "slidevert top" },
+	{ leaf = "specialWorkspaceOut", enabled = true, speed = 3.5, bezier = "workspaceSmooth", style = "slidevert bottom" },
 }
 
 for _, animation in ipairs(animations) do

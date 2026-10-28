@@ -30,8 +30,8 @@ local env = {
 	HYPR_CONFIG_PATH = home .. "/.config/hypr",
 	HYPR_SCRIPTS = home .. "/.config/hypr/scripts",
     HYPRLAND_CONFIG = home .. "/.config/hypr",
-	TERMINAL = "alacritty",
-	USER_TERMINAL = "ghostty",
+	TERMINAL = "wezterm",
+	USER_TERMINAL = "wezterm",
 	VISUAL = "nvim",
 }
 
