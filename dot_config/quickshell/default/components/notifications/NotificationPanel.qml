@@ -3,7 +3,6 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Wayland
 import ".."
-import "../control"
 import "../.." as Style
 
 PanelWindow {
@@ -41,7 +40,7 @@ PanelWindow {
     focus: true
     implicitHeight: notificationPanelColumn.implicitHeight + 40
     wallust: root.wallust
-    radius: 26
+    radius: Style.Tokens.panelRadius
 
     Keys.onEscapePressed: bar.notificationPanelOpen = false
 
@@ -69,7 +68,7 @@ PanelWindow {
           elide: Text.ElideRight
         }
 
-        ControlButton {
+        ActionButton {
           id: clearAllButton
           visible: bar.notificationCount > 0
           width: Math.max(64, implicitWidth)
@@ -79,7 +78,7 @@ PanelWindow {
           Accessible.name: "Clear all notifications"
           onClicked: root.bar.clearNotifications()
         }
-        ControlButton {
+        ActionButton {
           id: closeButton
           width: Math.max(40, font.pixelSize + 24)
           wallust: root.wallust

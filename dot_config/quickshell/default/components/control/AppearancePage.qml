@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import ".."
 import "../.." as Style
 
 Column {
@@ -8,7 +9,7 @@ Column {
   required property var wallust
   readonly property var desktop: bar.desktopState
   readonly property bool ready: desktop.loaded && !desktop.busy
-  spacing: 12
+  spacing: Style.Tokens.controlPageSpacing
   component Heading: Text {
     width: parent.width
     font: Style.Typography.controlHeadingFont
@@ -146,7 +147,7 @@ Column {
       Accessible.name: "Theme"
       Repeater {
         model: ["light", "dark"]
-        ControlButton {
+        ActionButton {
           required property string modelData
           objectName: modelData + "ThemeChoice"
           width: Math.min(implicitWidth, (root.width - 30) / 2)
@@ -165,7 +166,7 @@ Column {
       }
     }
   }
-  ControlButton {
+  ActionButton {
     id: wallpaperButton
     objectName: "wallpaperChoice"
     width: parent.width
@@ -212,7 +213,7 @@ Column {
     checked: root.bar.barVisible
     onToggled: root.bar.setBarVisible(checked)
   }
-  ControlButton {
+  ActionButton {
     width: parent.width
     wallust: root.wallust
     symbol: "󰏘"

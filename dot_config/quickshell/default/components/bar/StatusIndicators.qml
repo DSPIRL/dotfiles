@@ -7,18 +7,22 @@ Row {
   property var bar
   property var wallust
   property var networkState
-  spacing: 3
+  spacing: Style.Tokens.barItemSpacing
 
   Rectangle {
+    id: audioIndicator
     implicitWidth: audioLabel.implicitWidth + 12
-    implicitHeight: 24
-    radius: 10
-    color: audioMouse.containsMouse ? wallust.barHover : "transparent"
+    implicitHeight: Style.Tokens.barIndicatorHeight
+    radius: Style.Tokens.barIndicatorRadius
+    Binding on color { value: audioMouse.containsMouse ? wallust.barHover : "transparent" }
 
+    // Disabling Behavior alone leaves its animation running. Write only after it
+    // is disabled; the Binding element survives the write and tracks later hovers.
     Behavior on color {
       enabled: !root.wallust.lowEffects
+      onEnabledChanged: if (!enabled) audioIndicator.color = targetValue
       ColorAnimation {
-        duration: 120
+        duration: Style.Tokens.barStateColorDuration
       }
     }
 
@@ -52,13 +56,12 @@ Row {
 
       onClicked: function(mouse) {
         if (mouse.button === Qt.LeftButton) {
-          bar.runCommand(["pavucontrol"]);
+          bar.controlPanelOpen = true;
+          bar.categoryRequested("audio");
           return;
         }
 
-        if (bar.defaultAudioSink && bar.defaultAudioSink.audio) {
-          bar.defaultAudioSink.audio.muted = !bar.defaultAudioSink.audio.muted;
-        }
+        bar.toggleAudioDeviceMute(bar.defaultAudioSink);
       }
 
       onWheel: function(wheel) {
@@ -67,22 +70,23 @@ Row {
         }
 
         const step = wheel.angleDelta.y > 0 ? 0.03 : -0.03;
-        const nextVolume = Math.max(0, Math.min(1, bar.defaultAudioSink.audio.volume + step));
-        bar.defaultAudioSink.audio.volume = nextVolume;
+        bar.setAudioDeviceVolume(bar.defaultAudioSink, bar.defaultAudioSink.audio.volume + step);
       }
     }
   }
 
   Rectangle {
+    id: bluetoothIndicator
     implicitWidth: bluetoothLabelView.implicitWidth + 12
-    implicitHeight: 24
-    radius: 10
-    color: bluetoothMouse.containsMouse ? wallust.barHover : "transparent"
+    implicitHeight: Style.Tokens.barIndicatorHeight
+    radius: Style.Tokens.barIndicatorRadius
+    Binding on color { value: bluetoothMouse.containsMouse ? wallust.barHover : "transparent" }
 
     Behavior on color {
       enabled: !root.wallust.lowEffects
+      onEnabledChanged: if (!enabled) bluetoothIndicator.color = targetValue
       ColorAnimation {
-        duration: 120
+        duration: Style.Tokens.barStateColorDuration
       }
     }
 
@@ -112,7 +116,12 @@ Row {
       acceptedButtons: Qt.LeftButton | Qt.RightButton
       cursorShape: Qt.PointingHandCursor
 
-      onClicked: {
+      onClicked: function(mouse) {
+        if (mouse.button === Qt.LeftButton) {
+          bar.controlPanelOpen = true;
+          bar.categoryRequested("quick");
+          return;
+        }
         if (bar.desktopState.values.bluetoothSettings) bar.runCommand(["blueman-manager"]);
         else { bar.desktopState.error = "Bluetooth settings require blueman-manager"; bar.controlPanelOpen = true; }
       }
@@ -120,15 +129,17 @@ Row {
   }
 
   Rectangle {
+    id: networkIndicator
     implicitWidth: networkLabel.implicitWidth + 12
-    implicitHeight: 24
-    radius: 10
-    color: networkMouse.containsMouse ? wallust.barHover : "transparent"
+    implicitHeight: Style.Tokens.barIndicatorHeight
+    radius: Style.Tokens.barIndicatorRadius
+    Binding on color { value: networkMouse.containsMouse ? wallust.barHover : "transparent" }
 
     Behavior on color {
       enabled: !root.wallust.lowEffects
+      onEnabledChanged: if (!enabled) networkIndicator.color = targetValue
       ColorAnimation {
-        duration: 120
+        duration: Style.Tokens.barStateColorDuration
       }
     }
 
@@ -147,21 +158,23 @@ Row {
       acceptedButtons: Qt.LeftButton
       cursorShape: Qt.PointingHandCursor
 
-      onClicked: bar.launchNetworkTui()
+      onClicked: { bar.controlPanelOpen = true; bar.categoryRequested("quick"); }
     }
   }
 
   Rectangle {
+    id: batteryIndicator
     visible: bar.hasBattery
     implicitWidth: batteryLabel.implicitWidth + 12
-    implicitHeight: 24
-    radius: 10
-    color: batteryMouse.containsMouse ? wallust.barHover : "transparent"
+    implicitHeight: Style.Tokens.barIndicatorHeight
+    radius: Style.Tokens.barIndicatorRadius
+    Binding on color { value: batteryMouse.containsMouse ? wallust.barHover : "transparent" }
 
     Behavior on color {
       enabled: !root.wallust.lowEffects
+      onEnabledChanged: if (!enabled) batteryIndicator.color = targetValue
       ColorAnimation {
-        duration: 120
+        duration: Style.Tokens.barStateColorDuration
       }
     }
 
@@ -199,15 +212,17 @@ Row {
   }
 
   Rectangle {
+    id: powerIndicator
     implicitWidth: powerLabel.implicitWidth + 12
-    implicitHeight: 24
-    radius: 10
-    color: powerMouse.containsMouse ? wallust.barCritical : "transparent"
+    implicitHeight: Style.Tokens.barIndicatorHeight
+    radius: Style.Tokens.barIndicatorRadius
+    Binding on color { value: powerMouse.containsMouse ? wallust.barCritical : "transparent" }
 
     Behavior on color {
       enabled: !root.wallust.lowEffects
+      onEnabledChanged: if (!enabled) powerIndicator.color = targetValue
       ColorAnimation {
-        duration: 120
+        duration: Style.Tokens.barStateColorDuration
       }
     }
 

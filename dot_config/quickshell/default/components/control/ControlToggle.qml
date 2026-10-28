@@ -26,13 +26,18 @@ Switch {
     color: root.checked ? root.wallust.barAccentText : root.wallust.barMutedText
     opacity: root.enabled ? 1 : 0.5
     Rectangle {
-      x: root.checked ? 19 : 3
+      id: thumb
+      Binding on x { value: root.checked ? 19 : 3 }
       y: 3
       width: 14
       height: 14
       radius: 7
       color: root.wallust.lightMode ? "#FFFFFF" : "#171B22"
-      Behavior on x { enabled: !root.wallust.lowEffects; NumberAnimation { duration: 100 } }
+      Behavior on x {
+        enabled: !root.wallust.lowEffects
+        onEnabledChanged: if (!enabled) thumb.x = targetValue
+        NumberAnimation { duration: 100 }
+      }
     }
   }
   contentItem: Item {

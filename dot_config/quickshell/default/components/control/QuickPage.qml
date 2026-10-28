@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import ".."
 import "../.." as Style
 
 Column {
@@ -8,7 +9,15 @@ Column {
   required property var wallust
   readonly property var desktop: bar.desktopState
   readonly property bool ready: desktop.loaded && !desktop.busy
-  spacing: 12
+  required property var radios
+  readonly property var wifi: radios.wifi
+
+  function dismissDetails() {
+    if (wifiMenu.visible) { wifiMenu.close(); return true; }
+    if (bluetoothMenu.visible) { bluetoothMenu.close(); return true; }
+    return false;
+  }
+  spacing: Style.Tokens.controlPageSpacing
 
   signal categoryRequested(string category)
 
@@ -33,7 +42,7 @@ Column {
         width: parent.width
         height: Math.max(muteButton.implicitHeight, audioDetails.implicitHeight)
         spacing: 8
-        ControlButton {
+        ActionButton {
           id: muteButton
           objectName: "quickOutputMute"
           width: height
@@ -47,7 +56,7 @@ Column {
           Accessible.name: root.bar.defaultAudioSink && root.bar.defaultAudioSink.audio && root.bar.defaultAudioSink.audio.muted ? "Unmute output" : "Mute output"
           onClicked: root.bar.toggleAudioDeviceMute(root.bar.defaultAudioSink)
         }
-        ControlButton {
+        ActionButton {
           id: audioDetails
           width: parent.width - muteButton.width - parent.spacing
           height: parent.height
@@ -87,32 +96,57 @@ Column {
     width: parent.width
     columns: 2
     spacing: 8
-    ControlButton {
+    ActionButton {
       width: (parent.width - 8) / 2
       wallust: root.wallust
+      objectName: "quickNetwork"
       symbol: ""
-      text: "Network"
-      subtitle: root.bar.networkStatus
-      enabled: root.ready && Boolean(root.desktop.values.networkSettings)
-      Accessible.name: "Open network settings"
+      text: "Wi-Fi"
+      subtitle: !root.radios.wifiAvailable ? "NetworkManager unavailable" : !root.wifi.wifiHardwareEnabled ? "Hardware blocked" : root.radios.wifiError || (root.radios.wifiPending ? "Changing…" : root.wifi.wifiEnabled ? "On" : "Off")
+      enabled: !root.radios.wifiPending && root.radios.wifiAvailable && root.wifi.wifiHardwareEnabled
+      highlightedState: root.wifi.wifiEnabled
+      Accessible.name: root.wifi.wifiEnabled ? "Turn Wi-Fi off" : "Turn Wi-Fi on"
+      Accessible.role: Accessible.CheckBox
+      Accessible.checked: root.wifi.wifiEnabled
+      Accessible.description: subtitle + ". When this tile is enabled, right-click, press the Menu key, or press Shift+F10 for network settings."
       ToolTip.visible: hovered
-      ToolTip.text: "Open network settings in nmtui"
-      onClicked: root.bar.launchNetworkTui()
+      ToolTip.text: "Right-click for network settings"
+      onClicked: root.radios.toggleWifi()
+      Keys.onPressed: event => { if (event.key === Qt.Key_Menu || (event.key === Qt.Key_F10 && (event.modifiers & Qt.ShiftModifier))) { wifiMenu.open(); event.accepted = true; } }
+      TapHandler { acceptedButtons: Qt.RightButton; onTapped: wifiMenu.open() }
+      Menu {
+        id: wifiMenu
+        objectName: "wifiMenu"
+        x: 0; y: parent.height
+        MenuItem { objectName: "wifiSettings"; text: "Open network settings"; enabled: root.ready && Boolean(root.desktop.values.networkSettings); onTriggered: root.bar.launchNetworkTui() }
+      }
     }
-    ControlButton {
+    ActionButton {
       width: (parent.width - 8) / 2
       wallust: root.wallust
       symbol: ""
       text: "Bluetooth"
-      subtitle: root.desktop.values.bluetoothSettings ? root.bar.bluetoothTooltip : "Install blueman for settings"
+      objectName: "quickBluetooth"
+      subtitle: !root.bar.bluetoothAdapter ? "Adapter unavailable" : root.radios.bluetoothBlocked ? "Hardware blocked" : root.radios.bluetoothError || (root.radios.bluetoothPending || root.radios.bluetoothChanging ? "Changing…" : root.bar.bluetoothTooltip)
+      enabled: !root.radios.bluetoothPending && Boolean(root.bar.bluetoothAdapter) && !root.radios.bluetoothBlocked && !root.radios.bluetoothChanging
       highlightedState: Boolean(root.bar.bluetoothAdapter && root.bar.bluetoothAdapter.enabled)
-      enabled: root.ready && Boolean(root.desktop.values.bluetoothSettings)
-      Accessible.name: "Open Bluetooth settings"
+      Accessible.name: highlightedState ? "Turn Bluetooth off" : "Turn Bluetooth on"
+      Accessible.role: Accessible.CheckBox
+      Accessible.checked: highlightedState
+      Accessible.description: subtitle + ". When this tile is enabled, right-click, press the Menu key, or press Shift+F10 for Bluetooth settings."
       ToolTip.visible: hovered
-      ToolTip.text: "Open Bluetooth settings in Blueman"
-      onClicked: root.bar.runCommand(["blueman-manager"])
+      ToolTip.text: "Right-click for Bluetooth settings"
+      onClicked: root.radios.toggleBluetooth()
+      Keys.onPressed: event => { if (event.key === Qt.Key_Menu || (event.key === Qt.Key_F10 && (event.modifiers & Qt.ShiftModifier))) { bluetoothMenu.open(); event.accepted = true; } }
+      TapHandler { acceptedButtons: Qt.RightButton; onTapped: bluetoothMenu.open() }
+      Menu {
+        id: bluetoothMenu
+        objectName: "bluetoothMenu"
+        x: 0; y: parent.height
+        MenuItem { objectName: "bluetoothSettings"; text: "Open Bluetooth settings"; enabled: root.ready && Boolean(root.desktop.values.bluetoothSettings); onTriggered: root.bar.runCommand(["blueman-manager"]) }
+      }
     }
-    ControlButton {
+    ActionButton {
       width: (parent.width - 8) / 2
       wallust: root.wallust
       symbol: "󰖔"
@@ -122,7 +156,7 @@ Column {
       enabled: root.ready && Boolean(root.desktop.values.nightLightAvailable || root.desktop.values.nightLightWanted)
       onClicked: root.desktop.effect("night-light", !root.desktop.values.nightLightWanted)
     }
-    ControlButton {
+    ActionButton {
       width: (parent.width - 8) / 2
       wallust: root.wallust
       symbol: "󰅶"
@@ -132,7 +166,7 @@ Column {
       enabled: root.desktop.loaded
       onClicked: root.desktop.setKeepAwake(!root.desktop.keepAwakeRequested)
     }
-    ControlButton {
+    ActionButton {
       width: (parent.width - 8) / 2
       wallust: root.wallust
       symbol: "󰂛"
@@ -142,7 +176,7 @@ Column {
       enabled: root.desktop.loaded
       onClicked: root.desktop.setQuiet(!root.desktop.quiet)
     }
-    ControlButton {
+    ActionButton {
       width: (parent.width - 8) / 2
       wallust: root.wallust
       symbol: "󰍹"

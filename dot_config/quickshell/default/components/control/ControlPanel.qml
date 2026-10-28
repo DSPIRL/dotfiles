@@ -47,8 +47,11 @@ PanelWindow {
   WlrLayershell.namespace: "quickshell"
 
   function selectCategory(key) {
-    if (!categories.some(page => page.key === key)) return;
+    const index = categories.findIndex(page => page.key === key);
+    if (index < 0) return;
     category = key;
+    const button = categoryButtons.itemAt(index);
+    if (button) revealCategory(button);
     if (key === "system") systemLoaded = true;
     sessionOpen = false;
     confirmation = "";
@@ -59,7 +62,6 @@ PanelWindow {
     const button = categoryButtons.itemAt(index);
     selectCategory(categories[index].key);
     button.forceActiveFocus();
-    revealCategory(button);
   }
   function revealCategory(button) {
     if (button.x < navigation.contentX) navigation.contentX = button.x;
@@ -79,12 +81,20 @@ PanelWindow {
   Connections {
     target: root.bar
     function onSessionRequested() { root.sessionOpen = true; root.confirmation = ""; scroll.contentY = 0; }
+    function onCategoryRequested(category) {
+      root.selectCategory(category);
+      if (root.visible) closeButton.forceActiveFocus();
+    }
   }
   Connections {
     target: root.contentItem.Window.window
     function onActiveFocusItemChanged() {
       const item = target.activeFocusItem;
-      if (!item) return;
+      // Pointer users can already see what they clicked; revealing the entire
+      // control here makes partially visible toggles jump under the pointer.
+      // Disabled controls can transfer focus to their Loader, which is not a
+      // navigation target and would otherwise scroll the entire page into view.
+      if (!item || item === pageLoader || item === systemLoader || item.focusReason === Qt.MouseFocusReason) return;
       let ancestor = item;
       while (ancestor && ancestor !== scroll.contentItem) ancestor = ancestor.parent;
       if (!ancestor) return;
@@ -100,7 +110,7 @@ PanelWindow {
   GlassSurface {
     anchors.fill: parent
     wallust: root.wallust
-    radius: 26
+    radius: Style.Tokens.panelRadius
     Keys.onEscapePressed: {
       if (root.confirmation.length > 0) root.confirmation = "";
       else if (root.sessionOpen) { root.sessionOpen = false; sessionButton.forceActiveFocus(); }
@@ -127,7 +137,7 @@ PanelWindow {
         color: root.wallust.barMutedText
         font: Style.Typography.controlHintFont
       }
-      ControlButton {
+      ActionButton {
         id: closeButton
         width: Math.max(40, font.pixelSize + 24)
         wallust: root.wallust
@@ -138,6 +148,7 @@ PanelWindow {
     }
     Flickable {
       id: navigation
+      objectName: "categoryNavigation"
       x: 20; y: header.y + header.implicitHeight + 12
       width: parent.width - 40
       height: categoryRow.implicitHeight
@@ -153,7 +164,7 @@ PanelWindow {
         Repeater {
           id: categoryButtons
           model: root.categories
-          ControlButton {
+          ActionButton {
             id: categoryButton
             required property var modelData
             required property int index
@@ -238,6 +249,7 @@ PanelWindow {
         // Retain System after its first visit: an in-flight package check can
         // finish and its result is cached. Its timers pause while hidden.
         Loader {
+          id: systemLoader
           objectName: "systemPage"
           width: parent.width
           active: root.systemLoaded
@@ -257,7 +269,7 @@ PanelWindow {
           }
           Repeater {
             model: root.confirmation.length > 0 ? [] : ["Suspend", "Log out", "Reboot", "Shutdown"]
-            ControlButton {
+            ActionButton {
               required property string modelData
               width: parent.width
               wallust: root.wallust
@@ -265,7 +277,7 @@ PanelWindow {
               onClicked: root.confirmation = modelData
             }
           }
-          ControlButton {
+          ActionButton {
             id: confirmAction
             visible: root.confirmation.length > 0
             width: parent.width
@@ -283,7 +295,7 @@ PanelWindow {
               root.confirmation = "";
             }
           }
-          ControlButton {
+          ActionButton {
             width: parent.width
             wallust: root.wallust
             text: "Cancel"
@@ -307,14 +319,14 @@ PanelWindow {
         ToolTip.visible: hovered
         ToolTip.text: "Disable blur, transparency, animations and shadows; retain preferences"
       }
-      ControlButton {
+      ActionButton {
         wallust: root.wallust
         symbol: "󰌾"
         text: "Lock"
         enabled: root.ready && Boolean(root.desktop.values.lockAvailable)
         onClicked: { root.bar.runCommand(["hyprlock"]); root.bar.controlPanelOpen = false; }
       }
-      ControlButton {
+      ActionButton {
         id: sessionButton
         wallust: root.wallust
         symbol: "󰐥"
@@ -324,7 +336,7 @@ PanelWindow {
     }
   }
 
-  Component { id: quickPage; QuickPage { bar: root.bar; wallust: root.wallust; onCategoryRequested: category => root.selectCategory(category) } }
+  Component { id: quickPage; QuickPage { bar: root.bar; wallust: root.wallust; radios: root.bar.radioState; onCategoryRequested: category => root.selectCategory(category) } }
   Component { id: musicPage; MusicPage { wallust: root.wallust } }
   Component { id: appearancePage; AppearancePage { bar: root.bar; wallust: root.wallust } }
   Component { id: audioPage; AudioPage { bar: root.bar; wallust: root.wallust } }

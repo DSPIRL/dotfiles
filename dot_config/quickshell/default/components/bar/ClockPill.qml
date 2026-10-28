@@ -9,7 +9,7 @@ GlassSurface {
   property var clock
 
   implicitWidth: clockLabel.implicitWidth + 32
-  implicitHeight: 36
+  implicitHeight: Style.Tokens.barPillHeight
   hovered: clockMouse.containsMouse
 
   Text {

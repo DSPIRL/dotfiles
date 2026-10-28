@@ -10,10 +10,12 @@ import Quickshell.Services.Pipewire
 import Quickshell.Services.UPower
 import Quickshell.Wayland
 
+import ".." as Style
 import "../wallust" as Wallust
 import "bar"
 import "control"
 import "notifications"
+import "Presentation.js" as Presentation
 
 PanelWindow {
   id: barWindow
@@ -32,7 +34,7 @@ PanelWindow {
     right: 0
   }
 
-  implicitHeight: 36 + pillMargin * 2
+  implicitHeight: Style.Tokens.barPillHeight + pillMargin * 2
   // Keep the surface mapped so Hyprland cannot add a second show/hide animation.
   // Once hidden it reserves no space and accepts no input.
   visible: true
@@ -92,8 +94,10 @@ PanelWindow {
     precision: SystemClock.Minutes
   }
 
+  AudioState { id: audioState; pipewire: Pipewire }
+
   PwObjectTracker {
-    objects: barWindow.audioTrackedNodes
+    objects: audioState.audioTrackedNodes
   }
 
   property var hyprMonitor: Hyprland.monitorFor(screen)
@@ -102,10 +106,13 @@ PanelWindow {
   property int controlToggleGeneration: 0
   property int sessionToggleGeneration: 0
   property var desktopState
+  property var radioState
   signal setBarVisible(bool value)
   signal sessionRequested()
+  signal categoryRequested(string category)
   property bool barVisible: true
   readonly property string networkStatus: networkState.tooltip
+  readonly property string wifiStatus: networkState.wifiTooltip
   property var focusedHyprMonitor
   property var ddcBrightnessState
   property var laptopBrightnessState
@@ -168,29 +175,14 @@ PanelWindow {
     // "10": "十"
   })
 
-  readonly property var defaultAudioSink: Pipewire.defaultAudioSink
-  readonly property var defaultAudioSource: Pipewire.defaultAudioSource
-  readonly property bool sinkMuted: defaultAudioSink && defaultAudioSink.audio ? defaultAudioSink.audio.muted : false
-  readonly property real sinkVolume: defaultAudioSink && defaultAudioSink.audio ? defaultAudioSink.audio.volume : 0
-  readonly property bool sourceMuted: defaultAudioSource && defaultAudioSource.audio ? defaultAudioSource.audio.muted : false
-  readonly property real sourceVolume: defaultAudioSource && defaultAudioSource.audio ? defaultAudioSource.audio.volume : 0
-  readonly property var audioOutputDevices: audioDevices(false)
-  readonly property var audioInputDevices: audioDevices(true)
-  readonly property var audioTrackedNodes: {
-    const nodes = audioOutputDevices.concat(audioInputDevices);
+  readonly property var defaultAudioSink: audioState.defaultAudioSink
+  readonly property var defaultAudioSource: audioState.defaultAudioSource
+  readonly property bool sinkMuted: audioState.sinkMuted
+  readonly property real sinkVolume: audioState.sinkVolume
+  readonly property var audioOutputDevices: audioState.audioOutputDevices
+  readonly property var audioInputDevices: audioState.audioInputDevices
 
-    if (defaultAudioSink) {
-      nodes.push(defaultAudioSink);
-    }
-
-    if (defaultAudioSource) {
-      nodes.push(defaultAudioSource);
-    }
-
-    return nodes;
-  }
-
-  readonly property var bluetoothAdapter: Bluetooth.defaultAdapter
+  readonly property var bluetoothAdapter: radioState.adapter
   readonly property int bluetoothConnectedCount: {
     const devices = Bluetooth.devices.values;
     let count = 0;
@@ -239,24 +231,12 @@ PanelWindow {
 
   readonly property var displayBattery: UPower.displayDevice
   readonly property bool hasBattery: displayBattery && displayBattery.ready && displayBattery.isLaptopBattery
-  readonly property int batteryPercent: hasBattery ? normalizeBatteryPercent(displayBattery) : 0
+  readonly property int batteryPercent: hasBattery ? Presentation.normalizeBatteryPercent(displayBattery) : 0
   readonly property bool showLaptopBrightnessControl: Boolean(laptopBrightnessState && (laptopBrightnessState.available || laptopBrightnessState.missingTool))
 
-  readonly property color batteryTextColor: {
-    if (!hasBattery) {
-      return wallust.barText;
-    }
-
-    if ((displayBattery.state === UPowerDeviceState.Discharging || displayBattery.state === UPowerDeviceState.PendingDischarge) && batteryPercent <= 20) {
-      return wallust.barCritical;
-    }
-
-    if (batteryPercent <= 30) {
-      return wallust.color3;
-    }
-
-    return wallust.barText;
-  }
+  readonly property color batteryTextColor: Presentation.batteryTextColor(
+    hasBattery, hasBattery ? displayBattery.state : null, batteryPercent,
+    UPowerDeviceState.Discharging, UPowerDeviceState.PendingDischarge, wallust)
 
   readonly property var spotifyPlayer: {
     const players = Mpris.players.values;
@@ -274,8 +254,7 @@ PanelWindow {
   }
 
   readonly property bool spotifyVisible: spotifyPlayer && spotifyPlayer.playbackState !== MprisPlaybackState.Stopped
-  readonly property bool spotifyPlaying: spotifyPlayer && spotifyPlayer.playbackState === MprisPlaybackState.Playing
-  readonly property string spotifyDisplay: spotifyTextForPlayer(spotifyPlayer)
+  readonly property string spotifyDisplay: Presentation.spotifyTextForPlayer(spotifyPlayer, MprisPlaybackState.Stopped, MprisPlaybackState.Paused)
 
   function runCommand(command) {
     Quickshell.execDetached(command);
@@ -316,113 +295,14 @@ PanelWindow {
     }
   }
 
-  function audioDevices(input) {
-    const nodes = Pipewire.nodes.values || [];
-    const devices = [];
-
-    for (let i = 0; i < nodes.length; i += 1) {
-      const node = nodes[i];
-      if (!node || !node.audio || node.isStream) {
-        continue;
-      }
-
-      if (input && node.isSink) {
-        continue;
-      }
-
-      if (!input && !node.isSink) {
-        continue;
-      }
-
-      devices.push(node);
-    }
-
-    return devices;
-  }
-
-  function audioNodeLabel(node) {
-    if (!node) {
-      return "Audio device";
-    }
-
-    if (node.nickname && node.nickname.length > 0) {
-      return node.nickname;
-    }
-
-    if (node.description && node.description.length > 0) {
-      return node.description;
-    }
-
-    if (node.name && node.name.length > 0) {
-      return node.name;
-    }
-
-    return "Audio device";
-  }
-
-  function isDefaultAudioDevice(node, input) {
-    const current = input ? defaultAudioSource : defaultAudioSink;
-    return Boolean(node && current && (node === current || node.id === current.id));
-  }
-
-  function setDefaultAudioDevice(node, input) {
-    if (!node) {
-      return;
-    }
-
-    if (input) {
-      Pipewire.preferredDefaultAudioSource = node;
-    } else {
-      Pipewire.preferredDefaultAudioSink = node;
-    }
-  }
-
-  function setAudioDeviceVolume(node, volume) {
-    if (!node || !node.audio) {
-      return;
-    }
-
-    node.audio.volume = Math.max(0, Math.min(1, volume));
-  }
-
-  function toggleAudioDeviceMute(node) {
-    if (node && node.audio) {
-      node.audio.muted = !node.audio.muted;
-    }
-  }
-
-  function shorten(text, maxLength) {
-    if (!text || text.length <= maxLength) {
-      return text || "";
-    }
-
-    return text.slice(0, maxLength - 3) + "...";
-  }
-
-  function spotifyTextForPlayer(player) {
-    if (!player || player.playbackState === MprisPlaybackState.Stopped) {
-      return "";
-    }
-
-    if (player.playbackState === MprisPlaybackState.Paused) {
-      return "";
-    }
-
-    let text = "";
-    if (player.trackArtist && player.trackTitle) {
-      text = player.trackArtist + " - " + player.trackTitle;
-    } else if (player.trackTitle) {
-      text = player.trackTitle;
-    } else {
-      text = player.identity || "Spotify";
-    }
-
-    return shorten(text, 44) + "  ";
-  }
+  function audioNodeLabel(node) { return audioState.audioNodeLabel(node); }
+  function isDefaultAudioDevice(node, input) { return audioState.isDefaultAudioDevice(node, input); }
+  function setDefaultAudioDevice(node, input) { audioState.setDefaultAudioDevice(node, input); }
+  function setAudioDeviceVolume(node, volume) { audioState.setAudioDeviceVolume(node, volume); }
+  function toggleAudioDeviceMute(node) { audioState.toggleAudioDeviceMute(node); }
 
   function workspaceText(workspace) {
-    const key = workspace.name && workspace.name.length > 0 ? workspace.name : String(workspace.id);
-    return workspaceGlyphs[key] || key;
+    return Presentation.workspaceText(workspace, workspaceGlyphs);
   }
 
   function isFocusedMonitor() {
@@ -434,36 +314,15 @@ PanelWindow {
   }
 
   function notificationAccent(notification) {
-    if (notification && notification.urgency === NotificationUrgency.Critical) {
-      return wallust.barCritical;
-    }
-
-    if (notification && notification.urgency === NotificationUrgency.Low) {
-      return wallust.barBorder;
-    }
-
-    return wallust.barBorder;
+    return Presentation.notificationAccent(notification, NotificationUrgency.Critical, wallust);
   }
 
   function notificationIcon(notification) {
-    if (notification && notification.appIcon && notification.appIcon.length > 0) {
-      const icon = notification.appIcon;
-      return icon.startsWith("/") || icon.indexOf(":") !== -1 ? icon : Quickshell.iconPath(icon);
-    }
-
-    return "";
+    return Presentation.notificationIcon(notification, function(icon) { return Quickshell.iconPath(icon); });
   }
 
   function notificationToastDuration(notification) {
-    if (notification && notification.urgency === NotificationUrgency.Critical) {
-      return 9000;
-    }
-
-    if (notification && notification.urgency === NotificationUrgency.Low) {
-      return 3500;
-    }
-
-    return 5500;
+    return Presentation.notificationToastDuration(notification, NotificationUrgency.Critical, NotificationUrgency.Low);
   }
 
   function showNotificationToast(notification) {
@@ -513,143 +372,19 @@ PanelWindow {
   }
 
   function volumeIcon(volume, muted) {
-    if (muted) {
-      return "󰝟";
-    }
-
-    if (volume <= 0.33) {
-      return "󰕿";
-    }
-
-    if (volume <= 0.66) {
-      return "󰖀";
-    }
-
-    return "󰕾";
+    return Presentation.volumeIcon(volume, muted);
   }
 
   function batteryIcon(percent, state) {
-    if (state === UPowerDeviceState.Charging || state === UPowerDeviceState.PendingCharge) {
-      return "󰂄";
-    }
-
-    if (percent >= 95) {
-      return "󰁹";
-    }
-
-    if (percent >= 80) {
-      return "󰂂";
-    }
-
-    if (percent >= 60) {
-      return "󰂀";
-    }
-
-    if (percent >= 40) {
-      return "󰁾";
-    }
-
-    if (percent >= 20) {
-      return "󰁼";
-    }
-
-    return "󰁻";
-  }
-
-  function normalizeBatteryPercent(device) {
-    if (!device) {
-      return 0;
-    }
-
-    const rawPercent = Number(device.percentage);
-
-    if (!Number.isFinite(rawPercent)) {
-      return 0;
-    }
-
-    if (rawPercent > 1) {
-      return Math.max(0, Math.min(100, Math.round(rawPercent)));
-    }
-
-    const energy = Number(device.energy);
-    const capacity = Number(device.energyCapacity);
-
-    if (Number.isFinite(energy) && Number.isFinite(capacity) && capacity > 0) {
-      return Math.max(0, Math.min(100, Math.round((energy / capacity) * 100)));
-    }
-
-    return Math.max(0, Math.min(100, Math.round(rawPercent * 100)));
+    return Presentation.batteryIcon(percent, state, UPowerDeviceState.Charging, UPowerDeviceState.PendingCharge);
   }
 
   function launchNetworkTui() {
     launchTerminal("nmtui");
   }
 
-  QtObject {
+  NetworkState {
     id: networkState
-
-    property string icon: ""
-    property string tooltip: "Disconnected"
-
-    function update(rawText) {
-      const text = rawText ? rawText.trim() : "";
-
-      if (text.length === 0) {
-        icon = "";
-        tooltip = "Disconnected";
-        return;
-      }
-
-      const lines = text.split("\n");
-      let connectedType = "";
-      let connectedName = "";
-
-      for (let i = 0; i < lines.length; i += 1) {
-        const line = lines[i];
-        if (line.length === 0) {
-          continue;
-        }
-
-        const parts = line.split(":");
-        if (parts.length < 3) {
-          continue;
-        }
-
-        const type = parts[0];
-        const state = parts[1];
-        const connection = parts.slice(2).join(":");
-
-        if (state !== "connected") {
-          continue;
-        }
-
-        if (type === "wifi") {
-          connectedType = type;
-          connectedName = connection;
-          break;
-        }
-
-        if (type === "ethernet" && connectedType.length === 0) {
-          connectedType = type;
-          connectedName = connection;
-        }
-      }
-
-      if (connectedType === "wifi") {
-        icon = "";
-        tooltip = connectedName.length > 0 ? connectedName : "Wi-Fi connected";
-        return;
-      }
-
-      if (connectedType === "ethernet") {
-        icon = "";
-        tooltip = connectedName.length > 0 ? connectedName : "Ethernet connected";
-        return;
-      }
-
-      icon = "";
-      tooltip = "Disconnected";
-    }
   }
 
   Process {
@@ -666,8 +401,7 @@ PanelWindow {
       if (exitCode === 0) {
         networkState.update(networkStdout.text);
       } else {
-        networkState.icon = "";
-        networkState.tooltip = "Network unavailable";
+        networkState.unavailable();
       }
     }
   }

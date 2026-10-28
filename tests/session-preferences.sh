@@ -126,9 +126,11 @@ python3 - "$root" "$sandbox" <<'PY'
 import pathlib, sys
 root, sandbox = map(pathlib.Path, sys.argv[1:])
 source = (root / 'dot_config/quickshell/default/shell.qml').read_text()
-start = source.index('  DesktopState { id: desktopSettings }')
+desktop = '  DesktopState { id: desktopSettings }\n'
+assert desktop in source
+start = source.index('  // systemd idle inhibition')
 end = source.index('  readonly property string ddcBrightnessCommand', start)
-owner = source[start:end]
+owner = desktop + source[start:end]
 bar_source = (root / 'dot_config/quickshell/default/components/BarWindow.qml').read_text()
 toast_start = bar_source.index('  function showNotificationToast(')
 toast_end = bar_source.index('  function clearNotifications(', toast_start)
@@ -203,7 +205,12 @@ tests = '''
 (sandbox / 'shell.qml').write_text(imports + owner + toast_guard + tests)
 PY
 run_shell() {
-  SCENARIO="$1" QT_QPA_PLATFORM=offscreen timeout 8 quickshell -p "$sandbox/shell.qml" --no-color >"$sandbox/$1.log" 2>&1
+  SCENARIO="$1" QT_QPA_PLATFORM=offscreen timeout 8 quickshell -p "$sandbox/shell.qml" --no-color >"$sandbox/$1.log" 2>&1 || {
+    local status=$?
+    printf 'Quickshell scenario %s exited %s:\n' "$1" "$status" >&2
+    while IFS= read -r line; do printf '%s\n' "$line" >&2; done <"$sandbox/$1.log"
+    return "$status"
+  }
   grep -q "SESSION_TEST_PASS: $1" "$sandbox/$1.log" || { grep -E 'ERROR|WARN|SESSION_TEST' "$sandbox/$1.log" >&2 || true; exit 1; }
   sleep 0.1
   if [[ -f "$INHIBIT_PID" ]]; then

@@ -3,12 +3,13 @@ import Quickshell
 import Quickshell.DBusMenu
 import Quickshell.Services.SystemTray
 import Quickshell.Widgets
+import "../.." as Style
 
 Row {
   id: root
 
   property var wallust
-  spacing: 3
+  spacing: Style.Tokens.barItemSpacing
 
   Repeater {
     model: SystemTray.items
@@ -20,9 +21,9 @@ Row {
 
       visible: trayItem.icon && trayItem.icon.length > 0
       implicitWidth: 24
-      implicitHeight: 24
-      radius: 10
-      color: trayMouse.containsMouse ? wallust.barHover : "transparent"
+      implicitHeight: Style.Tokens.barIndicatorHeight
+      radius: Style.Tokens.barIndicatorRadius
+      Binding on color { value: trayMouse.containsMouse ? wallust.barHover : "transparent" }
 
       function openMenu() {
         trayMenu.open();
@@ -30,8 +31,10 @@ Row {
 
       Behavior on color {
         enabled: !root.wallust.lowEffects
+        // Disabling Behavior alone does not stop an in-flight animation.
+        onEnabledChanged: if (!enabled) trayButton.color = targetValue
         ColorAnimation {
-          duration: 120
+          duration: Style.Tokens.barStateColorDuration
         }
       }
 

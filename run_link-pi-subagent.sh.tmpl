@@ -1,0 +1,17 @@
+{{- if (dig "useKeePassXC" false .) -}}
+#!/usr/bin/env bash
+# Symlink pi's bundled subagent example extension into ~/.pi, resolving the
+# install location from the pi binary so package-manager moves don't break it.
+set -euo pipefail
+
+pi_bin="$(command -v pi 2>/dev/null)" || exit 0
+example_dir="$(dirname "$(readlink -f "$pi_bin")")/../../examples/extensions/subagent"
+example_dir="$(readlink -f "$example_dir")"
+[ -d "$example_dir" ] || exit 0
+
+target="${HOME}/.pi/agent/extensions/subagent"
+mkdir -p "$target"
+for f in index.ts agents.ts; do
+  ln -sfn "${example_dir}/${f}" "${target}/${f}"
+done
+{{- end }}

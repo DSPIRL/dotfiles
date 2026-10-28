@@ -1,5 +1,6 @@
 import QtQuick
 import ".."
+import "../.." as Style
 
 GlassSurface {
   id: root
@@ -8,13 +9,13 @@ GlassSurface {
   property var networkState
 
   implicitWidth: rightRow.implicitWidth + 24
-  implicitHeight: 36
+  implicitHeight: Style.Tokens.barPillHeight
 
   Row {
     id: rightRow
 
     anchors.centerIn: parent
-    spacing: 3
+    spacing: Style.Tokens.barItemSpacing
 
     SystemTraySection {
       wallust: root.wallust

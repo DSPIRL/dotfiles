@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import ".."
 import "../.." as Style
 
 Rectangle {
@@ -19,21 +20,21 @@ Rectangle {
   }
   readonly property bool available: Boolean(defaultDevice && defaultDevice.audio)
   readonly property bool muted: available && defaultDevice.audio.muted
-  implicitHeight: contents.implicitHeight + 24
+  implicitHeight: contents.implicitHeight + 2 * Style.Tokens.deviceCardInset
   height: implicitHeight
-  radius: 12
+  radius: Style.Tokens.deviceCardRadius
   color: wallust.barCard
 
   Column {
     id: contents
-    x: 12; y: 12
-    width: parent.width - 24
+    x: Style.Tokens.deviceCardInset; y: Style.Tokens.deviceCardInset
+    width: parent.width - 2 * Style.Tokens.deviceCardInset
     spacing: 6
     Row {
       width: parent.width
       height: Math.max(muteButton.implicitHeight, detailsButton.implicitHeight)
       spacing: 8
-      ControlButton {
+      ActionButton {
         id: muteButton
         objectName: root.input ? "microphoneMute" : "outputMute"
         wallust: root.wallust
@@ -48,7 +49,7 @@ Rectangle {
         Accessible.name: (root.muted ? "Unmute " : "Mute ") + (root.input ? "microphone" : "output")
         onClicked: root.bar.toggleAudioDeviceMute(root.defaultDevice)
       }
-      ControlButton {
+      ActionButton {
         id: detailsButton
         wallust: root.wallust
         width: parent.width - muteButton.width - parent.spacing
@@ -65,7 +66,7 @@ Rectangle {
       Accessible.name: root.input ? "Microphone volume" : "Output volume"
       onMoved: root.bar.setAudioDeviceVolume(root.defaultDevice, value / 100)
     }
-    ControlButton {
+    ActionButton {
       id: deviceChooser
       visible: root.expanded
       width: parent.width
@@ -82,7 +83,7 @@ Rectangle {
       spacing: 4
       Repeater {
         model: root.devices
-        ControlButton {
+        ActionButton {
           required property var modelData
           width: parent.width
           wallust: root.wallust

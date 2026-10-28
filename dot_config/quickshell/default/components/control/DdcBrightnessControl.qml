@@ -7,14 +7,14 @@ Rectangle {
   required property var wallust
   required property var ddcDisplay
   readonly property real percent: ddcDisplay.maximum > 0 ? ddcDisplay.current / ddcDisplay.maximum * 100 : 0
-  implicitHeight: contents.implicitHeight + 24
+  implicitHeight: contents.implicitHeight + 2 * Style.Tokens.deviceCardInset
   height: implicitHeight
-  radius: 12
+  radius: Style.Tokens.deviceCardRadius
   color: wallust.barCard
   Column {
     id: contents
-    x: 12; y: 12
-    width: parent.width - 24
+    x: Style.Tokens.deviceCardInset; y: Style.Tokens.deviceCardInset
+    width: parent.width - 2 * Style.Tokens.deviceCardInset
     spacing: 5
     Text {
       width: parent.width

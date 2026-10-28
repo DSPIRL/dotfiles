@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import Quickshell.Services.Mpris
+import ".."
 import "../.." as Style
 
 Column {
@@ -54,7 +55,7 @@ Column {
     visible: root.players.length > 1
     Repeater {
       model: root.players
-      ControlButton {
+      ActionButton {
         required property var modelData
         wallust: root.wallust
         text: modelData.identity || "Media player"
@@ -181,7 +182,7 @@ Column {
     Row {
       anchors.horizontalCenter: parent.horizontalCenter
       spacing: 12
-      ControlButton {
+      ActionButton {
         objectName: "mediaPrevious"
         width: 64; implicitHeight: 52
         wallust: root.wallust
@@ -193,7 +194,7 @@ Column {
         ToolTip.text: Accessible.name
         onClicked: if (root.player && root.player.canGoPrevious) root.player.previous()
       }
-      ControlButton {
+      ActionButton {
         objectName: "mediaPlayPause"
         width: 80; implicitHeight: 52
         wallust: root.wallust
@@ -206,7 +207,7 @@ Column {
         ToolTip.text: Accessible.name
         onClicked: if (root.player && root.player.canTogglePlaying) root.player.togglePlaying()
       }
-      ControlButton {
+      ActionButton {
         objectName: "mediaNext"
         width: 64; implicitHeight: 52
         wallust: root.wallust

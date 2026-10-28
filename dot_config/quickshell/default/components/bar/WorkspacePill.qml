@@ -8,9 +8,10 @@ GlassSurface {
   id: root
 
   property var bar
+  property var workspaceModel: Hyprland.workspaces
 
   implicitWidth: workspaceRow.implicitWidth + 16
-  implicitHeight: 36
+  implicitHeight: Style.Tokens.barPillHeight
 
   MouseArea {
     anchors.fill: parent
@@ -25,29 +26,35 @@ GlassSurface {
     id: workspaceRow
 
     anchors.centerIn: parent
-    spacing: 3
+    spacing: Style.Tokens.barItemSpacing
 
     Repeater {
-      model: Hyprland.workspaces
+      model: root.workspaceModel
 
       Rectangle {
+        id: indicator
         required property var modelData
         readonly property var workspace: modelData
 
         visible: workspace.id > 0
         radius: 13
-        implicitWidth: workspace.active ? 36 : 28
+        Binding on implicitWidth { value: workspace.active ? 36 : 28 }
         implicitHeight: 26
         border.width: workspace.urgent ? 1 : 0
         border.color: wallust.color3
         opacity: bar.hyprMonitor && workspace.monitor && workspace.monitor.id !== bar.hyprMonitor.id ? 0.55 : 1
-        color: workspace.active ? wallust.barActive : (workspaceMouse.containsMouse ? wallust.barHover : "transparent")
+        Binding on color { value: workspace.active ? wallust.barActive : (workspaceMouse.containsMouse ? wallust.barHover : "transparent") }
 
-        Behavior on implicitWidth { enabled: !root.wallust.lowEffects; NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+        Behavior on implicitWidth {
+          enabled: !root.wallust.lowEffects
+          onEnabledChanged: if (!enabled) indicator.implicitWidth = targetValue
+          NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
+        }
         Behavior on color {
           enabled: !root.wallust.lowEffects
+          onEnabledChanged: if (!enabled) indicator.color = targetValue
           ColorAnimation {
-            duration: 120
+            duration: Style.Tokens.barStateColorDuration
           }
         }
 

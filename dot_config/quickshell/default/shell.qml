@@ -4,6 +4,8 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
+import Quickshell.Networking
+import Quickshell.Bluetooth
 import Quickshell.Services.Notifications
 
 import "components"
@@ -18,6 +20,15 @@ ShellRoot {
   property bool barVisible: true
 
   DesktopState { id: desktopSettings }
+  RadioState {
+    id: sharedRadios
+    wifi: Networking
+    adapter: Bluetooth.defaultAdapter
+    networkManager: NetworkBackendType.NetworkManager
+    blocked: BluetoothAdapterState.Blocked
+    enabling: BluetoothAdapterState.Enabling
+    disabling: BluetoothAdapterState.Disabling
+  }
 
   // systemd idle inhibition also works when the bar is hidden. Closing stdin
   // releases the child and inhibitor if the shell exits; a newline releases it normally.
@@ -408,6 +419,7 @@ ShellRoot {
       controlToggleGeneration: shellRoot.controlToggleGeneration
       sessionToggleGeneration: shellRoot.sessionToggleGeneration
       desktopState: desktopSettings
+      radioState: sharedRadios
       barVisible: shellRoot.barVisible
       onSetBarVisible: value => shellRoot.barVisible = value
       focusedHyprMonitor: Hyprland.focusedMonitor
