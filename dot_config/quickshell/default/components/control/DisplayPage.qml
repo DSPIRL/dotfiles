@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import ".."
 import "../.." as Style
 
 Column {
@@ -8,7 +9,7 @@ Column {
   required property var wallust
   readonly property var desktop: bar.desktopState
   readonly property bool ready: desktop.loaded && !desktop.busy
-  spacing: 12
+  spacing: Style.Tokens.controlPageSpacing
 
   ControlToggle {
     width: parent.width
@@ -54,7 +55,7 @@ Column {
     wrapMode: Text.Wrap
   }
 
-  ControlButton {
+  ActionButton {
     width: parent.width
     wallust: root.wallust
     symbol: "󰑐"

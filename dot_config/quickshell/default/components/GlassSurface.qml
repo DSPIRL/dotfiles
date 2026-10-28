@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Effects
+import ".." as Style
 
 // Shared material for the bar and controls; Hyprland supplies backdrop blur.
 Rectangle {
@@ -60,15 +61,18 @@ Rectangle {
   }
 
   Rectangle {
+    id: hoverSurface
     anchors.fill: parent
     anchors.margins: 1
     radius: Math.max(0, root.radius - 1)
-    color: root.hovered ? root.wallust.barHover : "transparent"
+    Binding on color { value: root.hovered ? root.wallust.barHover : "transparent" }
     border.width: root.wallust.solidSurfaces ? 0 : 1
     border.color: root.wallust.glassInnerEdge
+    // Binding survives the target write; disabling Behavior alone leaves its animation running.
     Behavior on color {
       enabled: !root.wallust.lowEffects
-      ColorAnimation { duration: 140 }
+      onEnabledChanged: if (!enabled) hoverSurface.color = targetValue
+      ColorAnimation { duration: Style.Tokens.surfaceColorDuration }
     }
   }
 }

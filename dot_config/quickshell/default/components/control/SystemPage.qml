@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell.Io
 import QtQuick.Controls
+import ".."
 import "../.." as Style
 
 Column {
@@ -9,7 +10,7 @@ Column {
   required property var wallust
   readonly property var desktop: bar.desktopState
   readonly property bool ready: desktop.loaded && !desktop.busy
-  spacing: 12
+  spacing: Style.Tokens.controlPageSpacing
   property double lastUpdatesCheck: 0
   function refreshUpdates(force) {
     if (updatesProcess.running || (!force && Date.now() - lastUpdatesCheck < 900000)) return;
@@ -106,7 +107,7 @@ Column {
     spacing: 8
     Repeater {
       model: ["CPU", "RAM", "TEMP"]
-      ControlButton {
+      ActionButton {
         required property var modelData
         width: (root.width - 16) / 3
         wallust: root.wallust
@@ -121,7 +122,7 @@ Column {
   Row {
     width: parent.width
     spacing: 8
-    ControlButton {
+    ActionButton {
       width: parent.width - refreshUpdates.width - 8
       wallust: root.wallust
       symbol: "󰚰"
@@ -132,7 +133,7 @@ Column {
         root.bar.controlPanelOpen = false;
       }
     }
-    ControlButton {
+    ActionButton {
       id: refreshUpdates
       width: Math.min(parent.width / 2, Math.max(76, implicitWidth))
       height: Math.max(68, implicitHeight)
@@ -142,21 +143,21 @@ Column {
       onClicked: root.refreshUpdates(true)
     }
   }
-  ControlButton {
+  ActionButton {
     width: parent.width; wallust: root.wallust; text: "Reload Hyprland"; symbol: "󰑐"
     enabled: root.ready
     onClicked: root.desktop.run(["hyprctl", "reload"])
   }
-  ControlButton {
+  ActionButton {
     width: parent.width; wallust: root.wallust; text: "Reapply monitor configuration"; symbol: "󰍹"
     enabled: root.ready
     onClicked: root.desktop.run(["hyprctl", "repl", "require('config.monitors').apply()"])
   }
-  ControlButton {
+  ActionButton {
     width: parent.width; wallust: root.wallust; text: "Refresh display detection"; symbol: "󰑐"
     onClicked: { root.bar.ddcBrightnessState.refresh(); root.bar.laptopBrightnessState.refresh(); }
   }
-  ControlButton {
+  ActionButton {
     width: parent.width; wallust: root.wallust; text: "Bar diagnostics"; symbol: "󰒋"
     enabled: root.ready
     onClicked: root.desktop.run([root.desktop.scripts + "quickshell-healthcheck.sh"])

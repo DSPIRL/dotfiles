@@ -1,6 +1,6 @@
 import QtQuick
 import Quickshell.Widgets
-import "../control"
+import ".."
 import "../.." as Style
 
 Rectangle {
@@ -37,14 +37,14 @@ Rectangle {
       spacing: 10
 
       IconImage {
-        width: 28
-        height: 28
+        width: Style.Tokens.notificationAppIconSize
+        height: Style.Tokens.notificationAppIconSize
         implicitSize: 24
         source: bar.notificationIcon(notification)
       }
 
       Column {
-        width: parent.width - 28 - dismissButton.width - parent.spacing * 2
+        width: parent.width - Style.Tokens.notificationAppIconSize - dismissButton.width - parent.spacing * 2
         spacing: 2
 
         Text {
@@ -65,10 +65,10 @@ Rectangle {
         }
       }
 
-      ControlButton {
+      ActionButton {
         id: dismissButton
         width: Math.max(32, font.pixelSize + 8)
-        height: Math.max(32, contentItem.implicitHeight + 8)
+        height: Math.max(Style.Tokens.notificationActionMinHeight, contentItem.implicitHeight + 8)
         leftPadding: 4
         rightPadding: 4
         wallust: root.wallust
@@ -108,11 +108,11 @@ Rectangle {
       Repeater {
         model: notification.actions
 
-        ControlButton {
+        ActionButton {
           required property var modelData
           readonly property var notificationAction: modelData
           width: Math.min(implicitWidth, parent.width)
-          height: Math.max(32, contentItem.implicitHeight + 8)
+          height: Math.max(Style.Tokens.notificationActionMinHeight, contentItem.implicitHeight + 8)
           wallust: root.wallust
           font: Style.Typography.notificationActionFont
           text: notificationAction.text

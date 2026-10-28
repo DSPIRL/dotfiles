@@ -1,10 +1,11 @@
 import QtQuick
+import "../.." as Style
 
 Column {
   id: root
   required property var bar
   required property var wallust
-  spacing: 12
+  spacing: Style.Tokens.controlPageSpacing
   function dismissDetails() { return output.dismissDetails() || microphone.dismissDetails(); }
   AudioDeviceControl {
     id: output

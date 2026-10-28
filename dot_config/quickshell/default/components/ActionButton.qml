@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Controls
-import "../.." as Style
+import ".." as Style
 
 Button {
   id: root
@@ -15,19 +15,25 @@ Button {
   topPadding: 8
   bottomPadding: 8
   hoverEnabled: true
+  Accessible.name: text
   Keys.onReturnPressed: if (enabled) clicked()
   Keys.onEnterPressed: if (enabled) clicked()
   font: highlightedState ? Style.Typography.controlEmphasisFont : Style.Typography.controlLabelFont
   TextMetrics { id: labelMetrics; text: root.text; font: root.font }
 
   background: Rectangle {
+    id: buttonBackground
     radius: 14
-    color: root.highlightedState ? root.wallust.barActive : root.hovered ? root.wallust.barButtonHover : root.flat ? "transparent" : root.wallust.barCard
+    Binding on color { value: root.highlightedState ? root.wallust.barActive : root.hovered ? root.wallust.barButtonHover : root.flat ? "transparent" : root.wallust.barCard }
     border.width: root.activeFocus ? 2 : root.flat ? 0 : 1
     border.color: root.activeFocus ? root.wallust.barAccentText : root.wallust.barSeparator
     // Disabled control-center buttons dim labels, not their configured fill opacity.
     opacity: root.enabled || root.wallust.controlCenter ? 1 : 0.55
-    Behavior on color { enabled: !root.wallust.lowEffects; ColorAnimation { duration: 140 } }
+    Behavior on color {
+      enabled: !root.wallust.lowEffects
+      onEnabledChanged: if (!enabled) buttonBackground.color = targetValue
+      ColorAnimation { duration: Style.Tokens.surfaceColorDuration }
+    }
   }
   contentItem: Item {
     implicitHeight: Math.max(labels.implicitHeight, root.symbol.length > 0 ? glyph.implicitHeight : 0)

@@ -3,7 +3,6 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Widgets
 import ".."
-import "../control"
 import "../.." as Style
 
 PanelWindow {
@@ -40,7 +39,7 @@ PanelWindow {
     implicitHeight: toastColumn.implicitHeight + 32
     anchors.fill: parent
     wallust: root.wallust
-    radius: 26
+    radius: Style.Tokens.panelRadius
     border.color: bar.notificationAccent(notification)
 
     MouseArea {
@@ -70,14 +69,14 @@ PanelWindow {
         spacing: 10
 
         IconImage {
-          width: 28
-          height: 28
+          width: Style.Tokens.notificationAppIconSize
+          height: Style.Tokens.notificationAppIconSize
           implicitSize: 22
           source: bar.notificationIcon(notification)
         }
 
         Column {
-          width: parent.width - 28 - toastDismissButton.width - parent.spacing * 2
+          width: parent.width - Style.Tokens.notificationAppIconSize - toastDismissButton.width - parent.spacing * 2
           spacing: 2
 
           Text {
@@ -98,10 +97,10 @@ PanelWindow {
           }
         }
 
-        ControlButton {
+        ActionButton {
           id: toastDismissButton
           width: Math.max(32, font.pixelSize + 8)
-          height: Math.max(32, contentItem.implicitHeight + 8)
+          height: Math.max(Style.Tokens.notificationActionMinHeight, contentItem.implicitHeight + 8)
           leftPadding: 4
           rightPadding: 4
           wallust: root.wallust

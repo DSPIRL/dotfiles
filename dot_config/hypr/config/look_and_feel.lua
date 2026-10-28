@@ -67,7 +67,7 @@ hl.config({
 	misc = {
 		font_family = "Fira Sans",
 		focus_on_activate = false,
-		vrr = 2,
+		vrr = 3,
 	},
 })
 

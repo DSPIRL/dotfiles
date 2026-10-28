@@ -3,7 +3,10 @@ import QtQuick.Window
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
+import Quickshell.Networking
+import Quickshell.Bluetooth
 // tests/control-center.sh copies this fixture beside the source config.
+import "default/components" as Shell
 import "default/components/control" as Control
 import "default/wallust" as Wallust
 import "default" as Style
@@ -35,7 +38,8 @@ ShellRoot {
     })
     function refresh() {}
     function run(command) { actions.push(command); }
-    function effect(name, value) { actions.push([name,value]); }
+    property bool busyOnEffect: false
+    function effect(name, value) { actions.push([name,value]); if (busyOnEffect) busy = true; }
     function theme(value) { actions.push(["theme",value]); }
     function setQuiet(value) { actions.push(["quiet",value]); }
     function setKeepAwake(value) { actions.push(["awake",value]); }
@@ -52,7 +56,28 @@ ShellRoot {
     function refresh() {}
   }
   QtObject {
+    id: wifiMock
+    property int backend: NetworkBackendType.NetworkManager
+    property bool wifiEnabled: true
+    property bool wifiHardwareEnabled: true
+  }
+  QtObject {
+    id: bluetoothMock
+    property bool enabled: true
+    property int state: BluetoothAdapterState.Enabled
+  }
+  Shell.RadioState {
+    id: sharedRadios
+    wifi: wifiMock
+    adapter: barStub.bluetoothAdapter
+    networkManager: NetworkBackendType.NetworkManager
+    blocked: BluetoothAdapterState.Blocked
+    enabling: BluetoothAdapterState.Enabling
+    disabling: BluetoothAdapterState.Disabling
+  }
+  QtObject {
     id: barStub
+    property var radioState: sharedRadios
     property var desktopState: desktop
     property var screen: Quickshell.screens[0]
     property bool controlPanelOpen: true
@@ -61,6 +86,7 @@ ShellRoot {
     property bool barVisible: true
     property int height: 44
     property string networkStatus: "Unavailable in isolated test"
+    property string wifiStatus: "Disconnected"
     property string bluetoothTooltip: "Unavailable in isolated test"
     property var bluetoothAdapter: null
     property var audioOutputDevices: [audioNode]
@@ -71,6 +97,7 @@ ShellRoot {
     property var laptopBrightnessState: brightness
     property var ddcBrightnessState: brightness
     signal sessionRequested()
+    signal categoryRequested(string category)
     function audioNodeLabel(node) { return node.description; }
     function isDefaultAudioDevice(node, input) { return node === audioNode; }
     function setDefaultAudioDevice(node, input) { desktop.actions.push("default-device"); }
@@ -149,6 +176,11 @@ ShellRoot {
   function named(name) { return walk(panel.contentItem, o => o.objectName === name); }
   function check(value, message) { if (!value) throw new Error(message); }
   function page() { return panel.category === "system" ? named("systemPage").item : named("controlPage").item; }
+  function checkCategoryVisible(name) {
+    const navigation = named("categoryNavigation"), button = label(name);
+    const x = button.mapToItem(navigation, 0, 0).x;
+    check(x >= -0.01 && x + button.width <= navigation.width + 0.01, name + " tab outside navigation viewport");
+  }
   function checkSystemFits(previousPage) {
     const loader = named("systemPage");
     const viewport = loader.parent.parent.parent;
@@ -175,6 +207,9 @@ ShellRoot {
     palette.lowEffects=value; palette.solidSurfaces=value;
   }
   property int stage: 0
+  property int busyCheck: -1
+  property real busyScroll: 0
+  property real busyHeight: 0
   property var savedLayout: ({})
   Timer {
     interval: 120
@@ -187,11 +222,39 @@ ShellRoot {
             check(panel.category === "quick" && page(), "Quick must be the initial page");
             check(label("Quick").height >= label("Quick").contentItem.implicitHeight + 16, "Category labels clipped");
             check(label("Low effects").visible, "Low effects not available");
+            barStub.bluetoothAdapter=bluetoothMock;
+            const wifi=named("quickNetwork"), bluetooth=named("quickBluetooth");
+            check(wifi.highlightedState && bluetooth.highlightedState, "Radio state missing");
+            wifi.clicked(); bluetooth.clicked();
+            check(!wifiMock.wifiEnabled && !bluetoothMock.enabled && !sharedRadios.wifiPending && !sharedRadios.bluetoothPending, "Radio toggles did not follow mocked state");
+            wifiMock.wifiHardwareEnabled=false;
+            wifi.clicked();
+            check(!wifiMock.wifiEnabled, "Blocked Wi-Fi toggled");
+            wifiMock.wifiHardwareEnabled=true;
+            bluetoothMock.state=BluetoothAdapterState.Blocked;
+            bluetooth.clicked();
+            check(!bluetoothMock.enabled, "Blocked Bluetooth toggled");
+            bluetoothMock.state=BluetoothAdapterState.Disabled;
+            barStub.bluetoothAdapter=null;
+            bluetooth.clicked();
+            check(!bluetoothMock.enabled, "Missing adapter toggled");
             const quickMute=named("quickOutputMute");
             check(quickMute.width === quickMute.height && quickMute.font.pixelSize === Style.Typography.controlTileIconSize, "Quick mute icon geometry inconsistent");
             brightness.displays=[{monitor:"Synthetic monitor",current:50,maximum:100,display:7}];
             check(label("Synthetic monitor  ·  50%"), "Quick external brightness missing");
             brightness.displays=[];
+            // Simulate an outstanding backend confirmation while Quick unloads.
+            sharedRadios.wifiTarget=true; sharedRadios.wifiPending=true;
+            panel.selectCategory("audio");
+            check(sharedRadios.wifiPending, "Pending request lost on page change");
+            barStub.controlPanelOpen=false;
+            check(sharedRadios.wifiPending, "Pending request lost on close");
+            wifiMock.wifiEnabled=true;
+            check(!sharedRadios.wifiPending, "Late confirmation not observed while closed");
+            sharedRadios.wifiError="Wi-Fi change not confirmed";
+            wifiMock.wifiEnabled=false; wifiMock.wifiEnabled=true;
+            check(sharedRadios.wifiError === "", "Late confirmation did not clear timeout");
+            barStub.controlPanelOpen=true;
             panel.selectCategory("system");
             break;
           case 1:
@@ -200,6 +263,52 @@ ShellRoot {
             break;
           case 2: {
             check(walk(panel.contentItem,o => o.setting === "glass-opacity"), "Appearance controls missing");
+            const toggle=label("Shell glass"), viewport=named("controlPage").parent.parent.parent;
+            if (busyCheck === -1) {
+            const toggleY=toggle.mapToItem(viewport.contentItem, 0, 0).y;
+            viewport.contentY=toggleY + toggle.height / 2;
+            const before=viewport.contentY;
+            toggle.forceActiveFocus(Qt.MouseFocusReason);
+            check(toggle.activeFocus, "Appearance toggle did not receive focus");
+            check(viewport.contentY === before, "Pointer focus unexpectedly scrolled a partially visible toggle");
+            label("×").forceActiveFocus();
+            toggle.forceActiveFocus(Qt.TabFocusReason);
+            check(viewport.contentY === toggleY, "Keyboard focus did not reveal a partially visible toggle");
+            label("×").forceActiveFocus();
+            viewport.contentY=toggleY + toggle.height / 2;
+            toggle.forceActiveFocus(Qt.OtherFocusReason);
+            check(viewport.contentY === toggleY, "Programmatic focus did not reveal a partially visible toggle");
+            desktop.busyOnEffect=true;
+            busyCheck=0;
+            }
+            const names=["Shell glass", "Configured transparency", "Backdrop blur"];
+            if (busyCheck < names.length * 3) {
+              const name=names[Math.floor(busyCheck / 3)], control=label(name);
+              if (busyCheck % 3 === 0) {
+                label("×").forceActiveFocus();
+                const y=control.mapToItem(viewport.contentItem, 0, 0).y;
+                viewport.contentY=Math.min(y, viewport.contentHeight - viewport.height);
+                control.forceActiveFocus(Qt.MouseFocusReason);
+                busyScroll=viewport.contentY; busyHeight=viewport.contentHeight;
+                control.toggle();
+                control.toggled(); // toggle() does not emit the user-only signal.
+                check(desktop.busy, name + " did not dispatch a mocked effect");
+                check(panel.contentItem.Window.window.activeFocusItem === named("controlPage"), name + " did not transfer focus to loader");
+              } else if (busyCheck % 3 === 1) {
+                check(viewport.contentY === busyScroll && viewport.contentHeight === busyHeight, name + " jumped while busy");
+                if (busyCheck === 4) label("×").forceActiveFocus();
+                desktop.busy=false;
+              } else {
+                check(viewport.contentY === busyScroll && viewport.contentHeight === busyHeight, name + " jumped after completion");
+                check(busyCheck === 5 ? label("×").activeFocus : control.activeFocus, name + " stole or lost focus after completion");
+              }
+              busyCheck++;
+              testRoot.stage--;
+              break;
+            }
+            desktop.busyOnEffect=false;
+            desktop.actions=[];
+            viewport.contentY=0;
             const light=named("lightThemeChoice"), dark=named("darkThemeChoice"), wallpaper=named("wallpaperChoice");
             check(light.flat && dark.flat && wallpaper.flat && wallpaper.parent === page(), "Theme section still nested in a card");
             check(!light.highlightedState && dark.highlightedState, "Saved theme selection missing");
@@ -298,13 +407,18 @@ ShellRoot {
             break;
           case 11:
             check(!named("controlPage").item && panel.category === "music", "Closing did not unload page/preserve category");
+            // Reverse visibility repeatedly before the event loop can settle.
+            barStub.controlPanelOpen=true;
+            barStub.controlPanelOpen=false;
             barStub.controlPanelOpen=true;
             panel.selectCategory("not-a-category");
             check(panel.category === "music", "Invalid category accepted");
             panel.implicitWidth=360; panel.implicitHeight=500;
-            panel.focusCategory(5);
+            panel.selectCategory("system");
             break;
           case 12:
+            const focusAfterReversal = panel.contentItem.Window.window.activeFocusItem;
+            check(panel.visible && focusAfterReversal && focusAfterReversal.visible && focusAfterReversal.enabled && focusAfterReversal.activeFocus, "Panel reversal left no valid focused control (focus=" + focusAfterReversal + ", window active=" + panel.contentItem.Window.window.active + ")");
             check(panel.category === "system" && page(), "Narrow navigation failed");
             check(label("Low effects").visible && label("Session…").y + label("Session…").height < panel.height, "Footer unavailable on narrow panel");
             check(desktop.actions.length === 0, "Navigation/closing changed desktop state");
@@ -315,6 +429,22 @@ ShellRoot {
             break;
           case 13:
             check(panel.sessionOpen && !named("controlPage").item && !named("systemPage").visible, "Session overlay did not hide content");
+            label("Log out").clicked();
+            check(panel.confirmation === "Log out", "Session confirmation missing");
+            barStub.categoryRequested("quick");
+            check(!panel.sessionOpen && panel.confirmation === "" && panel.category === "quick" && panel.visible, "Category request did not clear session confirmation");
+            checkCategoryVisible("Quick");
+            const leftX = named("categoryNavigation").contentX;
+            barStub.categoryRequested("audio");
+            check(panel.category === "audio" && panel.visible, "Category request did not select Audio while open");
+            checkCategoryVisible("Audio");
+            check(named("categoryNavigation").contentX > leftX, "Audio request did not scroll right");
+            check(panel.contentItem.Window.window.activeFocusItem, "Category request lost focus");
+            barStub.categoryRequested("quick");
+            check(panel.category === "quick" && panel.visible, "Category request did not select Quick while open");
+            checkCategoryVisible("Quick");
+            check(named("categoryNavigation").contentX < leftX + 0.01, "Quick request did not scroll left");
+            barStub.sessionRequested();
             check(label("Suspend") && label("Shutdown"), "Session actions missing");
             check(desktop.actions.length === 0, "Session actions ran without confirmation");
             label("Log out").clicked();
