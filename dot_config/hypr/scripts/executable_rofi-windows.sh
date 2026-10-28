@@ -8,7 +8,7 @@ fi
 
 # Rofi's window mode does not enumerate native Hyprland windows.
 windows="$(hyprctl -j clients | jq -c '
-  [.[] | select(.mapped and .workspace != null)]
+  [.[] | select(.mapped and .workspace != null and .initialClass != "dropdown-alacritty")]
   | sort_by(.workspace.id, .class, .title)
 ')"
 [[ "$windows" != '[]' ]] || exit 0

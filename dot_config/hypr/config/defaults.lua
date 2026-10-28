@@ -4,7 +4,7 @@ local scripts = home .. "/.config/hypr/scripts"
 return {
   mainMod = "SUPER",
 
-  terminal = os.getenv("USER_TERMINAL") or os.getenv("ALT_TERMINAL") or "ghostty" or "alacritty",
+  terminal = os.getenv("USER_TERMINAL") or os.getenv("ALT_TERMINAL") or "wezterm" or "ghostty" or "alacritty",
   editor = os.getenv("EDITOR") or "vi",
   fileManager = "nautilus",
   -- browser = "zen_browser",

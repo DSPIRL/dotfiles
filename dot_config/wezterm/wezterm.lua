@@ -36,7 +36,7 @@ local operatingSystem = trim(getOperatingSystem())
 if operatingSystem == "Darwin" then
 	config.window_decorations = "RESIZE"
 	config.macos_window_background_blur = 30
-	config.window_background_opacity = 0.90
+	config.window_background_opacity = 0.95
 	config.enable_tab_bar = false
 	config.font_size = 13
 	-- config.send_composed_key_when_left_alt_is_pressed = false
@@ -44,7 +44,7 @@ if operatingSystem == "Darwin" then
 else
 	config.enable_wayland = true
 	config.window_decorations = "TITLE | RESIZE"
-	config.window_background_opacity = 0.90
+	config.window_background_opacity = 0.93
 	config.enable_tab_bar = false
 	config.font_size = 13
 end
@@ -59,7 +59,8 @@ config.initial_rows = 50
 
 local wallust_colors
 if use_wallust then
-	local wallust_colors_path = wezterm.config_dir .. "/wallust.lua"
+	-- Wallust owns only theme.lua, never this config.
+	local wallust_colors_path = wezterm.config_dir .. "/theme.lua"
 	wezterm.add_to_config_reload_watch_list(wallust_colors_path)
 	local loaded, colors = pcall(dofile, wallust_colors_path)
 	if loaded and type(colors) == "table" then

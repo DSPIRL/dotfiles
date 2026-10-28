@@ -28,6 +28,7 @@ end
 local function center_lone_floating_window(window)
   if not window or not window.mapped or not window.workspace or not window.floating
       or window.hidden or window.pinned or window.fullscreen ~= 0 or window.title == "Picture-in-Picture"
+      or window.class == "dropdown-alacritty"
       or (window.xwayland and window.class == "KeePassXC" and window.title == "KeePassXC") then
     return
   end
@@ -123,6 +124,7 @@ end
 -- Launchers and panels. Alt selects alternate tools; movement below uses Alt to send.
 -- Search open windows across workspaces; Super+Space still launches apps.
 hl.bind("ALT + SPACE", hl.dsp.exec_cmd(vars.windowSwitcher))
+hl.bind("SUPER + semicolon", hl.dsp.exec_cmd((os.getenv("HOME") or "/home/athe") .. "/.config/hypr/scripts/dropdown-terminal.sh"))
 hl.bind(main("SPACE"), hl.dsp.exec_cmd(vars.appLauncher))
 hl.bind(main_alt("SPACE"), hl.dsp.exec_cmd(vars.shell))
 hl.bind(main_alt("B"), hl.dsp.exec_cmd(vars.search))

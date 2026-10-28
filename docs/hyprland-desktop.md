@@ -14,6 +14,7 @@ The desktop uses the existing Quickshell configuration, Wallust accents, and neu
 - **Display**: Night light, laptop/DDC brightness, monitor resolution and detection refresh.
 - **System**: CPU/RAM/temperature (click for `btop`), software updates, diagnostics and maintenance. Low-effects mode, Lock and Session remain in the shared footer on every category.
 - Bar status indicators: left-click volume for Audio, or Bluetooth/network for Quick. The clicked monitor's controls stay open and switch category even if already open. Right-click volume to mute/unmute, scroll over it to adjust volume, or right-click Bluetooth to open `blueman-manager` (or report its absence). Network has no right-click action. With no default audio sink, volume shows `--`; left-click still opens Audio, while mute and wheel do nothing. These work independently of the keyboard shortcuts.
+- `Super+;`: toggle a dedicated Alacritty dropdown on `special:dropdown`. Hiding preserves its running shell, not its state across exit or session restart; exiting it makes the next toggle start a new one. The custom `Alt+Space` switcher excludes windows with initial class `dropdown-alacritty` (not other switchers); normal Alacritty remains listed. The floating window is 504 × 504 logical pixels, horizontally centered at y=53 on its monitor. Do not move it off `special:dropdown` or put other windows there: the toggle owns that workspace. This is one shared dropdown, not one per monitor; monitor selection and small/scaled display placement are not guaranteed. The vertical special-workspace animation affects all special workspaces; low-effects mode can disable animations. Concurrent presses are discarded while a toggle is in progress. IPC waits are limited to one second and startup to roughly five seconds; errors go to stderr. If startup times out, the launched process is not killed: check or close it before retrying to avoid a duplicate if it maps late.
 - `Super+N`: open/close notification history.
 - `Super+Shift+B`: show/hide the bar with a 200 ms, 12 px slide-and-fade (up to hide, down to show; no bounce). Low-effects mode makes the toggle instant. Controls remain accessible while it is hidden.
 - `Super+Ctrl+R`: reload Hyprland.
@@ -190,6 +191,8 @@ qs ipc call notifications isQuiet
 qs ipc call control keepAwake false
 qs ipc call control isKeepingAwake
 ```
+
+Run `bash tests/dropdown-terminal.sh` for mocked launch, delayed and concurrent toggles, failure and timeout handling, restart, switcher filtering, and Lua rule checks. These do not verify actual compositor placement, key delivery, animation, or multi-monitor behavior. After deploying, check those manually when safe; this change has not been applied or reloaded by the tests.
 
 Run `bash tests/desktop-settings.sh` for isolated migration, idempotence, override, rollback, concurrency, Lua/CLI agreement, runtime rule reuse, and colors-only wallpaper refresh checks. These tests use compositor doubles; they do not prove live window geometry preservation. `lua tests/centered-window.lua` checks border clearance and toggle restoration without modifying live windows. Installer checks in `tests/hyprland-installer.sh` stub all installation/deployment commands; they do not install packages or modify services.
 

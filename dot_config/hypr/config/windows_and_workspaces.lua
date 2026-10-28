@@ -28,7 +28,15 @@ wr("tag +browser", { class = [[^([Tt]horium-browser|[Cc]achy-browser)$]] })
 wr("tag +browser", { class = [[^(zen-alpha|zen)$]] })
 
 -- Terminal tags
-wr("tag +terminal", { class = [[^([Aa]lacritty|kitty|kitty-dropterm|[Ww]ezterm|[Ww]ezterm-gui|org.wezfurlong.wezterm|[Gg]hostty|com.mitchellh.ghostty)$]] })
+wr("tag +terminal", { class = [[^(kitty|kitty-dropterm|[Ww]ezterm|[Ww]ezterm-gui|org.wezfurlong.wezterm|[Gg]hostty|com.mitchellh.ghostty)$]] })
+wr("tag +alt-terminal", { class = [[^([Aa]lacritty)$]] })
+
+-- Dedicated scratchpad; normal Alacritty keeps its existing rules.
+wr("float on", { class = [[^(dropdown-alacritty)$]] })
+wr("size 504 504", { class = [[^(dropdown-alacritty)$]] })
+wr("move (monitor_w*0.5-252) 53", { class = [[^(dropdown-alacritty)$]] })
+wr("opacity 1.0 override 1.0 override 1.0 override", { class = [[^(dropdown-alacritty)$]] })
+wr("workspace special:dropdown silent", { class = [[^(dropdown-alacritty)$]] })
 
 -- App tags
 wr("tag +dictionary", { class = [[^(gnome-dictionary|org.gnome.[Dd]ictionary)$]] })
@@ -99,6 +107,10 @@ wr("idle_inhibit fullscreen", { fullscreen = true })
 wr("workspace 10", { tag = "games" })
 
 -- Tag rules
+wr("float on", { tag = "alt-terminal" })
+wr("size (monitor_h*0.35) (monitor_h*0.35)", { tag = "alt-terminal" })
+wr("opacity 1.0 override 1.0 override 1.0 override", { tag = "alt-terminal" })
+
 wr("float on", { tag = "terminal" })
 wr("size (monitor_h*1.4) (monitor_h*0.8)", { tag = "terminal" })
 wr("opacity 0.9 override 0.8 override 1.0 override", { tag = "terminal" })
