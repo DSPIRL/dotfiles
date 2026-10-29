@@ -1,7 +1,9 @@
 {{- $isDarwin := eq .chezmoi.os "darwin" -}}
 {{- $isLinux := eq .chezmoi.os "linux" -}}
 [general]
+{{- if and .hasHyprland (not .isWSL) }}
 import = ["./colors.toml"]
+{{- end }}
 
 [selection]
 save_to_clipboard = true
