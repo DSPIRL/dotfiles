@@ -20,6 +20,13 @@ function __add_path --argument-names path position
     end
 end
 
+{{- if eq .chezmoi.os "darwin" }}
+##### HOMEBREW (macOS) #####
+if test -x /opt/homebrew/bin/brew
+    eval (/opt/homebrew/bin/brew shellenv fish)
+end
+{{- end }}
+
 __add_path "$HOME/.local/bin"
 __add_path "$HOME/.local/scripts"
 
@@ -67,9 +74,8 @@ if test -d /opt/homebrew/opt/ruby
 end
 
 ##### DOTNET (macOS) #####
-if test -d "$HOME/.dotnet"
-    set -gx DOTNET_ROOT /opt/homebrew/bin
-    __add_path "$DOTNET_ROOT" append
+if test -d /opt/homebrew/opt/dotnet/libexec
+    set -gx DOTNET_ROOT /opt/homebrew/opt/dotnet/libexec
     __add_path "$HOME/.dotnet/tools" append
 end
 
