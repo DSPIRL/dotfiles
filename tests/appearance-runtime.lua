@@ -56,6 +56,21 @@ local function check(blur, opacity, low)
   assert(windows["opacity-toggle"].opacity == string.format("%.2f override %.2f override 1.0 override", alpha, alpha))
   for _, namespace in ipairs({ "quickshell", "rofi", "notifications" }) do
     assert(layers["effects-blur-" .. namespace].enabled == blur)
+    assert(layers["effects-blur-" .. namespace].blur_popups == (namespace == "quickshell"))
+  end
+  local shadow = assert(layers["control-center-shadow"])
+  assert(shadow.match.namespace == "^quickshell-control-shadow$")
+  assert(shadow.order == 1, "0.56.2 paints descending order: shadow must precede order-0 glass")
+  assert(shadow.no_anim == true, "Detached shadow fadeout snapshots must not bypass mapped layer order")
+  assert(shadow.blur == false and shadow.blur_popups == false, "Shadow must stay unblurred at every preference state")
+  assert(not layers["effects-blur-quickshell-control-shadow"], "Shadow must not join the blur preference namespace list")
+  for _, surface in ipairs({ "bar", "notification", "toast", "tray" }) do
+    local namespace = "quickshell-" .. surface .. "-shadow"
+    local rule = assert(layers[namespace])
+    assert(rule.match.namespace == "^" .. namespace .. "$")
+    assert(rule.order == 1 and rule.no_anim == true)
+    assert(rule.blur == false and rule.blur_popups == false)
+    assert(not layers["effects-blur-" .. namespace])
   end
   assert(count(windows) == window_count and count(layers) == layer_count)
 end

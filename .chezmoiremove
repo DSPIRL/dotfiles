@@ -1,3 +1,4 @@
 .config/xdg-desktop-portal/portals.conf
 .local/scripts/fzf-path-widget
 .config/hypr/scripts/waypaper.sh
+.config/quickshell/default/components/control/ControlShadow.qml

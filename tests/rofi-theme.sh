@@ -113,8 +113,12 @@ for name, expected in [
 ]:
     assert re.search(rf'\b{name}:\s*{expected}\s*;', window), (name, window)
 PY
+      rofi -config "$config" -dump-config >"$sandbox/config.rasi" 2>"$sandbox/parser.log"
+      grep -Eq 'hover-select:[[:space:]]+true;' "$sandbox/config.rasi"
+      grep -Eq 'me-select-entry:[[:space:]]+"";' "$sandbox/config.rasi"
+      grep -Eq 'me-accept-entry:[[:space:]]+"MousePrimary";' "$sandbox/config.rasi"
+      [[ ! -s "$sandbox/parser.log" ]]
       if [[ "${config##*/}" == config-apps.rasi ]]; then
-        rofi -config "$config" -dump-config >"$sandbox/config.rasi" 2>"$sandbox/parser.log"
         grep -q 'drun-display-format: "{name}"' "$sandbox/config.rasi"
         grep -q 'drun-match-fields: "name,generic,exec,categories,keywords,comment"' "$sandbox/config.rasi"
         grep -Eq 'size:[[:space:]]+42px' "$sandbox/theme.rasi"

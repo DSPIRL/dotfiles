@@ -8,72 +8,23 @@ import Quickshell.Services.Mpris
 import Quickshell.Services.Notifications
 import Quickshell.Services.Pipewire
 import Quickshell.Services.UPower
-import Quickshell.Wayland
-
-import ".." as Style
 import "../wallust" as Wallust
 import "bar"
 import "control"
 import "notifications"
 import "Presentation.js" as Presentation
 
-PanelWindow {
+BarSurface {
   id: barWindow
-
-  readonly property int pillMargin: 4
-
-  anchors {
-    top: true
-    left: true
-    right: true
-  }
-
-  margins {
-    top: 0
-    left: 0
-    right: 0
-  }
-
-  implicitHeight: Style.Tokens.barPillHeight + pillMargin * 2
-  // Keep the surface mapped so Hyprland cannot add a second show/hide animation.
-  // Once hidden it reserves no space and accepts no input.
-  visible: true
-  exclusionMode: ExclusionMode.Normal
-  exclusiveZone: barVisible || barReveal > 0 ? implicitHeight : 0
-  color: "transparent"
-
-  property real barReveal: barVisible ? 1 : 0
-  readonly property bool barInteractive: barVisible && barReveal === 1
-
-  Behavior on barReveal {
-    enabled: !wallust.lowEffects
-    NumberAnimation {
-      id: revealAnimation
-      duration: 200
-      easing.type: Easing.OutCubic
-    }
-  }
-
-  WlrLayershell.namespace: "quickshell"
-
-  // Only the glass islands receive input; gaps remain part of the desktop.
-  mask: Region {
-    Region { x: barWindow.pillMargin; y: barWindow.pillMargin; width: barWindow.barInteractive ? workspacePill.width : 0; height: workspacePill.height; radius: workspacePill.radius }
-    Region { x: barWindow.width - rightPill.width - barWindow.pillMargin; y: barWindow.pillMargin; width: barWindow.barInteractive ? rightPill.width : 0; height: rightPill.height; radius: rightPill.radius }
-    Region {
-      x: clockPill.x
-      y: clockPill.y
-      width: barWindow.barInteractive && clockPill.visible ? clockPill.width : 0
-      height: clockPill.height
-      radius: clockPill.radius
-    }
-  }
+  wallust: shellColors
+  leftIsland: workspacePill
+  rightIsland: rightPill
+  clockIsland: clockPill
 
   Wallust.Colors {
-    id: wallust
+    id: shellColors
     lightMode: barWindow.desktopState && barWindow.desktopState.values.theme === "light"
     lowEffects: Boolean(barWindow.desktopState && barWindow.desktopState.values.lowEffects)
-    onLowEffectsChanged: if (lowEffects) revealAnimation.complete()
     glassOpacity: barWindow.desktopState ? barWindow.desktopState.glassOpacity / 100 : 0.4
     solidSurfaces: lowEffects || !Boolean(barWindow.desktopState && barWindow.desktopState.values.effectiveShellGlass)
   }
@@ -110,7 +61,6 @@ PanelWindow {
   signal setBarVisible(bool value)
   signal sessionRequested()
   signal categoryRequested(string category)
-  property bool barVisible: true
   readonly property string networkStatus: networkState.tooltip
   readonly property string wifiStatus: networkState.wifiTooltip
   property var focusedHyprMonitor
@@ -419,14 +369,14 @@ PanelWindow {
 
   NotificationToast {
     bar: barWindow
-    wallust: wallust
+    wallust: barWindow.wallust
     notification: barWindow.toastNotification
     timer: toastTimer
   }
 
   NotificationPanel {
     bar: barWindow
-    wallust: wallust
+    wallust: barWindow.wallust
   }
 
   ControlPanel {
@@ -452,7 +402,7 @@ PanelWindow {
       WorkspacePill {
         id: workspacePill
         bar: barWindow
-        wallust: wallust
+        wallust: barWindow.wallust
       }
 
       Item { Layout.fillWidth: true }
@@ -460,7 +410,7 @@ PanelWindow {
       RightPill {
         id: rightPill
         bar: barWindow
-        wallust: wallust
+        wallust: barWindow.wallust
         networkState: networkState
       }
     }
@@ -471,7 +421,7 @@ PanelWindow {
       y: barWindow.pillMargin
       visible: x > workspacePill.width + barWindow.pillMargin + 12 && x + width < parent.width - rightPill.width - barWindow.pillMargin - 12
       bar: barWindow
-      wallust: wallust
+      wallust: barWindow.wallust
       clock: clock
     }
   }

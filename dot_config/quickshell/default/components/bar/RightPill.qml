@@ -19,6 +19,7 @@ GlassSurface {
 
     SystemTraySection {
       wallust: root.wallust
+      barInteractive: root.bar.barInteractive
     }
 
     StatusIndicators {

@@ -36,15 +36,19 @@ PanelWindow {
   ]
 
   visible: Boolean(bar.controlPanelOpen)
-  implicitWidth: Math.min(640, screen ? screen.width - 24 : 640)
-  implicitHeight: Math.min(740, screen ? screen.height - margins.top - 16 : 740)
+  // Both native surfaces share padded bounds. Glass retains its visible size,
+  // compositor transitions and local coordinates; the shadow maps instantly.
+  implicitWidth: Math.max(0, Math.min(640, screen ? screen.width - 24 : 640)) + 24
+  implicitHeight: Math.max(0, Math.min(740, screen ? screen.height - (margins.top + 9) - 16 : 740)) + 24
   color: "transparent"
   screen: bar.screen
   focusable: visible
   exclusionMode: ExclusionMode.Ignore
   anchors { top: true; right: true }
-  margins { top: bar.barVisible ? bar.height + 12 : 12; right: 12 }
+  margins { top: (bar.barVisible ? bar.height + 12 : 12) - 9; right: 0 }
   WlrLayershell.namespace: "quickshell"
+  // Shadow padding and rounded corners must not intercept desktop input.
+  mask: Region { x: glass.x; y: glass.y; width: glass.width; height: glass.height; radius: glass.radius }
 
   function selectCategory(key) {
     const index = categories.findIndex(page => page.key === key);
@@ -108,7 +112,10 @@ PanelWindow {
   TextMetrics { id: categoryMetrics; font: Style.Typography.controlHintFont; text: "Look & Feel" }
 
   GlassSurface {
+    id: glass
+    objectName: "controlGlass"
     anchors.fill: parent
+    anchors { leftMargin: 12; rightMargin: 12; topMargin: 9; bottomMargin: 15 }
     wallust: root.wallust
     radius: Style.Tokens.panelRadius
     Keys.onEscapePressed: {
@@ -333,6 +340,32 @@ PanelWindow {
         text: "Session…"
         onClicked: { root.sessionOpen = !root.sessionOpen; root.confirmation = ""; scroll.contentY = 0; }
       }
+    }
+  }
+
+  // Hyprland's scoped order=1 rule paints this Top surface before order-0
+  // glass. Do not rely on QML z, declaration order or map timing across windows.
+  PanelWindow {
+    id: shadowWindow
+    objectName: "controlShadowWindow"
+    screen: root.screen
+    visible: root.visible && shadowPaint.active
+    implicitWidth: root.implicitWidth
+    implicitHeight: root.implicitHeight
+    anchors { top: true; right: true }
+    margins { top: root.margins.top; right: root.margins.right }
+    color: "transparent"
+    exclusionMode: ExclusionMode.Ignore
+    focusable: false
+    mask: Region {}
+    WlrLayershell.layer: WlrLayer.Top
+    WlrLayershell.namespace: "quickshell-control-shadow"
+    SurfaceShadow {
+      id: shadowPaint
+      anchors.fill: parent
+      wallust: root.wallust
+      panelRects: [Qt.rect(glass.x, glass.y, glass.width, glass.height)]
+      radius: glass.radius
     }
   }
 

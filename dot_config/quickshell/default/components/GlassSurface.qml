@@ -1,8 +1,8 @@
 import QtQuick
-import QtQuick.Effects
 import ".." as Style
 
-// Shared material for the bar and controls; Hyprland supplies backdrop blur.
+// Hyprland supplies backdrop blur. Exterior shadows belong on separate,
+// unblurred surfaces, not in the shared glass/blur mask.
 Rectangle {
   id: root
   required property var wallust
@@ -48,16 +48,6 @@ Rectangle {
       GradientStop { position: 0.75; color: root.wallust.barBorder }
       GradientStop { position: 1; color: "transparent" }
     }
-  }
-
-  RectangularShadow {
-    anchors.fill: parent
-    z: -1
-    visible: !root.wallust.lowEffects
-    radius: root.radius
-    blur: 12
-    offset: Qt.vector2d(0, 3)
-    color: root.wallust.lightMode ? "#180B1422" : "#38000000"
   }
 
   Rectangle {
