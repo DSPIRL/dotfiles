@@ -35,14 +35,35 @@ hl.config({
 		dim_special = 0,
 
 		shadow = {
-			range = 20,
-			render_power = 3,
+			range = 30,
+            -- offset = {5, 5}, -- vec {x_pixel, y_pixel}
+            scale = 1.00, --float 0.05-2.00
+			render_power = 3, -- int 1-4
 			color = "rgba(10101099)",
+            -- sharp = true
 			-- color = wallust.color12,
 			-- color_inactive = wallust.color10,
 		},
 
+        wobble = {
+            enabled = false,
+            mesh = 6,
+        },
+
+        glow = {
+            enabled = false,
+            range = 20,
+        },
+
 		blur = {
+		-- variant = "acrylic",
+		-- acrylic = {
+		--     aberration = 0.0,  -- 0.0-0.25
+		--     bulb = 8,  -- 4.0-256.0
+		--     clarity = 0.2,  -- 0.0-1.0
+		--     refraction = 44,  -- float 0.0-48
+		--     tint = 0x00000000,
+		-- },
 			size = 3,
 			passes = 3,
 			xray = false,
