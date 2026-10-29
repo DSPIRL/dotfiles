@@ -6,6 +6,13 @@ export XDG_CONFIG_HOME="${HOME}/.config"
 export XDG_DATA_HOME="${HOME}/.local/share"
 export XDG_CACHE_HOME="${HOME}/.cache"
 
+{{- if eq .chezmoi.os "darwin" }}
+##### HOMEBREW (macOS) #####
+if [ -x "/opt/homebrew/bin/brew" ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv bash)"
+fi
+{{- end }}
+
 ##### PATH #####
 export PATH="${HOME}/.local/bin:${PATH}"
 export PATH="${HOME}/.local/scripts:${PATH}"
@@ -56,9 +63,9 @@ if [ -d "/opt/homebrew/opt/ruby" ]; then
 fi
 
 ##### DOTNET (macOS) #####
-if [ -d "${HOME}/.dotnet" ]; then
-    export DOTNET_ROOT="/opt/homebrew/bin"
-    export PATH="${PATH}:${DOTNET_ROOT}:${HOME}/.dotnet/tools"
+if [ -d "/opt/homebrew/opt/dotnet/libexec" ]; then
+    export DOTNET_ROOT="/opt/homebrew/opt/dotnet/libexec"
+    export PATH="${PATH}:${HOME}/.dotnet/tools"
 fi
 
 {{- else if eq .chezmoi.os "linux" }}

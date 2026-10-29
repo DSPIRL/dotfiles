@@ -34,6 +34,19 @@ if ((sys host | get name | str contains --ignore-case "Linux")) {
     $env.XDG_DATA_DIRS = $"($env.HOME)/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share"
 
 } else if ((sys host | get name | str contains --ignore-case "Darwin")) {
+    ##### HOMEBREW (macOS) #####
+    $env.HOMEBREW_PREFIX = "/opt/homebrew"
+    $env.HOMEBREW_CELLAR = "/opt/homebrew/Cellar"
+    $env.HOMEBREW_REPOSITORY = "/opt/homebrew"
+    add-path "/opt/homebrew/sbin" --prepend
+    add-path "/opt/homebrew/bin" --prepend
+
+    ##### DOTNET (macOS) #####
+    if ("/opt/homebrew/opt/dotnet/libexec" | path exists) {
+        $env.DOTNET_ROOT = "/opt/homebrew/opt/dotnet/libexec"
+        add-path $"($env.HOME)/.dotnet/tools"
+    }
+
     $env.VISUAL = "/opt/homebrew/bin/nvim"
     $env.config.buffer_editor = "/opt/homebrew/bin/nvim"
 }
