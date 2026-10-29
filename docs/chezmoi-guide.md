@@ -10,12 +10,12 @@ Reference guide for advanced chezmoi features used in this dotfiles repository.
 
 ## First-Time Setup (New Machine)
 
-This repository uses age encryption with keys stored in KeePassXC. Follow these steps on a new machine:
+This repository enables age encryption and KeePassXC only on personal machines with the password database present.
 
 ### Prerequisites
 
-1. Install chezmoi and keepassxc-cli
-2. Have your KeePassXC database available (e.g., via Syncthing)
+1. Install chezmoi
+2. For personal secrets, install keepassxc-cli and make your KeePassXC database available (e.g., via Syncthing)
 
 ### Bootstrap Steps
 
@@ -23,14 +23,14 @@ This repository uses age encryption with keys stored in KeePassXC. Follow these 
 # 1. Initialize chezmoi with this repo
 chezmoi init <your-repo-url>
 
-# 2. This processes .chezmoi.toml.tmpl and prompts for your KeePassXC password
-#    The age key is automatically extracted from KeePassXC
+# 2. Choose personal or work (default: work); WSL is always work, without a prompt
 
-# 3. Apply the dotfiles
+# 3. Apply the dotfiles (prompts for the KeePassXC password and extracts the age key
+#    only when personal and the database is present)
 chezmoi apply
 ```
 
-On WSL systems, encryption and KeePassXC are disabled automatically - the setup will work without the database.
+Work machines, including WSL, do not require KeePassXC or the database.
 
 On CachyOS, install the base packages and optional components with:
 
@@ -60,11 +60,18 @@ Processes `.chezmoi.toml.tmpl` and generates `~/.config/chezmoi/chezmoi.toml`.
 
 1. Reads `.chezmoi.toml.tmpl` from source directory
 2. Evaluates template variables (`.chezmoi.os`, `.chezmoi.homeDir`, etc.)
-3. Runs any template logic (e.g., `stat` check for KeePassXC database)
+3. Loads or prompts for machine policy, detects platform/software facts, and checks for the KeePassXC database
 4. Writes the result to `~/.config/chezmoi/chezmoi.toml`
-5. Sets up encryption, KeePassXC paths, and data variables for other templates
+5. Sets up data variables and, when enabled, age encryption and KeePassXC paths
 
-**When to run:** After cloning the repo, or after changing `.chezmoi.toml.tmpl`.
+**When to run:** After cloning, changing `.chezmoi.toml.tmpl`, installing/removing detected software, or making the password database available/unavailable.
+
+### Machine Policy and Detection
+
+- **Classification:** `promptChoiceOnce` persists `machineType` as `personal` or `work` (default: `work`). Normal reinitialization reuses that choice; run `chezmoi init --prompt` to change it. WSL always uses `work`, regardless of a saved choice.
+- **Detected facts:** Each `chezmoi init` refreshes `isLinux`, `isMacOS`, `isCachyOS`, and `isWSL`, plus boolean `hasHyprland` (`Hyprland` or `hyprctl` on `PATH`) and `hasFish` (`fish` on `PATH`). These are saved facts, not live checks during `apply`.
+- **Deployment:** Work machines exclude personal configs (`~/.config/containers/`, `~/.config/chezmoi/`, `~/.ssh/`) and Neovim OpenCode. Hyprland implies Linux; its desktop/theme configs require detected Hyprland and non-WSL. Fish config is managed only on Linux with Fish installed. Outside the Hyprland desktop, Ghostty uses Carbonfox, Nushell uses the static Spaceship prompt, and Alacritty omits the Wallust palette import. WSL excludes GUI configs and Neovim silicon because this setup has no clipboard support there.
+- **Secrets:** Personal classification is independent of database presence. `useKeePassXC` is true only for a personal machine with `~/Documents/Syncs/KeePass/Databases/Passwords/Passwords.kdbx` present. Otherwise age/KeePassXC configuration is omitted and `~/.config/chezmoi/` is ignored, protecting any existing age key from an empty key template.
 
 ### `chezmoi apply`
 
@@ -106,21 +113,28 @@ Chezmoi provides several methods for handling platform differences.
 
 ### Method 1: `.chezmoiignore` with Templates
 
-Exclude entire files or directories based on OS. This is ideal when a config only applies to one platform.
+Exclude entire files or directories using the generated policy and detected facts. All ignore patterns use destination paths relative to `~`, not source names such as `dot_config/`.
 
 ```
-# Skip on Linux (macOS only)
-{{ if ne .chezmoi.os "darwin" }}
-dot_config/aerospace/
-dot_config/karabiner/
+# macOS only
+{{ if not .isMacOS }}
+.config/aerospace/
+.config/karabiner/
 {{ end }}
 
-# Skip on macOS (Linux only)
-{{ if ne .chezmoi.os "linux" }}
-dot_config/hypr/
-dot_config/quickshell/
+# Hyprland desktop only; never WSL
+{{ if or (not .hasHyprland) .isWSL }}
+.config/hypr/
+.config/quickshell/
+{{ end }}
+
+# Fish installed on Linux only
+{{ if or (not .isLinux) (not .hasFish) }}
+.config/fish/
 {{ end }}
 ```
+
+Ignoring prevents deployment; it does not remove already-deployed files. After changing classification, review and manually remove any previously deployed configs that no longer belong.
 
 ### Method 2: Template Files (`.tmpl` suffix)
 
@@ -200,12 +214,7 @@ Use in templates with dot prefix:
 
 ### WSL Detection
 
-This repo detects WSL using a computed data variable in `.chezmoi.toml.tmpl`:
-
-```toml
-[data]
-    isWSL = {{ if and (eq .chezmoi.os "linux") (contains "microsoft" .chezmoi.kernel.osrelease) }}true{{ else }}false{{ end }}
-```
+`.chezmoi.toml.tmpl` detects WSL when the OS is Linux and the lowercased kernel release contains `microsoft`, then saves the boolean as `isWSL` in `[data]`.
 
 Use in templates:
 
@@ -217,7 +226,7 @@ Use in templates:
 {{- end }}
 ```
 
-**Note:** The `.isWSL` variable is only available in other templates, not within `.chezmoi.toml.tmpl` itself. In the config template, use the full condition.
+**Note:** Other templates use `.isWSL`; `.chezmoi.toml.tmpl` computes and uses the local `$isWSL` variable.
 
 ---
 

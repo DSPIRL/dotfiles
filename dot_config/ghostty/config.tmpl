@@ -46,7 +46,7 @@
 # ==================================
 # ===USER CONFIG===
 # fullscreen = true # Starts the app in fullscreen
-{{- if eq .chezmoi.os "linux" }}
+{{- if and .hasHyprland (not .isWSL) }}
 theme = wallust.conf
 {{- else }}
 theme = Carbonfox

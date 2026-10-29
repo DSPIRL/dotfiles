@@ -1,16 +1,36 @@
-{{- $isWSL := and (eq .chezmoi.os "linux") (contains "microsoft" .chezmoi.kernel.osrelease) -}}
-{{- $isCachyOS := and (eq .chezmoi.os "linux") (hasKey .chezmoi.osRelease "id") (eq .chezmoi.osRelease.id "cachyos") -}}
+{{- $isLinux := eq .chezmoi.os "linux" -}}
+{{- $isMacOS := eq .chezmoi.os "darwin" -}}
+{{- $isWSL := and $isLinux (contains "microsoft" (lower .chezmoi.kernel.osrelease)) -}}
+{{- $isCachyOS := and $isLinux (eq (dig "id" "" .chezmoi.osRelease) "cachyos") -}}
+{{- $hasHyprland := or (lookPath "Hyprland") (lookPath "hyprctl") | not | not -}}
+{{- $hasFish := lookPath "fish" | not | not -}}
+{{- $machineType := "work" -}}
+{{- if not $isWSL -}}
+{{- $machineType = promptChoiceOnce . "machineType" "Machine type" (list "personal" "work") "work" -}}
+{{- end -}}
+{{- $isPersonalMachine := eq $machineType "personal" -}}
 {{- $keepassDB := joinPath .chezmoi.homeDir "Documents/Syncs/KeePass/Databases/Passwords/Passwords.kdbx" -}}
-{{- $useKeePassXC := and (not $isWSL) (stat $keepassDB) -}}
+{{- $useKeePassXC := and $isPersonalMachine (stat $keepassDB) | not | not -}}
 
 {{ if $useKeePassXC -}}
 encryption = "age"
 {{ end }}
 
 [data]
+    # Machine policy: chosen once at init; WSL is always work.
+    machineType = {{ $machineType | quote }}
+    isPersonalMachine = {{ $isPersonalMachine }}
+
+    # Detected facts: rerun chezmoi init after installing/removing software.
+    isLinux = {{ $isLinux }}
+    isMacOS = {{ $isMacOS }}
     isWSL = {{ $isWSL }}
     isCachyOS = {{ $isCachyOS }}
-    useKeePassXC = {{ $useKeePassXC | not | not }}
+    hasHyprland = {{ $hasHyprland }}
+    hasFish = {{ $hasFish }}
+
+    # Secret access is separate from personal/work classification.
+    useKeePassXC = {{ $useKeePassXC }}
 
 {{ if $useKeePassXC }}
 [age]
