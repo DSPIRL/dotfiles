@@ -1,6 +1,9 @@
 configuration {
     modes: [ combi ];
     combi-modes: [ window, drun, run ];
+    hover-select: true;
+    me-select-entry: "";
+    me-accept-entry: "MousePrimary";
 }
 
 

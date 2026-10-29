@@ -70,6 +70,8 @@ function M.apply()
         name = "effects-blur-" .. namespace,
         match = { namespace = namespace },
         blur = true,
+        -- Layer-surface popups need their own blur rule; window popup blur is separate.
+        blur_popups = namespace == "quickshell",
         enabled = current.blur,
       })
     else

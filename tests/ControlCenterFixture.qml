@@ -163,7 +163,8 @@ ShellRoot {
     property real position: 0
     property real length: 0
   }
-  Control.ControlPanel { id: panel; bar: barStub; wallust: palette }
+  readonly property bool geometryOnly: Quickshell.env("CONTROL_CENTER_GEOMETRY_ONLY") === "1"
+  Control.ControlPanel { id: panel; bar: barStub; wallust: palette; focusable: visible && !testRoot.geometryOnly }
   function walk(item, predicate) {
     if (predicate(item)) return item;
     for (const child of item.children || []) {
@@ -174,6 +175,29 @@ ShellRoot {
   }
   function label(text) { return walk(panel.contentItem, o => o.text === text); }
   function named(name) { return walk(panel.contentItem, o => o.objectName === name); }
+  function shadowWindow() { return panel.contentItem.data.find(o => o.objectName === "controlShadowWindow"); }
+  function checkShadow() {
+    const shadow = shadowWindow();
+    check(shadow && shadow.screen === panel.screen, "Shadow screen not synchronized");
+    check(shadow.visible === (panel.visible && !palette.lowEffects && (palette.solidSurfaces || palette.glassOpacity > 0)), "Shadow visibility not synchronized");
+    check(shadow.backingWindowVisible === shadow.visible, "Shadow native window did not map/unmap with policy");
+    if (shadow.visible) check(shadow.width === panel.width && shadow.height === panel.height,
+      "Mapped shadow buffer dimensions differ from panel");
+    check(!shadow.focusable && shadow.WlrLayershell.keyboardFocus === WlrKeyboardFocus.None,
+      "Shadow must never take keyboard focus");
+    check(shadow.exclusionMode === ExclusionMode.Ignore && shadow.mask.width === 0
+      && shadow.mask.height === 0 && shadow.mask.regions.length === 0, "Shadow must be click-through without reserved space");
+    check(shadow.WlrLayershell.namespace === "quickshell-control-shadow"
+      && shadow.WlrLayershell.layer === WlrLayer.Top && panel.WlrLayershell.layer === WlrLayer.Top,
+      "Shadow must use the separately scoped Top namespace");
+    check(shadow.implicitWidth === panel.width && shadow.implicitHeight === panel.height
+      && shadow.margins.top === panel.margins.top && shadow.margins.right === panel.margins.right
+      && shadow.anchors.top && shadow.anchors.right, "Shadow frame differs from glass window");
+    const paint = shadow.contentItem.children[0], glass = named("controlGlass");
+    check(paint.panelRects.length === 1 && paint.panelRects[0].x === glass.x && paint.panelRects[0].y === glass.y
+      && paint.panelRects[0].width === glass.width && paint.panelRects[0].height === glass.height
+      && paint.radius === glass.radius, "Shadow/cutout geometry not synchronized");
+  }
   function check(value, message) { if (!value) throw new Error(message); }
   function page() { return panel.category === "system" ? named("systemPage").item : named("controlPage").item; }
   function checkCategoryVisible(name) {
@@ -202,6 +226,27 @@ ShellRoot {
     }
     check(wallpaper.y >= bottom, "Wallpaper overlaps the theme selector");
   }
+  function checkGlassGeometry(narrow) {
+    const glass = named("controlGlass"), mask = panel.mask;
+    check(panel.color.a === 0 && !panel.contentItem.clip && !glass.clip, "Window padding must be transparent and unclipped");
+    check(glass.x === 12 && glass.y === 9 && panel.width - glass.x - glass.width === 12
+      && panel.height - glass.y - glass.height === 15, "Shadow padding does not match blur/offset extents");
+    const top = barStub.barVisible ? barStub.height + 12 : 12;
+    check(panel.anchors.top && panel.anchors.right && panel.margins.top + glass.y === top
+      && panel.margins.right + 12 === 12, "Visible glass moved from its original anchor");
+    check(glass.width === (narrow ? 360 : Math.min(640, panel.screen.width - 24))
+      && glass.height === (narrow ? 500 : Math.min(740, panel.screen.height - top - 16)), "Visible glass dimensions changed");
+    check(panel.width + panel.margins.right <= panel.screen.width
+      && panel.height + panel.margins.top <= panel.screen.height, "Padded window exceeds viewport");
+    check(mask.x === glass.x && mask.y === glass.y && mask.width === glass.width
+      && mask.height === glass.height && mask.radius === glass.radius, "Input mask includes padding or square corners");
+    const close = label("×"), header = close.parent, navigation = named("categoryNavigation");
+    check(header.x === 20 && header.y === 16 && header.width === glass.width - 40
+      && navigation.x === 20 && navigation.width === glass.width - 40, "Content local coordinates changed");
+    check(!glass.children.some(child => child.blur !== undefined), "Failed shared shadow path retained");
+    checkShadow();
+    check(desktop.actions.length === 0, "Geometry checks dispatched an action");
+  }
   function low(value) {
     desktop.values = Object.assign({},desktop.values,{lowEffects:value,effectiveShellGlass:!value,effectiveBlur:!value});
     palette.lowEffects=value; palette.solidSurfaces=value;
@@ -212,13 +257,64 @@ ShellRoot {
   property real busyHeight: 0
   property var savedLayout: ({})
   Timer {
-    interval: 120
+    interval: testRoot.geometryOnly ? 350 : 120
     repeat: true
     running: Quickshell.env("CONTROL_CENTER_PREVIEW") !== "1"
     onTriggered: {
       try {
+        if (testRoot.geometryOnly) {
+          switch (testRoot.stage++) {
+            case 0:
+              checkGlassGeometry(false);
+              barStub.barVisible = false;
+              break;
+            case 1:
+              checkGlassGeometry(false);
+              barStub.barVisible = true;
+              barStub.height = Math.max(44, panel.screen.height - 600);
+              break;
+            case 2:
+              checkGlassGeometry(false);
+              check(named("controlGlass").height < 740, "Constrained height was not exercised");
+              barStub.height = 44;
+              panel.implicitWidth = 360 + 24; panel.implicitHeight = 500 + 24;
+              break;
+            case 3:
+              checkGlassGeometry(true);
+              palette.lowEffects = true;
+              break;
+            case 4:
+              checkShadow();
+              palette.lowEffects = false;
+              palette.glassOpacity = 0;
+              break;
+            case 5:
+              checkShadow();
+              palette.solidSurfaces = true;
+              break;
+            case 6:
+              checkShadow();
+              // One slow, unfocused close/reopen, never rapid live reversals.
+              barStub.controlPanelOpen = false;
+              break;
+            case 7:
+              checkShadow();
+              barStub.controlPanelOpen = true;
+              break;
+            case 8:
+              checkShadow();
+              if (Quickshell.screens.length > 1) barStub.screen = Quickshell.screens[1];
+              break;
+            case 9:
+              checkShadow();
+              console.log("CONTROL_CENTER_PASS geometry-only");
+              Qt.quit();
+          }
+          return;
+        }
         switch (testRoot.stage++) {
           case 0:
+            checkGlassGeometry(false);
             check(panel.category === "quick" && page(), "Quick must be the initial page");
             check(label("Quick").height >= label("Quick").contentItem.implicitHeight + 16, "Category labels clipped");
             check(label("Low effects").visible, "Low effects not available");
@@ -335,7 +431,7 @@ ShellRoot {
             break;
           case 4:
             savedLayout={width:panel.implicitWidth,labelSize:Style.Typography.controlLabelSize};
-            panel.implicitWidth=360;
+            panel.implicitWidth=360 + 24;
             Style.Typography.controlLabelSize=24;
             break;
           case 5:
@@ -413,7 +509,7 @@ ShellRoot {
             barStub.controlPanelOpen=true;
             panel.selectCategory("not-a-category");
             check(panel.category === "music", "Invalid category accepted");
-            panel.implicitWidth=360; panel.implicitHeight=500;
+            panel.implicitWidth=360 + 24; panel.implicitHeight=500 + 24;
             panel.selectCategory("system");
             break;
           case 12:
@@ -466,7 +562,7 @@ ShellRoot {
     function select(name: string): void { panel.selectCategory(name); }
     function takeFocus(): void { panel.WlrLayershell.keyboardFocus = WlrKeyboardFocus.Exclusive; }
     function focusCategory(index: int): void { panel.focusCategory(index); }
-    function size(width: int, height: int): void { panel.implicitWidth=width; panel.implicitHeight=height; }
+    function size(width: int, height: int): void { panel.implicitWidth=width + 24; panel.implicitHeight=height + 24; }
     function demoMedia(): void { panel.selectCategory("music"); page().players=[media,otherMedia]; }
     function light(value: bool): void { palette.lightMode=value; }
     function lowEffects(value: bool): void { low(value); }

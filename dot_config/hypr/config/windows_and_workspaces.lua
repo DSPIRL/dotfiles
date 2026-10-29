@@ -209,6 +209,31 @@ wr("no_blur on", { tag = "games" })
 wr("fullscreen on", { tag = "games" })
 
 -- Layer rules
+-- 0.56.2 sorts descending order, then paints forwards: 1 is behind the
+-- normal order-0 Top glass, but still above application windows. This namespace
+-- must not enter effects.apply()'s blur namespace list.
+hl.layer_rule({
+  name = "control-center-shadow",
+  match = { namespace = "^quickshell-control-shadow$" },
+  order = 1,
+  blur = false,
+  blur_popups = false,
+  -- No detached fadeout snapshot after close/low-effects; snapshots paint
+  -- after mapped Top surfaces and would bypass the order contract.
+  no_anim = true,
+})
+-- Popups paint after layer surfaces; the tray shadow stays behind the bar
+-- too, regardless of map order. Never include shadow namespaces in blur rules.
+for _, surface in ipairs({ "bar", "notification", "toast", "tray" }) do
+  hl.layer_rule({
+    name = "quickshell-" .. surface .. "-shadow",
+    match = { namespace = "^quickshell-" .. surface .. "-shadow$" },
+    order = 1,
+    blur = false,
+    blur_popups = false,
+    no_anim = true,
+  })
+end
 lr("ignore_alpha 0.1", { namespace = "quickshell" })
 lr("ignore_alpha 0", { namespace = "rofi" })
 -- Keep normal window animations, but make the launcher appear instantly.

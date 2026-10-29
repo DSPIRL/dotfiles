@@ -12,9 +12,10 @@ PanelWindow {
   property var wallust
 
   visible: bar && bar.notificationPanelOpen
-  readonly property real maximumHeight: Math.min(520, screen ? screen.height - margins.top - 16 : 520)
-  implicitWidth: Math.min(440, screen ? screen.width - 24 : 440)
-  implicitHeight: Math.min(maximumHeight, notificationPanelContent.implicitHeight)
+  // Limit the visible glass, not its transparent shadow envelope.
+  readonly property real maximumHeight: Math.min(520, screen ? screen.height - (margins.top + 9) - 16 : 520)
+  implicitWidth: Math.min(440, screen ? screen.width - 24 : 440) + 24
+  implicitHeight: Math.min(maximumHeight, notificationPanelContent.implicitHeight) + 24
   color: "transparent"
   screen: bar ? bar.screen : null
   focusable: visible
@@ -23,11 +24,12 @@ PanelWindow {
   anchors { top: true; right: true }
 
   margins {
-    top: bar && bar.barVisible ? bar.height + 12 : 12
-    right: 12
+    top: (bar && bar.barVisible ? bar.height + 12 : 12) - 9
+    right: 0
   }
 
   WlrLayershell.namespace: "quickshell"
+  mask: Region { x: notificationPanelContent.x; y: notificationPanelContent.y; width: notificationPanelContent.width; height: notificationPanelContent.height; radius: notificationPanelContent.radius }
 
   onVisibleChanged: if (visible) {
     closeButton.forceActiveFocus();
@@ -35,8 +37,10 @@ PanelWindow {
 
   GlassSurface {
     id: notificationPanelContent
+    objectName: "notificationGlass"
 
     anchors.fill: parent
+    anchors { leftMargin: 12; rightMargin: 12; topMargin: 9; bottomMargin: 15 }
     focus: true
     implicitHeight: notificationPanelColumn.implicitHeight + 40
     wallust: root.wallust
@@ -146,6 +150,29 @@ PanelWindow {
           }
         }
       }
+    }
+  }
+
+  PanelWindow {
+    objectName: "notificationShadowWindow"
+    screen: root.screen
+    visible: root.visible && shadowPaint.active
+    implicitWidth: root.implicitWidth
+    implicitHeight: root.implicitHeight
+    anchors { top: true; right: true }
+    margins { top: root.margins.top; right: root.margins.right }
+    color: "transparent"
+    exclusionMode: ExclusionMode.Ignore
+    focusable: false
+    mask: Region {}
+    WlrLayershell.layer: WlrLayer.Top
+    WlrLayershell.namespace: "quickshell-notification-shadow"
+    SurfaceShadow {
+      id: shadowPaint
+      anchors.fill: parent
+      wallust: root.wallust
+      panelRects: [Qt.rect(notificationPanelContent.x, notificationPanelContent.y, notificationPanelContent.width, notificationPanelContent.height)]
+      radius: notificationPanelContent.radius
     }
   }
 }

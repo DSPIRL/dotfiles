@@ -14,8 +14,8 @@ PanelWindow {
   property var timer
 
   visible: bar && bar.toastVisible && notification && !bar.notificationPanelOpen && !bar.controlPanelOpen
-  implicitWidth: Math.min(440, screen ? screen.width - 24 : 440)
-  implicitHeight: toastContent.implicitHeight
+  implicitWidth: Math.min(440, screen ? screen.width - 24 : 440) + 24
+  implicitHeight: toastContent.implicitHeight + 24
   color: "transparent"
   screen: bar ? bar.screen : null
   exclusionMode: ExclusionMode.Ignore
@@ -23,11 +23,12 @@ PanelWindow {
   anchors { top: true; right: true }
 
   margins {
-    top: bar && bar.barVisible ? bar.height + 12 : 12
-    right: 12
+    top: (bar && bar.barVisible ? bar.height + 12 : 12) - 9
+    right: 0
   }
 
   WlrLayershell.namespace: "quickshell"
+  mask: Region { x: toastContent.x; y: toastContent.y; width: toastContent.width; height: toastContent.height; radius: toastContent.radius }
 
   onVisibleChanged: if (!visible && timer) {
     timer.stop();
@@ -35,9 +36,11 @@ PanelWindow {
 
   GlassSurface {
     id: toastContent
+    objectName: "toastGlass"
 
     implicitHeight: toastColumn.implicitHeight + 32
     anchors.fill: parent
+    anchors { leftMargin: 12; rightMargin: 12; topMargin: 9; bottomMargin: 15 }
     wallust: root.wallust
     radius: Style.Tokens.panelRadius
     border.color: bar.notificationAccent(notification)
@@ -122,6 +125,29 @@ PanelWindow {
         elide: Text.ElideRight
         font: Style.Typography.notificationBodyFont
       }
+    }
+  }
+
+  PanelWindow {
+    objectName: "toastShadowWindow"
+    screen: root.screen
+    visible: root.visible && shadowPaint.active
+    implicitWidth: root.implicitWidth
+    implicitHeight: root.implicitHeight
+    anchors { top: true; right: true }
+    margins { top: root.margins.top; right: root.margins.right }
+    color: "transparent"
+    exclusionMode: ExclusionMode.Ignore
+    focusable: false
+    mask: Region {}
+    WlrLayershell.layer: WlrLayer.Top
+    WlrLayershell.namespace: "quickshell-toast-shadow"
+    SurfaceShadow {
+      id: shadowPaint
+      anchors.fill: parent
+      wallust: root.wallust
+      panelRects: [Qt.rect(toastContent.x, toastContent.y, toastContent.width, toastContent.height)]
+      radius: toastContent.radius
     }
   }
 }

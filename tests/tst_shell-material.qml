@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Window
 import QtTest
 import "../dot_config/quickshell/default/components" as Shell
 import "../dot_config/quickshell/default/components/control" as Control
@@ -111,6 +112,8 @@ Item {
     }
   }
   Component { id: surfaceFactory; Shell.GlassSurface { width: 400; height: 180 } }
+  Component { id: shadowFactory; Shell.SurfaceShadow { width: 168; height: 128; panelRects: [Qt.rect(24, 24, 120, 80)]; radius: 26 } }
+  Component { id: surfaceCanvasFactory; Window { width: 168; height: 128; color: "transparent"; visible: true } }
   Component { id: toggleFactory; Control.ControlToggle { width: 200; text: "Toggle" } }
   Component { id: buttonFactory; Shell.ActionButton { x: 20; y: 30; width: 160; text: "Control" } }
   Component { id: actionButtonFactory; Shell.ActionButton { x: 20; y: 30; width: 160; text: "Action" } }
@@ -842,6 +845,136 @@ Item {
       compare(f.surface.gradient.stops[0].color.a, 1);
       fuzzyCompare(f.palette.barCard.a, data.alpha, 0.002);
     }
+    function test_surfaceHasNoExteriorAlpha_data() {
+      const cases = [];
+      for (const light of [false, true])
+        for (const radius of [12, 18, 26])
+          cases.push({tag: (light ? "light-" : "dark-") + radius, light: light, radius: radius});
+      return cases;
+    }
+    function test_surfaceHasNoExteriorAlpha(data) {
+      const palette = createTemporaryObject(paletteFactory, testRoot, {lightMode: data.light});
+      // Capture an unclipped, transparent margin so effects cannot hide outside the grab.
+      const canvas = createTemporaryObject(surfaceCanvasFactory, testRoot);
+      const surface = createTemporaryObject(surfaceFactory, canvas.contentItem, {
+        wallust: palette, x: 24, y: 24, width: 120, height: 80, radius: data.radius
+      });
+      // Software omits shader effects; also protect removal of the shared path.
+      verify(surface.shadowEnabled === undefined);
+      verify(!surface.children.some(child => child.blur !== undefined), "Shared glass must stay shadowless");
+      for (const hovered of [false, true]) {
+        surface.hovered = hovered;
+        wait(Style.Tokens.surfaceColorDuration + 50);
+        const image = grabImage(canvas.contentItem);
+        verify(image.alpha(84, 64) > 0, "The glass fill must render");
+        compare(image.alpha(24, 24), 0, "Rounded corner must stay transparent");
+        for (let y = 0; y < image.height; y++)
+          for (let x = 0; x < image.width; x++)
+            if (x < surface.x || x >= surface.x + surface.width
+                || y < surface.y || y >= surface.y + surface.height)
+              compare(image.alpha(x, y), 0, "Exterior alpha at " + x + "," + y);
+      }
+    }
+    function test_surfaceShadow_data() {
+      return [{tag: "dark", light: false}, {tag: "light", light: true}];
+    }
+    function test_surfaceShadow(data) {
+      const palette = createTemporaryObject(paletteFactory, testRoot, {lightMode: data.light});
+      const shadow = createTemporaryObject(shadowFactory, testRoot, {wallust: palette});
+      verify(shadow.visible);
+      compare(shadow.children.filter(child => child.maskEnabled !== undefined).length, 1,
+        "All rectangles must share one effect pipeline");
+      palette.lowEffects = true;
+      compare(shadow.visible, false);
+      palette.lowEffects = false;
+      palette.glassOpacity = 0;
+      compare(shadow.visible, false);
+      palette.solidSurfaces = true;
+      compare(shadow.visible, true, "Opaque shell glass still casts a shadow");
+      palette.solidSurfaces = false;
+      palette.glassOpacity = 0.4;
+      compare(shadow.visible, true);
+    }
+    function test_surfaceShadowAlpha_data() { return test_surfaceShadow_data(); }
+    function test_surfaceShadowAlpha(data) {
+      if (testRoot.GraphicsInfo.api === GraphicsInfo.Software)
+        skip("Shader alpha requires a graphics backend; use an isolated Xvfb/OpenGL run");
+      const palette = createTemporaryObject(paletteFactory, testRoot, {lightMode: data.light});
+      const canvas = createTemporaryObject(surfaceCanvasFactory, testRoot);
+      const shadow = createTemporaryObject(shadowFactory, canvas.contentItem, {wallust: palette});
+      wait(100);
+      let image = grabImage(canvas.contentItem);
+      const edges = [[84, 23], [23, 64], [144, 64], [84, 104]];
+      console.info("Hollow shadow " + data.tag + " top/left/right/bottom alpha: "
+        + edges.map(p => image.alpha(p[0], p[1])));
+      for (const edge of edges)
+        verify(image.alpha(edge[0], edge[1]) >= 20, "Rendered edge must exceed the faint pilot: " + edge);
+      verify(image.alpha(84, 104) > image.alpha(84, 23), "Offset must strengthen the bottom edge");
+      verify(image.alpha(84, 110) < image.alpha(84, 104), "Shadow must fall off outwards");
+      let peak = 0;
+      for (let y = 0; y < image.height; y++)
+        for (let x = 0; x < image.width; x++) {
+          const alpha = image.alpha(x, y);
+          peak = Math.max(peak, alpha);
+          if (x < 12 || x >= 156 || y < 15 || y >= 119)
+            compare(alpha, 0, "Paint exceeds padded envelope at " + x + "," + y);
+          // Every pixel safely inside the rounded contour must be punched out,
+          // not just the center. Exclude the 1px antialiased boundary.
+          const dx = Math.max(50 - (x + 0.5), 0, (x + 0.5) - 118);
+          const dy = Math.max(50 - (y + 0.5), 0, (y + 0.5) - 78);
+          if (x >= 25 && x < 143 && y >= 25 && y < 103 && dx * dx + dy * dy < 25 * 25)
+            compare(alpha, 0, "Shadow darkens glass interior at " + x + "," + y);
+        }
+      verify(peak > 26, "Separate surface must not retain the old blur-alpha cap");
+      for (const p of [[12,15], [155,15], [12,118], [155,118]])
+        compare(image.alpha(p[0], p[1]), 0, "Envelope corners must be clear");
+      // Moving/resizing the glass updates the cutout and shader together.
+      shadow.panelRects = [Qt.rect(36, 30, 96, 64)];
+      shadow.radius = 18;
+      wait(100);
+      image = grabImage(canvas.contentItem);
+      compare(image.alpha(84, 64), 0);
+      verify(image.alpha(84, 94) > 26);
+      compare(image.alpha(23, 64), 0, "Old geometry must not leave paint behind");
+      palette.lowEffects = true;
+      wait(100);
+      image = grabImage(canvas.contentItem);
+      for (let y = 0; y < image.height; y++)
+        for (let x = 0; x < image.width; x++) compare(image.alpha(x, y), 0);
+    }
+    function test_shadowUnion_data() { return test_surfaceShadow_data(); }
+    function test_shadowUnion(data) {
+      if (testRoot.GraphicsInfo.api === GraphicsInfo.Software)
+        skip("Union mask requires an isolated OpenGL run");
+      const palette = createTemporaryObject(paletteFactory, testRoot, {lightMode: data.light});
+      const canvas = createTemporaryObject(surfaceCanvasFactory, testRoot);
+      // A narrow gap makes each shadow reach well inside its neighbor.
+      const rects = [Qt.rect(24, 24, 56, 72), Qt.rect(84, 24, 60, 72)];
+      const shadow = createTemporaryObject(shadowFactory, canvas.contentItem, {
+        wallust: palette, panelRects: rects, radius: 18
+      });
+      wait(100);
+      let image = grabImage(canvas.contentItem);
+      verify(image.alpha(82, 60) > 26, "Gap must contain combined shadow paint");
+      for (const rect of rects)
+        for (let y = rect.y + 1; y < rect.y + rect.height - 1; y++)
+          for (let x = rect.x + 1; x < rect.x + rect.width - 1; x++) {
+            const dx = Math.max(rect.x + 18 - (x + 0.5), 0, x + 0.5 - (rect.x + rect.width - 18));
+            const dy = Math.max(rect.y + 18 - (y + 0.5), 0, y + 0.5 - (rect.y + rect.height - 18));
+            if (dx * dx + dy * dy < 17 * 17)
+              compare(image.alpha(x, y), 0, "Neighbor shadow entered union interior at " + x + "," + y);
+          }
+      shadow.panelRects = [rects[0]];
+      wait(100);
+      image = grabImage(canvas.contentItem);
+      verify(image.alpha(85, 60) > 0, "Removing a pill must remove its cutout too");
+      compare(image.alpha(144, 60), 0, "Removed pill must not leave stale shadow");
+      shadow.panelRects = [];
+      wait(100);
+      image = grabImage(canvas.contentItem);
+      for (let y = 0; y < image.height; y++)
+        for (let x = 0; x < image.width; x++) compare(image.alpha(x, y), 0);
+    }
     function test_lowEffectsOverridesBothChannels_data() {
       return [{ tag: "dark", light: false }, { tag: "light", light: true }];
     }
@@ -864,9 +997,7 @@ Item {
       verify(toggle !== null);
       const knob = toggle.indicator.children[0];
       const overlay = f.surface.children.find(child => child.anchors && child.anchors.margins === 1);
-      const shadow = f.surface.children.find(child => child.blur === 12);
-      verify(overlay !== undefined && shadow !== undefined);
-      verify(shadow.visible);
+      verify(overlay !== undefined);
       mouseMove(testRoot, 750, 550);
 
       // Start transitions, reverse them before completion, then assert their final state.
@@ -895,7 +1026,6 @@ Item {
                 && f.button.background.color.toString() !== f.palette.barActive.toString()
                 && knob.x > 3 && knob.x < 19, 90, "All transitions must be in progress before low-effects");
       f.palette.lowEffects = true;
-      compare(shadow.visible, false);
       tryCompare(overlay, "color", f.palette.barHover, 50);
       tryCompare(f.button.background, "color", f.palette.barActive, 50);
       tryCompare(knob, "x", 19, 50);
