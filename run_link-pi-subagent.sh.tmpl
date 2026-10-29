@@ -1,12 +1,20 @@
 {{- if (dig "useKeePassXC" false .) -}}
 #!/usr/bin/env bash
-# Symlink pi's bundled subagent example extension into ~/.pi, resolving the
-# install location from the pi binary so package-manager moves don't break it.
+# Symlink pi's bundled subagent example extension into ~/.pi, resolving either
+# Pi's managed install or a direct package-manager install.
 set -euo pipefail
 
 pi_bin="$(command -v pi 2>/dev/null)" || exit 0
-example_dir="$(dirname "$(readlink -f "$pi_bin")")/../../examples/extensions/subagent"
-example_dir="$(readlink -f "$example_dir")"
+pi_bin="$(readlink -f "$pi_bin")"
+pi_agent_dir="$(dirname "$(dirname "$pi_bin")")"
+current_version_file="${pi_agent_dir}/install/current-version"
+
+if [ -r "$current_version_file" ]; then
+  current_version="$(< "$current_version_file")"
+  example_dir="${pi_agent_dir}/install/releases/${current_version}/node_modules/@earendil-works/pi-coding-agent/examples/extensions/subagent"
+else
+  example_dir="$(dirname "$pi_bin")/../../examples/extensions/subagent"
+fi
 [ -d "$example_dir" ] || exit 0
 
 target="${HOME}/.pi/agent/extensions/subagent"
