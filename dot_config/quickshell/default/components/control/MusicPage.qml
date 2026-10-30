@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Effects
 import QtQuick.Controls
 import Quickshell.Services.Mpris
 import ".."
@@ -93,16 +94,34 @@ Column {
           color: root.wallust.barMutedText
           visible: art.status !== Image.Ready
         }
+        Rectangle {
+            id: artworkMask
+            anchors.fill: parent
+            radius: cover.radius
+            color: "white"
+            antialiasing: true
+            visible: false
+            layer.enabled: true
+        }
         Image {
           id: art
           anchors.fill: parent
-          anchors.margins: 6
+          anchors.margins: 0
           source: root.player ? root.artwork(root.player.trackArtUrl) : ""
           sourceSize.width: 320
           sourceSize.height: 320
-          fillMode: Image.PreserveAspectFit
+          fillMode: Image.PreserveAspectCrop
           asynchronous: true
           visible: status === Image.Ready
+          layer.enabled: true
+          layer.effect: MultiEffect {
+              maskEnabled: true
+              maskSource: artworkMask
+              maskThresholdMin: 0
+              maskSpreadAtMin: 0
+              maskThresholdMax: 1
+              maskSpreadAtMax: 0
+          }
         }
       }
       Column {
