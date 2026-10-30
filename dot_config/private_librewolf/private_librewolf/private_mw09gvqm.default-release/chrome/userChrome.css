@@ -1,0 +1,4 @@
+/* Sidebery replaces the horizontal tab bar. */
+#TabsToolbar {
+  display: none !important;
+}
