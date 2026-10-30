@@ -183,6 +183,11 @@ def --wrapped glols [...rest] {
     }
 }
 
+# Only define aliases for helpers deployed on this platform.
+{{ if .isMacOS -}}
 alias mac-kanata = nu ~/.config/nushell/scripts/mac-kanata.nu
+{{ end -}}
+{{ if .isLinux -}}
 alias modstat = nu ~/.config/nushell/scripts/modstat.nu
 alias flatpak-alias = nu ~/.config/nushell/scripts/flatpak-alias.nu
+{{ end -}}
