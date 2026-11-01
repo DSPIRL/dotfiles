@@ -1,3 +1,49 @@
+if [[ "$(uname -s)" == Darwin ]]; then
+    mac-kanata() {
+        local action="${1:-}" svc result=0
+        local services=(
+            com.example.kanata
+            com.example.karabiner-vhiddaemon
+            com.example.karabiner-vhidmanager
+        )
+
+        if (( $# > 1 )); then
+            echo "Usage: mac-kanata [start|stop|restart]" >&2
+            return 1
+        fi
+
+        case "$action" in
+            start)
+                for svc in "${services[@]}"; do
+                    sudo launchctl enable "system/$svc" || result=$?
+                done
+                for svc in "${services[@]}"; do
+                    sudo launchctl bootstrap system "/Library/LaunchDaemons/$svc.plist" || result=$?
+                done
+                (( result == 0 )) && echo "Kanata services started"
+                ;;
+            stop)
+                for svc in "${services[@]}"; do
+                    sudo launchctl bootout system "/Library/LaunchDaemons/$svc.plist" || result=$?
+                done
+                for svc in "${services[@]}"; do
+                    sudo launchctl disable "system/$svc" || result=$?
+                done
+                (( result == 0 )) && echo "Kanata services stopped"
+                ;;
+            restart)
+                mac-kanata stop || result=$?
+                mac-kanata start || result=$?
+                ;;
+            *)
+                echo "Usage: mac-kanata [start|stop|restart]" >&2
+                return 1
+                ;;
+        esac
+        return "$result"
+    }
+fi
+
 ref_dirinfo() {
     dir="${1:-.}"
     echo "File count:"
