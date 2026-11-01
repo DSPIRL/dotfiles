@@ -16,6 +16,7 @@ wr("no_initial_focus on", { class = [[^$]], title = [[^$]], xwayland = true, flo
 
 -- Browser tags
 wr("tag +browser", { class = [[^([Ff]irefox|org.mozilla.firefox|[Ff]irefox-esr|[Ff]irefox-bin)$]] })
+wr("tag +browser", { class = [[^([Ll]ibrewolf)$]] })
 wr("tag +browser", { class = [[^([Zz]en|[Zz]en-[Bb]rowser|app.zen_browser.zen)$]] })
 wr("tag +browser", { class = [[^([Gg]oogle-chrome(-beta|-dev|-unstable)?)$]] })
 wr("tag +browser", { class = [[^(chrome-.+-Default)$]] })
