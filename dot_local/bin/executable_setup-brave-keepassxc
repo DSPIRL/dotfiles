@@ -1,0 +1,151 @@
+#!/usr/bin/env bash
+# Connect Flatpak Brave to native KeePassXC without allowing host execution.
+#
+# Prerequisites: Flatpak Brave, native KeePassXC, and the official stable
+# KeePassXC-Browser extension from the Chrome Web Store. Also install:
+#   flatpak install flathub org.keepassxc.KeePassXC
+# This installs the FULL extra application; we use only its proxy and runtime.
+# Keep using native KeePassXC; no database migration or Flatpak GUI launch is needed.
+# Close Brave completely, start native KeePassXC with browser integration enabled,
+# then run this script as your normal desktop user (never with sudo).
+#
+# Grants: read-only access to two Flatpak deployment directories and the
+# KeePassXC browser socket directory, plus an explicit DENIAL of Flatpak host
+# execution (which may affect other integrations). No database-file access is
+# added; existing unrelated permissions are preserved. Start native KeePassXC
+# before Brave each login so the socket directory exists when Brave starts.
+# The socket exposes KeePassXC's browser API; its pairing/approval controls remain
+# important. This is a community workaround, not an official Brave integration.
+#
+# Requires flatpak-spawn and the Flatpak portal to support --app-path/--usr-path.
+# Rerun after KeePassXC changes runtime branch or installation location. Remove
+# superseded directory grants with flatpak override --user --nofilesystem=OLD_PATH
+# com.brave.Browser. Normal updates follow Flatpak's active deployments.
+# A user-level symlink selects the native desktop launcher over the Flatpak one.
+# Existing wrapper, manifest, desktop entry and user overrides are backed up.
+# To undo, close Brave and restore those files from the printed backup directory
+# (remove the generated wrapper/manifest if they had no previous version).
+# Restore user-overrides.before to the printed user override file; if the backup
+# is empty, remove that override file instead. Do not restore old overrides after
+# unrelated permission changes without merging. Restore the backed-up desktop entry
+# to the printed launcher path (or remove that symlink if no previous entry existed).
+set -euo pipefail
+umask 077
+
+fail() { printf 'Error: %s\n' "$*" >&2; exit 1; }
+[[ $EUID != 0 ]] || fail 'Run as your desktop user, without sudo.'
+[[ $# == 0 ]] || fail 'Usage: setup-brave-keepassxc (no arguments)'
+command -v keepassxc >/dev/null 2>&1 ||
+    fail 'Install native KeePassXC first: sudo pacman -S --needed keepassxc'
+for cmd in flatpak python3 realpath; do
+    command -v "$cmd" >/dev/null || fail "Required command not found: $cmd"
+done
+
+brave=com.brave.Browser
+keepass=org.keepassxc.KeePassXC
+native_desktop=/usr/share/applications/$keepass.desktop
+launcher=${XDG_DATA_HOME:-$HOME/.local/share}/applications/$keepass.desktop
+[[ -f $native_desktop ]] || fail "Native KeePassXC launcher not found: $native_desktop"
+flatpak info "$brave" >/dev/null 2>&1 || fail 'Brave Flatpak is not installed.'
+app_location=$(flatpak info --show-location "$keepass" 2>/dev/null) ||
+    fail 'Install the official proxy first: flatpak install flathub org.keepassxc.KeePassXC'
+runtime_ref=$(flatpak info --show-runtime "$keepass")
+runtime_location=$(flatpak info --show-location "$runtime_ref") ||
+    fail "KeePassXC runtime is missing: $runtime_ref"
+# --show-location ends in a deployment commit. Its sibling 'active' tracks updates.
+app_dir=${app_location%/*}
+runtime_dir=${runtime_location%/*}
+[[ -x $app_dir/active/files/bin/keepassxc-proxy ]] || fail 'Official proxy not found.'
+[[ -d $runtime_dir/active/files ]] || fail 'Runtime deployment not found.'
+
+running=$(flatpak ps --columns=application)
+if grep -Fxq "$brave" <<< "$running"; then
+    fail 'Close Brave completely, including background processes, then rerun.'
+fi
+spawn_help=$(flatpak run --command=flatpak-spawn "$brave" --help)
+for option in --app-path --usr-path; do
+    grep -Fq -- "$option" <<< "$spawn_help" || fail "flatpak-spawn lacks $option support."
+done
+[[ -n ${XDG_RUNTIME_DIR:-} ]] || fail 'Run inside your desktop login session.'
+socket_dir=$XDG_RUNTIME_DIR/app/$keepass
+[[ -S $socket_dir/org.keepassxc.KeePassXC.BrowserServer ]] ||
+    fail 'Start native KeePassXC and enable Settings > Browser Integration first.'
+
+# Use the actual host home path (also handles /home -> /var/home systems).
+target=$(realpath -m "$HOME/.var/app/$brave/config/BraveSoftware/Brave-Browser")
+wrapper=$target/keepassxc-proxy-wrapper.sh
+manifest=$target/NativeMessagingHosts/org.keepassxc.keepassxc_browser.json
+printf 'Proxy:   %s/active\nRuntime: %s/active\nSocket:  %s\n' "$app_dir" "$runtime_dir" "$socket_dir"
+printf '%s\n' 'No database-file permission will be added. Flatpak host execution will be denied.'
+
+mkdir -p "$target/NativeMessagingHosts"
+backup=$(mktemp -d "$target/keepassxc-backup.XXXXXXXX")
+for file in "$wrapper" "$manifest" "$launcher"; do
+    if [[ -e $file || -L $file ]]; then
+        cp -a -- "$file" "$backup/"
+    fi
+done
+flatpak override --user --show "$brave" > "$backup/user-overrides.before"
+printf 'Backup directory: %s\n' "$backup"
+printf 'User override file: %s/flatpak/overrides/%s\n' "${XDG_DATA_HOME:-$HOME/.local/share}" "$brave"
+
+# Stage files so existing symlinks are replaced, not followed when writing.
+stage=$(mktemp -d "$target/.keepassxc-stage.XXXXXXXX")
+trap 'rm -rf -- "$stage"' EXIT
+{
+    printf '#!/bin/bash\nset -euo pipefail\n'
+    printf 'app_dir=%q\nruntime_dir=%q\nexpected_runtime=%q\n' "$app_dir" "$runtime_dir" "$runtime_ref"
+    cat <<'WRAPPER'
+# Uses the Flatpak portal, NOT flatpak-spawn --host. The child retains Brave's
+# filesystem restrictions while replacing /app and /usr with KeePassXC's files.
+actual_runtime=$(awk -F= '$1 == "runtime" {print $2; exit}' "$app_dir/active/metadata")
+if [[ $actual_runtime != "$expected_runtime" ]]; then
+    echo 'KeePassXC runtime changed; rerun setup-brave-keepassxc.' >&2
+    exit 1
+fi
+exec /usr/bin/flatpak-spawn --watch-bus \
+    --env=LD_LIBRARY_PATH=/app/lib \
+    --app-path="$app_dir/active/files" \
+    --usr-path="$runtime_dir/active/files" \
+    -- /app/bin/keepassxc-proxy "$@"
+WRAPPER
+} > "$stage/wrapper"
+chmod 700 "$stage/wrapper"
+python3 - "$wrapper" "$stage/manifest" <<'PY'
+import json
+import sys
+
+with open(sys.argv[2], "w", encoding="utf-8") as output:
+    json.dump({
+        "name": "org.keepassxc.keepassxc_browser",
+        "description": "KeePassXC browser integration (sandboxed proxy)",
+        "path": sys.argv[1],
+        "type": "stdio",
+        # Official stable KeePassXC-Browser Chrome Web Store extension only.
+        "allowed_origins": ["chrome-extension://oboonakemofpalcgghocfoadofidjkkk/"],
+    }, output, indent=4)
+    output.write("\n")
+PY
+
+flatpak override --user \
+    --filesystem="$app_dir:ro" \
+    --filesystem="$runtime_dir:ro" \
+    --filesystem="xdg-run/app/$keepass:ro" \
+    --no-talk-name=org.freedesktop.Flatpak \
+    "$brave"
+mv -fT -- "$stage/wrapper" "$wrapper"
+mv -fT -- "$stage/manifest" "$manifest"
+
+# Both packages share this desktop ID. Hidden=true would hide native KeePassXC too.
+# Prefer its launcher and follow native package updates without copying the file.
+mkdir -p -- "${launcher%/*}"
+ln -s -- "$native_desktop" "$stage/launcher"
+mv -fT -- "$stage/launcher" "$launcher"
+printf 'Native launcher selected: %s\n' "$launcher"
+
+printf '\n%s\n' \
+    'Configuration written. This does not yet prove extension pairing works.' \
+    'Open Brave, open KeePassXC-Browser, and connect it to your native KeePassXC.' \
+    'Approve the connection in KeePassXC and test on a site with a saved login.' \
+    'Start native KeePassXC before Brave each login (the socket directory must exist).' \
+    'Do not run both native and Flatpak KeePassXC: they share the browser socket.'

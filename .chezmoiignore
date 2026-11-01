@@ -74,6 +74,7 @@ tests/
 # Linux-only configs and helpers that do not require Hyprland.
 # If this machine does not run Linux, ignore the following files.
 {{ if not .isLinux }}
+.local/bin/setup-brave-keepassxc
 .config/.dmenurc
 .config/cava/
 .config/cliphist/

@@ -184,6 +184,20 @@ fi
 # Brave setup
 if [[ "${varBraveInstall^^}" == "Y" ]]; then
     install_brave
+    echo 'Brave integration requires an active desktop session: close Brave completely,'
+    echo 'start native KeePassXC, and enable Settings > Browser Integration.'
+    echo 'Install the official KeePassXC-Browser extension in Brave for pairing afterward.'
+    echo 'This installs the extra KeePassXC Flatpak for its proxy only; keep using native KeePassXC.'
+    read -rp 'Do you want to set up Brave with KeePassXC now? (Y/N): ' varBraveKeePassSetup
+    if [[ "${varBraveKeePassSetup^^}" == "Y" ]]; then
+        if ! command -v keepassxc >/dev/null 2>&1; then
+            echo 'Skipping Brave integration: install native KeePassXC first (sudo pacman -S --needed keepassxc).' >&2
+        elif ! flatpak install -y flathub org.keepassxc.KeePassXC ||
+            ! bash "${DOTS}/dot_local/bin/executable_setup-brave-keepassxc"; then
+            echo 'Brave/KeePassXC setup did not complete. Once prerequisites are ready, rerun:' >&2
+            echo "bash ${DOTS}/dot_local/bin/executable_setup-brave-keepassxc" >&2
+        fi
+    fi
 fi
 
 # LazyVim setup
