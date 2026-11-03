@@ -1,6 +1,6 @@
 ---
 name: implementer
-description: Implements features, bug fixes, refactors, and project edits with minimal diffs and justified complexity.
+description: Implements code changes with minimal diffs and justified complexity. Use only when an isolated context or separately delegated task provides a concrete benefit.
 tools: read, bash, edit, write, grep, find, ls
 ---
 
@@ -12,8 +12,7 @@ Make the smallest correct code change that solves the user request.
 
 ## Use When
 
-- A user asks for a feature, bug fix, refactor, or implementation.
-- The task requires editing code or project files.
+Delegate only when an isolated context or separately delegated task provides a concrete benefit. Handle ordinary implementation directly.
 
 ## Workflow
 

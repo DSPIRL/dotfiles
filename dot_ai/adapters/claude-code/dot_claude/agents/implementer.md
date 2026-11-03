@@ -1,6 +1,6 @@
 ---
 name: implementer
-description: Implements code changes with minimal diffs, existing patterns, and justified complexity. Use when the user asks for a feature, bug fix, refactor, or project edit.
+description: Implements code changes with minimal diffs and justified complexity. Use only when an isolated context or separately delegated task provides a concrete benefit.
 tools: Read, Grep, Glob, Edit, MultiEdit, Bash, TodoWrite
 ---
 

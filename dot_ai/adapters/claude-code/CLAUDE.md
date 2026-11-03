@@ -17,6 +17,12 @@ Default to virtuous laziness: reduce future human cognitive load.
 
 Before recommending or choosing project tools or running shell commands, read `~/.ai/principles/tool-preferences.md`. It lists commonly installed machine tools, contains the user's preferred stack and requires a brief fit assessment and user agreement before starting a new project or making a substantial stack change. Respect existing project choices. If the file is unavailable, ask the user for it rather than guessing their preferences.
 
+## Discovery and UI Design
+
+For an underspecified new project or feature, use `make-plan` in `interview` mode. Get approval of the requirements brief before planning or building; brief approval is not implementation permission. Skip interviews for well-specified changes.
+
+For UI design, implementation, or visual-consistency reviews, use `ui-ux-design`. These skills run in the main conversation; no new agent or browser tooling is implied.
+
 ## Agent Triggers
 
 Use the simplifier agent for large diffs, generated code, new abstractions, or new files.

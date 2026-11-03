@@ -59,6 +59,12 @@ This refactor became much larger than expected. Find a simpler solution.
 
 Pi should use `simplicity-review` or delegate to `simplifier`.
 
+```text
+I want to build a shared expense tracker, but I haven't worked out the requirements yet.
+```
+
+Pi should use `make-plan` to interview you in the main conversation before planning or building. See [Plan Work](#plan-work).
+
 ## Force a Skill
 
 Use Pi's skill command when you want a specific procedure:
@@ -71,6 +77,7 @@ Use Pi's skill command when you want a specific procedure:
 /skill:decision-scribe
 /skill:unslop
 /skill:make-plan
+/skill:ui-ux-design
 /skill:diagnose
 /skill:tdd
 /skill:architecture-review
@@ -89,7 +96,15 @@ Arguments can follow the command:
 
 ### Plan Work
 
-Draft a plan from a goal:
+`make-plan` supports `interview`, `draft`, and `stress-test` modes. Underspecified new-project or feature requests start with an adaptive interview in the main conversation. Request it explicitly with:
+
+```text
+/skill:make-plan interview help me define a shared expense tracker
+```
+
+Pi asks one material question at a time, including UI requirements when relevant. Once consequential uncertainty is resolved, it presents a brief separating confirmed requirements, assumptions, and open questions, then waits for your approval before planning or building.
+
+Draft a plan from an agreed goal:
 
 ```text
 /skill:make-plan draft a migration from SQLite to PostgreSQL
@@ -101,7 +116,23 @@ Stress-test an existing proposal against the codebase and project context:
 /skill:make-plan stress-test @PLAN.md
 ```
 
-The skill returns a plan in the conversation. Ask explicitly if you want it written to `PLAN.md`.
+The skill returns the brief or plan in the conversation; it creates no files automatically. Ask explicitly if you want a plan written to `PLAN.md`. Approval to plan is not approval to implement.
+
+### Design or Review UI
+
+`ui-ux-design` supports `design` (default) for UI design and implementation, and `review` for visual-consistency reviews:
+
+```text
+/skill:ui-ux-design design the settings screens for this project
+```
+
+```text
+/skill:ui-ux-design review the dashboard and settings screens for visual consistency
+```
+
+Discuss project-specific references and agree on direction first, preserving the existing design language. Work with concrete tokens and components, keeping screens and states consistent. Mockups or prototypes are optional and used only by agreement to resolve uncertainty; neither a prototype nor a design system is required.
+
+Use available browser inspection for rendered UI; if unavailable, provide screenshots for review. Browser tooling is not bundled or installed automatically. The agent must state what it inspected and what remains unverified, and must not claim verification without a tool result or provided artifact.
 
 ### Diagnose a Difficult Failure
 

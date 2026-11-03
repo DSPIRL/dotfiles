@@ -15,7 +15,7 @@ workflows:
 agents:
   - id: implementer
     path: agents/implementer.md
-    trigger: Any requested code change.
+    trigger: Implementation requiring isolated context or a separately delegated task.
   - id: simplifier
     path: agents/simplifier.md
     trigger: Large diffs, new files, new abstractions, generated code, or uncertain implementations.
@@ -50,7 +50,10 @@ skills:
     trigger: Manual only; explicitly supplied AI-generated text or file needs decoding, rewriting, or auditing.
   - id: make-plan
     path: skills/make-plan.md
-    trigger: Scoping work, breaking down a task, stress-testing a proposal, or preparing a PLAN.md.
+    trigger: Underspecified new projects or features, requirements interviews, scoping work, stress-testing a proposal, or preparing a PLAN.md.
+  - id: ui-ux-design
+    path: skills/ui-ux-design.md
+    trigger: UI design or implementation, visual polish, UX improvements, or design-consistency reviews.
   - id: diagnose
     path: skills/diagnose.md
     trigger: Difficult bugs, intermittent failures, performance regressions, or explicit diagnosis requests.
