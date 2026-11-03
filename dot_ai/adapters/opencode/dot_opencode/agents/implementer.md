@@ -1,5 +1,5 @@
 ---
-description: Implements code changes with minimal diffs, existing patterns, and justified complexity.
+description: Implements code changes with minimal diffs and justified complexity. Use only when an isolated context or separately delegated task provides a concrete benefit.
 mode: subagent
 permission:
   edit: ask

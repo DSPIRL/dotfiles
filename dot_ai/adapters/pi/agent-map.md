@@ -10,7 +10,7 @@ All agents should inherit:
 
 ## Implementer
 
-Use for feature work, bug fixes, refactors, and project edits.
+Handle ordinary implementation directly using the implementer role. Delegate to `implementer` only when an isolated context or separately delegated task provides a concrete benefit.
 
 Prompt files:
 

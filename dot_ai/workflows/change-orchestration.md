@@ -13,6 +13,10 @@ Use explicit triggers. Do not run every agent for every task.
 
 ## Task-Specific Flows
 
+For an underspecified new project or feature, use `make-plan` in `interview` mode in the main conversation. Get approval of the requirements brief before planning; do not treat that approval as permission to implement. Skip the interview for well-specified work.
+
+For UI design, implementation, or visual-consistency review, use `ui-ux-design`. Agree new project-specific visual direction through references first, preserve existing design language, and verify the rendered interface when tools permit. Mockups and prototypes are optional, not gates for every change.
+
 For a bug, reproduce the failure, identify its mechanism, make the smallest fix, and verify through the original failing path.
 
 For a refactor, pin current behavior with a characterization test or equivalence check. Reshape in verifiable units without adding behavior changes.
