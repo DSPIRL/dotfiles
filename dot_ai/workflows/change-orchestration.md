@@ -15,7 +15,7 @@ Use explicit triggers. Do not run every agent for every task.
 
 For an underspecified new project or feature, use `make-plan` in `interview` mode in the main conversation. Get approval of the requirements brief before planning; do not treat that approval as permission to implement. Skip the interview for well-specified work.
 
-For UI design, implementation, or visual-consistency review, use `ui-ux-design`. Agree new project-specific visual direction through references first, preserve existing design language, and verify the rendered interface when tools permit. Mockups and prototypes are optional, not gates for every change.
+For UI proposals, design, implementation, or visual-consistency review, load `ui-ux-design` before proposing a design or editing UI. Resolve material design gaps with targeted questions rather than treating a layout suggestion or reference as a complete specification. Reuse approved context for clear changes, preserve existing design language, and apply the quality check with rendered evidence when available before handoff. Mockups and prototypes are optional, not gates for every change.
 
 For a bug, reproduce the failure, identify its mechanism, make the smallest fix, and verify through the original failing path.
 

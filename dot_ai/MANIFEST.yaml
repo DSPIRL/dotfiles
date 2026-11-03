@@ -53,7 +53,7 @@ skills:
     trigger: Underspecified new projects or features, requirements interviews, scoping work, stress-testing a proposal, or preparing a PLAN.md.
   - id: ui-ux-design
     path: skills/ui-ux-design.md
-    trigger: UI design or implementation, visual polish, UX improvements, or design-consistency reviews.
+    trigger: UI proposals, new screens, layout or navigation changes, visual references, UI implementation, visual polish, UX improvements, or design-consistency reviews.
   - id: diagnose
     path: skills/diagnose.md
     trigger: Difficult bugs, intermittent failures, performance regressions, or explicit diagnosis requests.

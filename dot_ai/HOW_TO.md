@@ -130,6 +130,18 @@ The skill returns the brief or plan in the conversation; it creates no files aut
 /skill:ui-ux-design review the dashboard and settings screens for visual consistency
 ```
 
+Ordinary proposals should trigger the skill too; you do not need to say "design" or invoke a command:
+
+```text
+I'd like to add a dashboard and make the app feel more premium.
+```
+
+The agent reads existing context and asks one material question at a time about missing users/tasks, visual direction, real content/assets, devices, and important states. It stops when a credible direction and acceptance criteria can be summarized, seeking approval for new direction before broad implementation. Clear changes reuse approved decisions; scoped reviews should not trigger an unrelated project interview.
+
+Before handoff, it checks visual fundamentals, content and assets, cross-screen consistency, platform behavior, and rendered evidence—not just whether the components compile. These are model instructions, not a runtime guarantee.
+
+Apply updated files with `chezmoi apply ~/.ai`, then run `/reload` in Pi before invoking the skill. If the skill is installed but automatic selection misses a proposal, force `/skill:ui-ux-design`. See [Troubleshooting](#troubleshooting) for discovery checks.
+
 Discuss project-specific references and agree on direction first, preserving the existing design language. Work with concrete tokens and components, keeping screens and states consistent. Mockups or prototypes are optional and used only by agreement to resolve uncertainty; neither a prototype nor a design system is required.
 
 Use available browser inspection for rendered UI; if unavailable, provide screenshots for review. Browser tooling is not bundled or installed automatically. The agent must state what it inspected and what remains unverified, and must not claim verification without a tool result or provided artifact.

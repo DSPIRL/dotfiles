@@ -235,7 +235,7 @@ for _, surface in ipairs({ "bar", "notification", "toast", "tray" }) do
     no_anim = true,
   })
 end
-lr("ignore_alpha 0.1", { namespace = "quickshell" })
+lr("ignore_alpha 0", { namespace = "quickshell" })
 lr("ignore_alpha 0", { namespace = "rofi" })
 -- Keep normal window animations, but make the launcher appear instantly.
 hl.layer_rule({
