@@ -21,7 +21,7 @@ Before recommending or choosing project tools or running shell commands, read `~
 
 For an underspecified new project or feature, read `~/.ai/skills/make-plan.md` and use its `interview` mode. Get approval of the requirements brief before planning or building; brief approval is not implementation permission. Skip interviews for well-specified changes.
 
-For UI design, implementation, or visual-consistency reviews, read `~/.ai/skills/ui-ux-design.md`. These procedures run in the main conversation; no new agent or browser tooling is implied.
+For UI proposals (including new screens, layout or navigation changes, and visual references), implementation, or consistency reviews, read `~/.ai/skills/ui-ux-design.md` before suggesting a design or editing UI. Resolve missing design inputs with one material question at a time; reuse approved context for clear changes, and check the skill's quality bar before handoff. These procedures run in the main conversation; no new agent or browser tooling is implied.
 
 ## Agent Triggers
 

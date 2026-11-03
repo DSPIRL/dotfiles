@@ -10,7 +10,7 @@ Use this as the prelude for Pi agents that can read local files.
 
 For an underspecified new project or feature, load `~/.ai/skills/make-plan.md` and use `interview` mode in the main conversation. Get brief approval before planning; do not treat it as implementation permission.
 
-For UI design, implementation, or visual-consistency reviews, load `~/.ai/skills/ui-ux-design.md`. Discover unclear requirements first, and inspect the rendered interface when tools permit; do not install browser tooling without agreement.
+For UI proposals (including new screens, layout or navigation changes, and visual references), implementation, or consistency reviews, load `~/.ai/skills/ui-ux-design.md` before suggesting a design or editing UI. Ask one material question at a time about missing design inputs, reuse approved decisions for clear changes, and apply the quality check before handoff. Inspect the rendered interface when tools permit; do not install browser tooling without agreement.
 
 For code changes, work directly and also load:
 
