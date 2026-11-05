@@ -1,0 +1,90 @@
+---
+name: grill-with-docs
+description: Stress-test a plan against the project's domain language and documented decisions, recording user-confirmed outcomes inline using existing conventions. The user decides when to wrap up. Use when user wants to stress-test a plan against their project's language and documented decisions.
+---
+
+<what-to-do>
+
+Interview me thoroughly about this plan until we reach a shared understanding. Prioritize questions that materially affect the plan. Walk down the important branches of the design tree, resolving dependencies between decisions one-by-one. For each question, provide your recommended answer.
+
+Ask the questions one at a time, waiting for feedback on each question before continuing.
+
+If a question can be answered by exploring the codebase, explore the codebase instead.
+
+When you think the material questions are answered and remaining uncertainty would not change the approach, say so. Briefly summarize the agreed decisions and unresolved risks, then ask whether I am ready to wrap up or would like more questions. Do not end the interview without my confirmation. If I want more questions, continue probing assumptions, trade-offs, and edge cases one question at a time.
+
+</what-to-do>
+
+<supporting-info>
+
+## Domain awareness
+
+During codebase exploration, look for existing glossaries, domain models, and decision records wherever the project keeps them. Follow the project's existing documentation locations and formats; do not replace them with this skill's conventions.
+
+### Example file structures
+
+These layouts are examples, not requirements. A single-context project might use:
+
+```
+/
+├── CONTEXT.md
+├── docs/
+│   └── adr/
+│       ├── 0001-event-sourced-orders.md
+│       └── 0002-postgres-for-write-model.md
+└── src/
+```
+
+If a `CONTEXT-MAP.md` exists at the root, the repo has multiple contexts. The map points to where each one lives:
+
+```
+/
+├── CONTEXT-MAP.md
+├── docs/
+│   └── adr/                          ← system-wide decisions
+├── src/
+│   ├── ordering/
+│   │   ├── CONTEXT.md
+│   │   └── docs/adr/                 ← context-specific decisions
+│   └── billing/
+│       ├── CONTEXT.md
+│       └── docs/adr/
+```
+
+Update relevant existing documentation as the user confirms terminology and decisions. Ask before creating any new documentation file or introducing a documentation convention, even when an existing directory or numbering scheme suggests where a new file would go. Propose a location and format, and wait for approval. The bundled [context](./CONTEXT-FORMAT.md) and [ADR](./ADR-FORMAT.md) formats are fallbacks only when no existing convention applies and the user approves them. Create approved files lazily, only when there is confirmed content to record.
+
+## During the session
+
+### Challenge against the glossary
+
+When the user uses a term that conflicts with the existing project glossary, call it out immediately. "Your glossary defines 'cancellation' as X, but you seem to mean Y — which is it?"
+
+### Sharpen fuzzy language
+
+When the user uses vague or overloaded terms, propose a precise canonical term. "You're saying 'account' — do you mean the Customer or the User? Those are different things."
+
+### Discuss concrete scenarios
+
+When domain relationships are being discussed, stress-test them with specific scenarios. Invent scenarios that probe edge cases and force the user to be precise about the boundaries between concepts.
+
+### Cross-reference with code
+
+When the user states how something works, check whether the code agrees. If you find a contradiction, surface it: "Your code cancels entire Orders, but you just said partial cancellation is possible — which is right?"
+
+### Update confirmed documentation inline
+
+When the user confirms a term or decision, update the relevant existing documentation right there, following its format. Don't batch confirmed updates until the end of the interview. Do not record your recommendations, invented scenarios, or tentative answers as agreed facts. If recording the outcome requires a new file or convention, ask first and wait for approval.
+
+Keep domain glossary entries independent of implementation details. Only include terms that are meaningful to domain experts.
+
+### Offer ADRs sparingly
+
+Only offer to create an ADR when all three are true:
+
+1. **Hard to reverse** — the cost of changing your mind later is meaningful
+2. **Surprising without context** — a future reader will wonder "why did they do it this way?"
+3. **The result of a real trade-off** — there were genuine alternatives and you picked one for specific reasons
+
+If any of the three is missing, skip the ADR. If all three apply, offer it; do not create a new ADR file without approval. Follow the project's existing decision-record format and location. Use [ADR-FORMAT.md](./ADR-FORMAT.md) only as an approved fallback.
+
+</supporting-info>

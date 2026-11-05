@@ -1,82 +1,14 @@
-name: virtuous-laziness-stack
-version: 0.3.0
-purpose: Make AI-assisted engineering optimize for maintainability, restraint, and durable project memory.
+# Optional catalog; agents must be instructed to read it.
+# Paths are relative to this directory. Entries do not run anything automatically.
 
 principles:
-  - id: virtuous-laziness
-    path: principles/virtuous-laziness.md
-  - id: tool-preferences
-    path: principles/tool-preferences.md
-
-workflows:
-  - id: change-orchestration
-    path: workflows/change-orchestration.md
-
-agents:
-  - id: implementer
-    path: agents/implementer.md
-    trigger: Implementation requiring isolated context or a separately delegated task.
-  - id: simplifier
-    path: agents/simplifier.md
-    trigger: Large diffs, new files, new abstractions, generated code, or uncertain implementations.
-  - id: security-reviewer
-    path: agents/security-reviewer.md
-    trigger: Auth, authorization, external input, secrets, filesystem, network, database, or dependency changes.
-  - id: documentation-steward
-    path: agents/documentation-steward.md
-    trigger: Public behavior, setup, API, workflow, or architecture changes.
-  - id: decision-scribe
-    path: agents/decision-scribe.md
-    trigger: Durable decisions, conventions, tradeoffs, non-goals, or context future agents should preserve.
+  - id: available-tools
+    path: principles/available-tools.md
+  - id: tech-stack-preferences
+    path: principles/tech-stack-preferences.md
 
 skills:
-  - id: virtuous-laziness
-    path: skills/virtuous-laziness.md
-    trigger: Any code change or implementation review.
-  - id: simplicity-review
-    path: skills/simplicity-review.md
-    trigger: Reviewing a diff for unnecessary complexity.
-  - id: security-review
-    path: skills/security-review.md
-    trigger: Reviewing a change for vulnerabilities and trust-boundary risks.
-  - id: documentation-stewardship
-    path: skills/documentation-stewardship.md
-    trigger: Creating or updating project documentation.
-  - id: decision-scribe
-    path: skills/decision-scribe.md
-    trigger: Recording durable project reasoning in CONTEXT.md or ADRs.
-  - id: unslop
-    path: skills/unslop.md
-    trigger: Manual only; explicitly supplied AI-generated text or file needs decoding, rewriting, or auditing.
-  - id: make-plan
-    path: skills/make-plan.md
-    trigger: Underspecified new projects or features, requirements interviews, scoping work, stress-testing a proposal, or preparing a PLAN.md.
-  - id: ui-ux-design
-    path: skills/ui-ux-design.md
-    trigger: UI proposals, new screens, layout or navigation changes, visual references, UI implementation, visual polish, UX improvements, or design-consistency reviews.
-  - id: diagnose
-    path: skills/diagnose.md
-    trigger: Difficult bugs, intermittent failures, performance regressions, or explicit diagnosis requests.
-  - id: tdd
-    path: skills/tdd.md
-    trigger: Explicit requests for TDD, test-first development, red-green-refactor, or regression-first fixes.
-  - id: architecture-review
-    path: skills/architecture-review.md
-    trigger: Architecture analysis, structural refactoring, locality, or test-seam improvements.
-  - id: maintain-ai-skill
-    path: skills/maintain-ai-skill.md
-    trigger: Manual only; creating, rewriting, reviewing, or maintaining an agent skill.
-
-templates:
-  - templates/AGENTS.md
-  - templates/CONTEXT.md
-  - templates/adr-template.md
-  - templates/review-report.md
-  - templates/security-report.md
-  - templates/agent-brief.md
-
-adapters:
-  opencode: adapters/opencode/README.md
-  claude-code: adapters/claude-code/README.md
-  codex: adapters/codex/README.md
-  pi: adapters/pi/README.md
+# To add a skill, replace [] above with entries like:
+- id: caveman
+  path: skills/caveman/SKILL.md
+  trigger: When the user explicitely invokes the caveman skill.
