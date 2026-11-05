@@ -4,11 +4,13 @@
 principles:
   - id: available-tools
     path: principles/available-tools.md
+  - id: question-requirements
+    path: principles/question-requirements.md
   - id: tech-stack-preferences
     path: principles/tech-stack-preferences.md
 
-skills:
+# skills:
 # To add a skill, replace [] above with entries like:
-- id: caveman
-  path: skills/caveman/SKILL.md
-  trigger: When the user explicitely invokes the caveman skill.
+# - id: caveman
+#   path: skills/caveman/SKILL.md
+#   trigger: When the user explicitely invokes the caveman skill.
