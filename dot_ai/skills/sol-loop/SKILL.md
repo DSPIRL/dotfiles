@@ -59,9 +59,11 @@ access on macOS, Linux, or WSL can invoke it; native Windows needs a compatible
 shell. The calling agent owns the budget, findings, fixes, and reporting; the
 launcher makes one review request and does not manage the loop.
 
-Install and authenticate `codex` separately. Use a verified exact CLI model ID
-for Sol 6.1, at high reasoning effort. If the ID or availability has not been
-verified, ask the user; do not guess, use floating aliases, or substitute.
+Install and authenticate `codex` separately. Use Sol 6.1's exact model ID,
+`gpt-6.1-sol` (verified on 2026-11-06 with Codex CLI 0.167.0), at high
+reasoning effort. If Codex rejects it, look up the current ID with
+`codex debug models` and confirm it with the user before switching; do not
+guess, use floating aliases, or substitute.
 The launcher forwards the model ID unchanged but does not discover models or
 validate identity. Record the requested ID and only claim the actual model,
 provider, effort, or usage when verified. Briefs and accessible review material

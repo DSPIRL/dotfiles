@@ -15,12 +15,14 @@ ideas, skip fixes to code being replaced.
 ## Reviewers and portability
 
 The council has two reviewers: Anthropic Opus 5.5 through Claude Code and
-OpenAI Sol 6.1 through Codex, both at high reasoning effort. Use the exact
-model IDs supported by the installed CLIs and account. If those IDs have not
-been verified, ask the user for them; do not guess IDs, use floating aliases,
-or substitute models. An unavailable reviewer blocks council. The caller must
-verify IDs and availability: the launcher forwards the requested ID unchanged
-but does not discover models or validate aliases or model identity.
+OpenAI Sol 6.1 through Codex, both at high reasoning effort. Their exact model
+IDs are `claude-opus-5-5` and `gpt-6.1-sol`, verified on 2026-11-06 with
+Claude Code 2.1.311 and Codex CLI 0.167.0. If a CLI rejects an ID, look up the
+current one (`codex debug models` lists the Codex catalog) and confirm it with
+the user before switching; do not guess IDs, use floating aliases, or
+substitute models. An unavailable reviewer blocks council. The launcher
+forwards the requested ID unchanged but does not discover models or validate
+aliases or model identity.
 
 Invoke both through the shared POSIX shell launcher, not harness-specific
 delegation APIs. This keeps the same review path across any harness with
