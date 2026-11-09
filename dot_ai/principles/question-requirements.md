@@ -1,1 +1,4 @@
-When you ask questions in a large prompt please draw attention to it by either putting the question at the bottom of the message when appropriate, or by highlighting questions in a bright red.
+When you ask questions in a long response, make them easy to spot:
+- Put them at the end of the message, under a `## ❓ Questions` heading.
+- Prefix each question with ❓ and bold the question itself.
+- For blocking decisions in Claude Code, use the AskUserQuestion tool instead.
