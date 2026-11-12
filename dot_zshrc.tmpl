@@ -33,13 +33,13 @@ if command -v wt &>/dev/null; then
     eval "$(command wt config shell init zsh)"
 fi
 
-{{- if $isDarwin }}
+{{ if not .isPersonalMachine }}
 ##### CLAUDE #####
-# export AWS_REGION="us-east-1"
-# export AWS_PROFILE="twl-srd"
-# export ANTHROPIC_MODEL="us.anthropic.claude-opus-4-6-v1"
-# export CLAUDE_CODE_USE_BEDROCK="1"
-{{- end }}
+export AWS_REGION="us-east-1"
+export AWS_PROFILE="twl-srd"
+export ANTHROPIC_MODEL="us.anthropic.claude-opus-5-5"
+export CLAUDE_CODE_USE_BEDROCK="1"
+{{ end }}
 
 ##### ZOXIDE #####
 if command -v zoxide &>/dev/null; then

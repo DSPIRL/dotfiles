@@ -78,7 +78,61 @@ if [ -n "$cost" ]; then
 fi
 
 if [ -n "$parts" ]; then
-    echo "$prompt | $parts"
+    left="$prompt | $parts"
 else
-    echo "$prompt"
+    left="$prompt"
+fi
+
+# Right side: model name + effort meter (5 cells, low..max)
+model=$(echo "$input" | jq -r '.model.display_name // empty')
+effort=$(echo "$input" | jq -r '.effort.level // empty')
+thinking=$(echo "$input" | jq -r 'if .thinking.enabled == false then "off" else empty end')
+dim=$(printf '\033[2m')
+bold=$(printf '\033[1m')
+
+case "$effort" in
+    low)    level=1; effort_color=$(printf '\033[32m') ;;
+    medium) level=2; effort_color=$(printf '\033[36m') ;;
+    high)   level=3; effort_color=$(printf '\033[34m') ;;
+    xhigh)  level=4; effort_color=$(printf '\033[35m') ;;
+    max)    level=5; effort_color=$red ;;
+    *)      level=0 ;;
+esac
+
+right=""
+[ -n "$model" ] && right="${bold}${model}${reset}"
+
+if [ "$thinking" = "off" ]; then
+    right="$right ${dim}no thinking${reset}"
+elif [ "$level" -gt 0 ]; then
+    meter=""
+    i=1
+    while [ "$i" -le 5 ]; do
+        if [ "$i" -le "$level" ]; then
+            meter="${meter}▰"
+        else
+            meter="${meter}▱"
+        fi
+        i=$((i + 1))
+    done
+    right="$right ${effort_color}${meter} ${effort}${reset}"
+fi
+
+if [ -z "$right" ]; then
+    echo "$left"
+    exit 0
+fi
+
+# Pad between left and right using the terminal width Claude Code sets in COLUMNS
+esc=$(printf '\033')
+visible_len() {
+    printf '%s' "$1" | sed "s/${esc}\[[0-9;]*m//g" | LC_ALL=en_US.UTF-8 wc -m | tr -d ' '
+}
+
+gap=$(( ${COLUMNS:-0} - $(visible_len "$left") - $(visible_len "$right") - 4 ))
+
+if [ "$gap" -ge 2 ]; then
+    printf '%s%*s%s\n' "$left" "$gap" "" "$right"
+else
+    echo "$left | $right"
 fi
