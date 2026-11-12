@@ -4,8 +4,8 @@
 principles:
   - id: available-tools
     path: principles/available-tools.md
-  - id: question-requirements
-    path: principles/question-requirements.md
+  - id: question-or-statement-requirements
+    path: principles/question-or-statement-requirements.md
   - id: tech-stack-preferences
     path: principles/tech-stack-preferences.md
 
