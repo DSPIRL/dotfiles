@@ -9,48 +9,28 @@ red=$(printf '\033[31m')
 reset=$(printf '\033[0m')
 
 remaining=$(echo "$input" | jq -r '.context_window.remaining_percentage // empty')
-transcript_path=$(echo "$input" | jq -r '.transcript_path // empty')
-session_id=$(echo "$input" | jq -r '.session_id // .sessionId // empty')
-context_in_tokens=$(echo "$input" | jq -r '
-  .context_window.current_usage |
-  if . == null then empty
-  else
-    ((.input_tokens // 0) + (.cache_read_input_tokens // 0) + (.cache_creation_input_tokens // 0)) |
-    tostring
-  end
-')
-context_out_tokens=$(echo "$input" | jq -r '.context_window.current_usage.output_tokens // empty')
-session_in_tokens=$(echo "$input" | jq -r '.context_window.total_input_tokens // empty')
-session_out_tokens=$(echo "$input" | jq -r '.context_window.total_output_tokens // empty')
 
-session_file=$transcript_path
+# Prompt segment mirroring ~/.config/oh-my-posh/spaceship.omp.json:
+# "<user> in <folder> on <branch> [stash count]"
+cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd // empty')
+[ -n "$cwd" ] || cwd=$(pwd)
+lightyellow=$(printf '\033[93m')
+cyan=$(printf '\033[36m')
+white=$(printf '\033[97m')
+pink=$(printf '\033[38;2;255;148;223m')
+branch_icon=$(printf '\356\202\240')
 
-if [ -z "$session_file" ] && [ -n "$session_id" ]; then
-    session_file=$(rg --files "$HOME/.claude/projects" 2>/dev/null | rg "/${session_id}\\.jsonl$" | rg -v '/subagents/' | head -n 1)
-fi
+prompt="${lightyellow}$(whoami)${reset} ${white}in${reset} ${cyan}$(basename "$cwd")${reset}"
 
-if [ -n "$session_file" ] && [ -f "$session_file" ]; then
-    thread_usage=$(jq -rs '
-      [
-        .[]
-        | select(.type == "assistant" and (.isSidechain != true) and .message.usage != null)
-        | {
-            id: (.requestId // .message.id // .uuid),
-            in_tokens: ((.message.usage.input_tokens // 0) + (.message.usage.cache_read_input_tokens // 0) + (.message.usage.cache_creation_input_tokens // 0)),
-            out_tokens: (.message.usage.output_tokens // 0)
-          }
-      ]
-      | unique_by(.id)
-      | {
-          in_tokens: (map(.in_tokens) | add // 0),
-          out_tokens: (map(.out_tokens) | add // 0)
-        }
-      | "\(.in_tokens) \(.out_tokens)"
-    ' "$session_file" 2>/dev/null)
-
-    if [ -n "$thread_usage" ]; then
-        session_in_tokens=$(printf '%s\n' "$thread_usage" | cut -d' ' -f1)
-        session_out_tokens=$(printf '%s\n' "$thread_usage" | cut -d' ' -f2)
+if git --no-optional-locks -C "$cwd" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    head=$(git --no-optional-locks -C "$cwd" symbolic-ref --short HEAD 2>/dev/null \
+        || git --no-optional-locks -C "$cwd" rev-parse --short HEAD 2>/dev/null)
+    if [ -n "$head" ]; then
+        prompt="$prompt ${white}on${reset} ${pink}${branch_icon} ${head}${reset}"
+        stash_count=$(git --no-optional-locks -C "$cwd" stash list 2>/dev/null | wc -l | tr -d ' ')
+        if [ "${stash_count:-0}" -gt 0 ]; then
+            prompt="$prompt ${pink}$(printf '\356\255\213') ${stash_count}${reset}"
+        fi
     fi
 fi
 
@@ -69,39 +49,36 @@ if [ -n "$remaining" ]; then
         context_color=$green
     fi
 
-    parts="Context: ${context_color}${remaining_percent}%${reset} remaining"
+    # 10-cell bar, filled cells = context remaining
+    bar_width=10
+    filled=$(( (remaining_percent * bar_width + 50) / 100 ))
+    bar=""
+    i=0
+    while [ "$i" -lt "$bar_width" ]; do
+        if [ "$i" -lt "$filled" ]; then
+            bar="${bar}█"
+        else
+            bar="${bar}░"
+        fi
+        i=$((i + 1))
+    done
+
+    parts="Context ${context_color}${bar} ${remaining_percent}%${reset}"
 fi
 
-if [ -n "$context_in_tokens" ] && [ -n "$context_out_tokens" ]; then
-    context_total_tokens=$((context_in_tokens + context_out_tokens))
+cost=$(echo "$input" | jq -r '.cost.total_cost_usd // empty')
 
-    if [ "$context_in_tokens" -le 50000 ]; then
-        input_color=$green
-    elif [ "$context_in_tokens" -le 80000 ]; then
-        input_color=$yellow
-    elif [ "$context_in_tokens" -le 99999 ]; then
-        input_color=$orange
-    else
-        input_color=$red
-    fi
-
-    token_part="CtxTok: ${input_color}${context_in_tokens}${reset} in / ${context_out_tokens} out (${context_total_tokens} total)"
+if [ -n "$cost" ]; then
+    cost_part="Cost: \$$(printf '%.2f' "$cost")"
     if [ -n "$parts" ]; then
-        parts="$parts | $token_part"
+        parts="$parts | $cost_part"
     else
-        parts="$token_part"
+        parts="$cost_part"
     fi
 fi
 
-if [ -n "$session_in_tokens" ] && [ -n "$session_out_tokens" ]; then
-    session_total_tokens=$((session_in_tokens + session_out_tokens))
-    session_part="Session: ${session_in_tokens} in / ${session_out_tokens} out (${session_total_tokens} total)"
-
-    if [ -n "$parts" ]; then
-        parts="$parts | $session_part"
-    else
-        parts="$session_part"
-    fi
+if [ -n "$parts" ]; then
+    echo "$prompt | $parts"
+else
+    echo "$prompt"
 fi
-
-echo "$parts"
