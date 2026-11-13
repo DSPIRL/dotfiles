@@ -6,20 +6,24 @@ state_dir="${XDG_STATE_HOME:-${HOME}/.local/state}/hypr/effects"
 config_dir="${HOME}/.config/hypr/config"
 
 usage() {
-  printf 'Usage: %s status | {blur|opacity|shell-glass|low-effects|monitor-resolution|night-light|keep-awake|quiet-notifications} [status|enable|disable|toggle] | {glass-opacity|control-opacity|window-opacity} [status|0..100] | blur-size [status|1..20]\n' "${0##*/}" >&2
+  printf 'Usage: %s status | {blur|opacity|shell-glass|low-effects|monitor-resolution|night-light|keep-awake|quiet-notifications} [status|enable|disable|toggle] | {glass-opacity|control-opacity|window-opacity} [status|0..100] | blur-size [status|1..20] | night-light-temperature [status|2500..6500]\n' "${0##*/}" >&2
   exit 2
 }
 
 is_numeric() {
-  case "$1" in glass-opacity|control-opacity|window-opacity|blur-size) return 0 ;; *) return 1 ;; esac
+  case "$1" in glass-opacity|control-opacity|window-opacity|blur-size|night-light-temperature) return 0 ;; *) return 1 ;; esac
 }
 valid_number() {
+  if [[ "$1" == night-light-temperature ]]; then
+    [[ "$2" =~ ^[0-9]{4}$ ]] && (( $2 >= 2500 && $2 <= 6500 ))
+    return
+  fi
   [[ "$2" =~ ^(100|[1-9]?[0-9])$ ]] || return 1
   if [[ "$1" == blur-size ]]; then (( $2 >= 1 && $2 <= 20 )); fi
 }
 
 feature="${1:-status}"
-case "$feature" in status|blur|opacity|shell-glass|low-effects|monitor-resolution|glass-opacity|control-opacity|window-opacity|blur-size|night-light|keep-awake|quiet-notifications) ;; *) usage ;; esac
+case "$feature" in status|blur|opacity|shell-glass|low-effects|monitor-resolution|glass-opacity|control-opacity|window-opacity|blur-size|night-light-temperature|night-light|keep-awake|quiet-notifications) ;; *) usage ;; esac
 operation="${2:-toggle}"
 if is_numeric "$feature"; then
   operation="${2-status}"
@@ -72,11 +76,19 @@ for name in control-opacity window-opacity blur-size; do
   fi
 done
 
+if [[ ! -f "$state_dir/night-light-temperature" ]]; then
+  printf '4000\n' >"$state_dir/night-light-temperature"
+fi
+night_helper="${HOME}/.config/hypr/scripts/hyprsunset.sh"
+night_status() {
+  if [[ -x "$night_helper" ]]; then "$night_helper" status; else printf 'disabled\n'; fi
+}
+
 for name in night-light keep-awake quiet-notifications; do
   if [[ ! -f "$state_dir/$name" ]]; then
     value=disabled
     # Import an already-running night light without changing its current state.
-    if [[ "$name" == night-light ]] && pgrep -u "$UID" -x hyprsunset >/dev/null 2>&1; then value=enabled; fi
+    if [[ "$name" == night-light && $(night_status) == enabled ]]; then value=enabled; fi
     printf '%s\n' "$value" >"$state_dir/$name"
   fi
 done
@@ -107,17 +119,20 @@ if [[ "$feature" == status ]]; then
   theme=dark
   theme_file="${XDG_STATE_HOME:-${HOME}/.local/state}/hypr/breeze-theme"
   if [[ -r "$theme_file" ]] && [[ $(<"$theme_file") == light ]]; then theme=light; fi
+  night_temperature=$(read_value night-light-temperature)
+  night_actual_temperature=0
+  if [[ -x "$night_helper" ]]; then night_actual_temperature=$("$night_helper" temperature); fi
   night=false; idle=false
-  pgrep -u "$UID" -x hyprsunset >/dev/null 2>&1 && night=true
+  [[ $(night_status) != enabled ]] || night=true
   pgrep -u "$UID" -x hypridle >/dev/null 2>&1 && idle=true
   monitor_status=$(hyprctl repl 'return require("config.monitors").big_monitor_status()' 2>/dev/null || true)
   monitor_available=false
   [[ "$monitor_status" == wide || "$monitor_status" == compact ]] && monitor_available=true
-  printf '{"blur":%s,"opacity":%s,"shellGlass":%s,"lowEffects":%s,"effectiveBlur":%s,"effectiveOpacity":%s,"effectiveShellGlass":%s,"glassOpacity":%s,"controlOpacity":%s,"windowOpacity":%s,"effectiveWindowOpacity":%s,"blurSize":%s,"theme":"%s","nightLight":%s,"nightLightWanted":%s,"keepAwake":%s,"quietNotifications":%s,"idleRunning":%s,"bluetoothSettings":%s,"networkSettings":%s,"nightLightAvailable":%s,"lockAvailable":%s,"bigMonitorAvailable":%s,"bigMonitorWide":%s}\n' \
+  printf '{"blur":%s,"opacity":%s,"shellGlass":%s,"lowEffects":%s,"effectiveBlur":%s,"effectiveOpacity":%s,"effectiveShellGlass":%s,"glassOpacity":%s,"controlOpacity":%s,"windowOpacity":%s,"effectiveWindowOpacity":%s,"blurSize":%s,"theme":"%s","nightLight":%s,"nightLightWanted":%s,"nightLightTemperature":%s,"nightLightActualTemperature":%s,"keepAwake":%s,"quietNotifications":%s,"idleRunning":%s,"bluetoothSettings":%s,"networkSettings":%s,"nightLightAvailable":%s,"lockAvailable":%s,"bigMonitorAvailable":%s,"bigMonitorWide":%s}\n' \
     "$(boolean "$blur")" "$(boolean "$opacity")" "$(boolean "$glass")" "$(boolean "$low")" \
     "$(boolean "$effective_blur")" "$(boolean "$effective_opacity")" "$(boolean "$effective_glass")" \
     "$glass_opacity" "$control_opacity" "$window_opacity" "$effective_window_opacity" "$blur_size" "$theme" "$night" \
-    "$(boolean "$night_wanted")" "$(boolean "$awake")" "$(boolean "$quiet")" "$idle" \
+    "$(boolean "$night_wanted")" "$night_temperature" "$night_actual_temperature" "$(boolean "$awake")" "$(boolean "$quiet")" "$idle" \
     "$(available blueman-manager)" "$(available nmtui)" "$(available hyprsunset)" "$(available hyprlock)" \
     "$monitor_available" "$([[ "$monitor_status" == wide ]] && printf true || printf false)"
   exit 0
@@ -144,7 +159,8 @@ mv -f "$tmp" "$state_dir/$feature"
 apply_preference() {
   # Shell-only state is watched by Quickshell; never touch compositor/window rules.
   if [[ "$feature" == shell-glass || "$feature" == glass-opacity || "$feature" == control-opacity || "$feature" == keep-awake || "$feature" == quiet-notifications ]]; then return 0; fi
-  if [[ "$feature" == night-light ]]; then
+  if [[ "$feature" == night-light-temperature && $(read_value night-light) == disabled ]]; then return 0; fi
+  if [[ "$feature" == night-light || "$feature" == night-light-temperature ]]; then
     # Only this CLI owns the preference; the helper applies it without writing it.
     # The parent retains its lock, but the helper/daemon must not inherit that fd.
     "${HOME}/.config/hypr/scripts/hyprsunset.sh" apply 9>&-
@@ -168,7 +184,9 @@ apply_preference() {
 
 if ! apply_preference; then
   printf '%s\n' "$previous" >"$state_dir/$feature"
-  apply_preference >/dev/null 2>&1 || true
+  if ! apply_preference; then
+    printf 'Could not restore runtime state for %s; saved preference was restored but runtime state is unconfirmed.\n' "$feature" >&2
+  fi
   printf 'Could not apply %s; restored previous preference.\n' "$feature" >&2
   exit 1
 fi

@@ -5,9 +5,23 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 sandbox=$(mktemp -d)
 export HOME="$sandbox/home with spaces" XDG_STATE_HOME="$sandbox/state"
 export NIGHT_PID="$sandbox/night.pid" NIGHT_STARTS="$sandbox/night.starts" NIGHT_ATTEMPTS="$sandbox/night.attempts"
+export ALL_NIGHT_PIDS="$sandbox/all-night.pids"
+# Disposable identity only: never connect to the real display, buses or state.
+export HYPRLAND_INSTANCE_SIGNATURE=test-session-one WAYLAND_DISPLAY=not-a-real-display
+export XDG_RUNTIME_DIR="$sandbox/runtime" XDG_CONFIG_HOME="$HOME/.config" XDG_CACHE_HOME="$sandbox/cache" XDG_DATA_HOME="$sandbox/data"
+export DBUS_SESSION_BUS_ADDRESS=unix:path=/nonexistent/session-bus DBUS_SYSTEM_BUS_ADDRESS=unix:path=/nonexistent/system-bus
+unset DISPLAY
+mkdir -p "$XDG_RUNTIME_DIR"
+chmod 700 "$XDG_RUNTIME_DIR"
 export INHIBIT_PID="$sandbox/inhibit.pid" INHIBIT_CALLS="$sandbox/inhibit.calls" FAIL_INHIBIT="$sandbox/fail-inhibit"
 cleanup() {
-  if [[ -f "$NIGHT_PID" ]]; then kill -INT "$(<"$NIGHT_PID")" 2>/dev/null || true; fi
+  if [[ -f "$ALL_NIGHT_PIDS" ]]; then
+    while read -r child; do
+      if grep -zFxq "NIGHT_ATTEMPTS=$NIGHT_ATTEMPTS" "/proc/$child/environ" 2>/dev/null; then
+        kill -INT "$child" 2>/dev/null || true
+      fi
+    done <"$ALL_NIGHT_PIDS"
+  fi
   if [[ -f "$INHIBIT_PID" ]]; then kill -TERM "$(<"$INHIBIT_PID")" 2>/dev/null || true; fi
   rm -rf "$sandbox"
 }
@@ -29,7 +43,10 @@ cat >"$sandbox/bin/pgrep" <<'MOCK'
 #!/usr/bin/env bash
 [[ "$*" == "-u $UID -x ${!#}" ]] || exit 2
 case "${!#}" in
-  hyprsunset) [[ -f "$NIGHT_PID" ]] && kill -0 "$(<"$NIGHT_PID")" 2>/dev/null ;;
+  hyprsunset)
+    [[ -f "$ALL_NIGHT_PIDS" ]] || exit 1
+    while read -r pid; do kill -0 "$pid" 2>/dev/null && printf '%s\n' "$pid"; done <"$ALL_NIGHT_PIDS"
+    exit 0 ;;
   hypridle) [[ "${IDLE_RUNNING:-1}" == 1 ]] ;;
   *) exit 1 ;;
 esac
@@ -44,7 +61,7 @@ cat >"$sandbox/bin/hyprsunset" <<'MOCK'
 import os, pathlib, signal, sys, time
 with open(os.environ['NIGHT_ATTEMPTS'], 'a') as log:
     log.write('attempt\n')
-if os.environ.get('FAIL_NIGHT') == '1':
+if os.environ.get('FAIL_NIGHT') == '1' or os.environ.get('FAIL_TEMPERATURE') == sys.argv[-1]:
     sys.exit(1)
 try:
     os.fstat(9)
@@ -52,14 +69,18 @@ except OSError:
     pass
 else:
     sys.exit('A settings lock was inherited by the daemon')
-assert sys.argv[1:] == ['-t', '4000']
+assert sys.argv[1] == '-t' and len(sys.argv) == 3
+assert 2500 <= int(sys.argv[2]) <= 6500
 pid = pathlib.Path(os.environ['NIGHT_PID'])
 pid.write_text(str(os.getpid()))
+with open(os.environ['ALL_NIGHT_PIDS'], 'a') as log:
+    log.write(str(os.getpid()) + '\n')
 with open(os.environ['NIGHT_STARTS'], 'a') as log:
     log.write('start\n')
 def stop(signum, frame):
     raise SystemExit(0)
 signal.signal(signal.SIGINT, stop)
+signal.signal(signal.SIGTERM, signal.SIG_IGN if os.environ.get('IGNORE_TERM') == '1' else stop)
 try:
     while True:
         time.sleep(.02)
@@ -110,15 +131,85 @@ check night-light disabled
 "$scripts/hyprsunset.sh" toggle
 check night-light enabled
 "$scripts/hyprsunset.sh" disable
-# First use imports an existing daemon instead of switching it off.
+# First use imports the on/off state, never a fictitious temperature or ownership.
 rm "$XDG_STATE_HOME/hypr/effects/night-light"
-hyprsunset -t 4000 </dev/null >/dev/null 2>&1 9>&- &
+hyprsunset -t 5300 </dev/null >/dev/null 2>&1 9>&- &
+unmanaged_pid=$!
 for _ in {1..20}; do [[ ! -f "$NIGHT_PID" ]] || break; sleep 0.05; done
 check night-light enabled
+[[ $("$scripts/hyprsunset.sh" temperature) == 0 ]]
+if cli night-light disable 2>"$sandbox/unmanaged.log"; then echo 'Unmanaged daemon was taken over' >&2; exit 1; fi
+grep -q 'unmanaged Night Light' "$sandbox/unmanaged.log"
+kill -0 "$unmanaged_pid"
+kill -TERM "$unmanaged_pid"
+wait "$unmanaged_pid"
 cli night-light disable
-for name in night-light keep-awake quiet-notifications; do
+
+# Range validation, saved off-state temperature, and session-scoped ownership.
+check night-light-temperature 4000
+for invalid in 2499 6501 04000 4000.5 toggle '4000; true'; do
+  if cli night-light-temperature "$invalid" 2>/dev/null; then exit 1; fi
+done
+cli night-light-temperature 6500
+cli night-light enable
+[[ $("$scripts/hyprsunset.sh" temperature) == 6500 ]]
+cli night-light-temperature 2500
+[[ $("$scripts/hyprsunset.sh" temperature) == 2500 ]]
+# A second session on the same display cannot observe or signal our daemon.
+first_pid=$(<"$NIGHT_PID")
+HYPRLAND_INSTANCE_SIGNATURE=test-session-two "$scripts/hyprsunset.sh" apply
+kill -0 "$first_pid" # apply uses shared enabled preference but launches its own daemon
+second_pid=$(<"$NIGHT_PID")
+[[ "$second_pid" != "$first_pid" ]]
+HYPRLAND_INSTANCE_SIGNATURE=test-session-two cli night-light disable
+kill -0 "$first_pid"
+if kill -0 "$second_pid" 2>/dev/null; then echo 'Second session did not stop' >&2; exit 1; fi
+cli night-light disable
+cli night-light-temperature 4000
+cli night-light enable
+# A failed temperature restart restores the old value AND the old runtime state.
+if FAIL_TEMPERATURE=3500 cli night-light-temperature 3500; then exit 1; fi
+check night-light-temperature 4000
+[[ $("$scripts/hyprsunset.sh" temperature) == 4000 ]]
+# If rollback also fails, report that runtime restoration is unconfirmed.
+if FAIL_NIGHT=1 cli night-light-temperature 3500 2>"$sandbox/rollback.log"; then exit 1; fi
+grep -q 'runtime state is unconfirmed' "$sandbox/rollback.log"
+check night-light-temperature 4000
+[[ $("$scripts/hyprsunset.sh" status) == disabled ]]
+cli night-light enable
+# A tampered/stale record must not authorize signalling an existing process.
+record=$(find "$XDG_STATE_HOME/hypr/effects/night-light-sessions" -name daemon | head -n 1)
+cp "$record" "$sandbox/record.backup"
+read -r owned_pid start temperature token <"$record"
+printf '%s %s %s wrong-token\n' "$owned_pid" "$start" "$temperature" >"$record"
+if cli night-light disable 2>/dev/null; then echo 'Stale ownership accepted' >&2; exit 1; fi
+kill -0 "$owned_pid"
+cp "$sandbox/record.backup" "$record"
+cli night-light disable
+# An unidentified legacy daemon is not assumed to belong to a different session.
+env -u HYPRLAND_INSTANCE_SIGNATURE hyprsunset -t 5300 </dev/null >/dev/null 2>&1 &
+legacy_pid=$!
+for _ in {1..20}; do [[ ! -f "$NIGHT_PID" ]] || break; sleep 0.05; done
+if cli night-light enable 2>/dev/null; then echo 'Unidentified daemon ignored' >&2; exit 1; fi
+kill -0 "$legacy_pid"
+kill -TERM "$legacy_pid"
+wait "$legacy_pid"
+# A daemon that refuses to stop cannot be replaced; the old preference survives.
+IGNORE_TERM=1 cli night-light enable
+stuck_pid=$(<"$NIGHT_PID")
+if cli night-light disable 2>"$sandbox/stuck.log"; then exit 1; fi
+grep -q 'did not stop' "$sandbox/stuck.log"
+check night-light enabled
+kill -0 "$stuck_pid"
+kill -INT "$stuck_pid"
+for _ in {1..20}; do [[ -f "$NIGHT_PID" ]] || break; sleep 0.05; done
+cli night-light disable
+if env -u HYPRLAND_INSTANCE_SIGNATURE "$scripts/hyprsunset.sh" apply 2>/dev/null; then exit 1; fi
+for name in night-light night-light-temperature keep-awake quiet-notifications; do
   [[ $(stat -c %a "$XDG_STATE_HOME/hypr/effects/$name") == 600 ]]
 done
+
+if [[ ${CLI_ONLY:-0} == 1 ]]; then echo 'Session CLI checks passed'; exit 0; fi
 
 # Extract the production inhibitor owner without starting the real notification
 # server or any bar windows. Each launch is a fresh Quickshell process.
@@ -250,4 +341,4 @@ cli quiet-notifications disable
 calls=$(wc -l <"$INHIBIT_CALLS")
 run_shell disabled
 [[ $(wc -l <"$INHIBIT_CALLS") == "$calls" ]]
-echo 'Session preferences passed: on/off cold restore, quiet/critical startup handling, rapid toggles, failure retention, night-light idempotence/rollback, and idle-only cleanup'
+echo 'Session preferences passed: on/off cold restore, quiet/critical startup handling, rapid toggles, failure retention, session-owned temperature/range/migration/stale-record/stop-timeout/rollback checks, and idle-only cleanup'

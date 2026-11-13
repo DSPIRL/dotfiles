@@ -70,6 +70,7 @@ Item {
     onEnabledChanged: if (reject && enabled) enabled = false
   } }
   Component { id: quickFactory; Control.QuickPage { width: 400 } }
+  Component { id: displayFactory; Control.DisplayPage { width: 400 } }
   Component {
     id: radiosFactory
     QtObject {
@@ -96,11 +97,15 @@ Item {
         property bool keepAwakeFailed: false
         property bool quiet: false
         property var values: ({networkSettings: true})
+        property int nightLightTemperature: 4000
+        property var actions: []
+        function setNumericSetting(name, value) { actions.push([name, value]); }
+        function effect(name, value) { actions.push([name, value]); }
       }
       property bool hasBattery: false
       property var defaultAudioSink: null
       property bool showLaptopBrightnessControl: false
-      property var ddcBrightnessState: ({displays: []})
+      property var ddcBrightnessState: ({displays: [], error: "", displayCount: 0})
       property var laptopBrightnessState: ({available: false, percent: 0})
       property string networkStatus: "Disconnected"
       property string wifiStatus: "Disconnected"
@@ -536,6 +541,38 @@ Item {
       });
       verify(clock !== null);
       compare(clock.implicitHeight, tokens.barPillHeight);
+    }
+    function test_nightLightWarmth() {
+      const palette = createTemporaryObject(paletteFactory, testRoot);
+      const bar = createTemporaryObject(quickBarFactory, testRoot);
+      const page = createTemporaryObject(displayFactory, testRoot, {bar: bar, wallust: palette});
+      verify(page !== null);
+      const slider = findChild(page, "nightLightWarmthSlider");
+      verify(slider !== null);
+      verify(!slider.enabled);
+      compare(slider.value, 2500);
+      bar.desktopState.values = {nightLight: true, nightLightWanted: true, nightLightActualTemperature: 4000};
+      verify(slider.enabled);
+      // Pointer drags only apply on release, avoiding a restart on every move.
+      mousePress(slider, slider.width / 2, slider.height / 2);
+      mouseMove(slider, slider.width * 0.8, slider.height / 2);
+      compare(bar.desktopState.actions.length, 0);
+      mouseRelease(slider, slider.width * 0.8, slider.height / 2);
+      compare(bar.desktopState.actions.length, 1);
+      compare(bar.desktopState.actions[0][0], "night-light-temperature");
+      verify(bar.desktopState.actions[0][1] < 4000);
+      // Keyboard uses the same direction and commits immediately.
+      const before = slider.value;
+      slider.forceActiveFocus();
+      keyClick(Qt.Key_Right);
+      verify(slider.value > before);
+      compare(bar.desktopState.actions.length, 2);
+      bar.desktopState.values = {nightLight: true, nightLightWanted: true, nightLightActualTemperature: 0};
+      verify(!slider.enabled);
+      bar.desktopState.values = {nightLight: false, nightLightWanted: false};
+      verify(!slider.enabled);
+      page.destroy();
+      wait(0);
     }
     function test_wheelScrollsInsteadOfChangingSlider() {
       const palette = createTemporaryObject(paletteFactory, testRoot);

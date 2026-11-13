@@ -30,6 +30,7 @@ ShellRoot {
     property int controlOpacity: 50
     property int windowOpacity: 100
     property int blurSize: 5
+    property int nightLightTemperature: 4000
     property var numericSettings: ({
       "glass-opacity": {field:"glassOpacity", minimum:0, maximum:100},
       "control-opacity": {field:"controlOpacity", minimum:0, maximum:100},
@@ -547,6 +548,25 @@ ShellRoot {
             check(desktop.actions.length === 0 && panel.confirmation === "Log out", "Choosing logout bypassed confirmation");
             label("Confirm Log out").clicked();
             check(JSON.stringify(desktop.actions[0]) === JSON.stringify(["hyprctl","repl","hl.dispatch(hl.dsp.exit())"]), "Confirmed logout command incorrect");
+            desktop.actions=[];
+            panel.selectCategory("display");
+            break;
+          case 14: {
+            const warmth=named("nightLightWarmthSlider");
+            check(warmth && !warmth.enabled && warmth.value === 2500, "Off-state warmth slider missing or enabled");
+            desktop.values=Object.assign({},desktop.values,{nightLight:true,nightLightWanted:true,nightLightActualTemperature:4000});
+            check(warmth.enabled, "Managed Night Light slider disabled");
+            warmth.value=3000; warmth.moved();
+            check(JSON.stringify(desktop.actions) === JSON.stringify([["night-light-temperature",3500]]), "Warmth direction/action incorrect");
+            desktop.values=Object.assign({},desktop.values,{nightLightActualTemperature:0});
+            check(!warmth.enabled, "Unmanaged temperature slider enabled");
+            desktop.actions=[];
+            panel.selectCategory("quick");
+            break;
+          }
+          case 15:
+            check(!named("nightLightWarmthSlider"), "Warmth slider leaked into Quick");
+            check(desktop.actions.length === 0, "Warmth navigation dispatched actions");
             console.log("CONTROL_CENTER_PASS");
             Qt.quit();
         }

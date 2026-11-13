@@ -151,7 +151,7 @@ Column {
       wallust: root.wallust
       symbol: "󰖔"
       text: "Night light"
-      subtitle: root.desktop.values.nightLight ? "Warm display · 4000 K" : root.desktop.values.nightLightWanted ? "Saved on · currently inactive" : "Off"
+      subtitle: root.desktop.values.nightLight ? (root.desktop.values.nightLightActualTemperature > 0 ? "Warm display · " + root.desktop.values.nightLightActualTemperature + " K" : "Temperature unknown") : root.desktop.values.nightLightWanted ? "Saved on · currently inactive" : "Off"
       highlightedState: Boolean(root.desktop.values.nightLightWanted)
       enabled: root.ready && Boolean(root.desktop.values.nightLightAvailable || root.desktop.values.nightLightWanted)
       onClicked: root.desktop.effect("night-light", !root.desktop.values.nightLightWanted)

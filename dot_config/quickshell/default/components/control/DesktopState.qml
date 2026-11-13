@@ -22,11 +22,13 @@ Item {
   property int controlOpacity: 100
   property int windowOpacity: 100
   property int blurSize: 3
+  property int nightLightTemperature: 4000
   readonly property var numericSettings: ({
     "glass-opacity": { field: "glassOpacity", minimum: 0, maximum: 100 },
     "control-opacity": { field: "controlOpacity", minimum: 0, maximum: 100 },
     "window-opacity": { field: "windowOpacity", minimum: 0, maximum: 100 },
-    "blur-size": { field: "blurSize", minimum: 1, maximum: 20 }
+    "blur-size": { field: "blurSize", minimum: 1, maximum: 20 },
+    "night-light-temperature": { field: "nightLightTemperature", minimum: 2500, maximum: 6500 }
   })
   property var pendingSettings: ({})
   property string settingInFlight: ""
@@ -139,6 +141,12 @@ Item {
       if (code !== 0) root.error = nightLightRestoreError.text.trim() || "Could not restore night light";
       root.refresh();
     }
+  }
+  FileView {
+    path: root.stateDir + "effects/night-light-temperature"
+    printErrors: false
+    watchChanges: true
+    onFileChanged: { reload(); root.refresh(); }
   }
   FileView {
     path: root.stateDir + "effects/night-light"
