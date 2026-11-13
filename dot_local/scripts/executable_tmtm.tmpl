@@ -23,7 +23,7 @@ tmux send-keys -t "$SESSION_NAME:Editor" "nvim" Enter
 {{- if not (dig "useKeePassXC" false .) }}
 tmux send-keys -t "$SESSION_NAME:AI" "claude --allow-dangerously-skip-permissions" Enter
 {{- else }}
-tmux send-keys -t "$SESSION_NAME:AI" "opencode" Enter
+tmux send-keys -t "$SESSION_NAME:AI" "pi" Enter
 {{- end }}
 
 # tmux send-keys -t "$SESSION_NAME:Term" "nu" Enter

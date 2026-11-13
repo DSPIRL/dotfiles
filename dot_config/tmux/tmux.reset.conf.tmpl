@@ -2,23 +2,42 @@
 set-option -g default-terminal 'screen-256color'
 set-option -g terminal-overrides ',xterm-256color:RGB'
 
-# Set a cool status bar
+set -as terminal-features ',xterm*:RGB,alacritty*:RGB,wezterm*:RGB'
+
+# Catppuccin Mocha palette (hand-rolled, no plugin)
+# crust #11111b  surface0 #313244  overlay0 #6c7086  text #cdd6f4
+# mauve #cba6f7  green #a6e3a1     blue #89b4fa
+
+# Status bar: rounded catppuccin "pills"
 set -g status on
-set -g status-fg white
-set -g status-bg black
 set -g status-interval 10
 set -g status-justify absolute-centre
-set -g status-left-length 30
-set -g status-right-length 30
-set -g pane-active-border-style 'fg=magenta,bg=default'
-set -g pane-border-style 'fg=brightblack,bg=default'
+set -g status-style 'bg=default,fg=#cdd6f4'
+set -g status-left-length 60
+set -g status-right-length 60
+set -g message-style 'bg=#313244,fg=#cdd6f4'
+set -g mode-style 'bg=#45475a,fg=#cdd6f4'
+
+set -g window-status-separator ' '
+set -g window-status-format '#[fg=#6c7086]#[fg=#11111b,bg=#6c7086]#I #[fg=#cdd6f4,bg=#313244] #W#[fg=#313244,bg=default]'
+set -g window-status-current-format '#[fg=#cba6f7]#[fg=#11111b,bg=#cba6f7,bold]#I #[fg=#cdd6f4,bg=#313244,nobold] #W#{?window_zoomed_flag, 󰁌,}#[fg=#313244,bg=default]'
+
 {{- if eq .chezmoi.os "darwin" }}
-set -g status-left '#[fg=white,bg=black]#(~/.local/scripts/tmux-battery) '
-set -g status-right '#[fg=white,bg=black]%a %d %H:%M #[default]'
+set -g status-left '#[fg=#a6e3a1]#[fg=#11111b,bg=#a6e3a1]󰁹 #[fg=#cdd6f4,bg=#313244] #(~/.local/scripts/tmux-battery)#[fg=#313244,bg=default]'
 {{- else }}
-set -g status-left '#[default]'
-set -g status-right '#[fg=white,bg=black]%a %d %H:%M #[default]'
+set -g status-left ''
 {{- end }}
+set -g status-right '#[fg=#89b4fa]#[fg=#11111b,bg=#89b4fa]󰃰 #[fg=#cdd6f4,bg=#313244] %a %d %H:%M#[fg=#313244,bg=default]'
+
+# Pane borders: heavy lines, a title strip on top of every pane, mauve for
+# the active one. The top strip means the active pane is outlined even when
+# it touches the edge of the screen.
+set -g pane-border-lines heavy
+set -g pane-border-indicators both
+set -g pane-border-status top
+set -g pane-border-style 'fg=#313244,bg=default'
+set -g pane-active-border-style 'fg=#cba6f7,bg=default'
+set -g pane-border-format '#{?pane_active,#[fg=#11111b]#[bg=#cba6f7]#[bold],#[fg=#6c7086]} #P #{pane_current_command} '
 
 # Improve pane splitting shortcuts
 # unbind '"'
@@ -50,9 +69,9 @@ bind -r M-Down resize-pane -D 5
 bind r source-file ~/.config/tmux/tmux.conf \; display "Reloaded!"
 
 # Simplify prefix key (optional)
-# unbind C-b
-# set-option -g prefix C-a
-# bind C-a send-prefix
+unbind C-b
+set-option -g prefix C-a
+bind C-a send-prefix
 
 # Better VI
 bind-key -T copy-mode-vi 'v' send-keys -X begin-selection
