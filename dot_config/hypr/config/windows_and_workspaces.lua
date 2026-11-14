@@ -162,6 +162,10 @@ wr("float on", { class = [[^([Qq]alculate-gtk)$]] })
 wr("float on", { class = [[^([Ff]erdium)$]] })
 wr("float on", { title = [[^(Picture-in-Picture)$]] })
 
+-- Keep the Steam client floating to avoid misplaced XWayland context menus.
+-- Games use separate steam_app_* classes and are unaffected.
+wr("float on", { class = [[^([Ss]team)$]], title = [[^([Ss]team)$]] }, "steam-client-float")
+
 -- Float popups and dialogs
 wr("float on", { title = [[^(Authentication Required)$]] })
 wr("center on", { title = [[^(Authentication Required)$]] })
