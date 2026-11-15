@@ -2,12 +2,19 @@
 # Paths are relative to this directory. Entries do not run anything automatically.
 
 principles:
-  - id: available-tools
-    path: principles/available-tools.md
+  - id:  rules
+    path: principles/rules.md
+  - id: virtuous-laziness
+    path: principles/virtuous-laziness.md
   - id: question-or-statement-requirements
     path: principles/question-or-statement-requirements.md
+
+info:
+  - id: available-tools
+    path: info/available-tools.md
   - id: tech-stack-preferences
-    path: principles/tech-stack-preferences.md
+    path: info/tech-stack-preferences.md
+
 
 # skills:
 # To add a skill, replace [] above with entries like:
