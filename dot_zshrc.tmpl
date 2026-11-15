@@ -211,6 +211,9 @@ if command -v mise &>/dev/null; then
     fi
 fi
 
+##### VITE+ #####
+[[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/vite-plus/env" ]] && . "${XDG_CONFIG_HOME:-$HOME/.config}/vite-plus/env"
+
 ##### KEYBINDS #####
 bindkey -e                        # Force emacs key bindings (EDITOR/VISUAL containing 'vi' triggers vi mode)
 

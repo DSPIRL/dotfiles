@@ -1,8 +1,8 @@
 atuin
 bat
 btop
-cfn-lint
 cfn-format
+cfn-lint
 eza
 fzf
 ghostty
@@ -19,6 +19,7 @@ silicon
 television
 ttf-jetbrains-mono
 ttf-jetbrains-mono-nerd
+vite-plus
 zoxide
 zsh
 zsh-autosuggestions

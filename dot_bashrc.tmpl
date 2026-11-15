@@ -251,6 +251,9 @@ if command -v chezmoi &>/dev/null; then
     eval "$(chezmoi completion bash)"
 fi
 
+##### VITE+ #####
+[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/vite-plus/env" ] && . "${XDG_CONFIG_HOME:-$HOME/.config}/vite-plus/env"
+
 ##### KEYBINDS #####
 if command -v navi &>/dev/null; then
     # Navi defaults to Ctrl+G; preserve Emacs abort and use Ctrl+J instead.
