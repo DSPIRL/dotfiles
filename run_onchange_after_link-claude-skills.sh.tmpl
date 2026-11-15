@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Symlink every skill in ~/.ai/skills into ~/.claude/skills.
+# Rendered skill list (re-runs whenever it changes):
+{{- range glob (joinPath .chezmoi.sourceDir "exact_dot_ai/exact_skills/exact_*") }}
+# - {{ base . | trimPrefix "exact_" }}
+{{- end }}
+set -euo pipefail
+
+src="${HOME}/.ai/skills"
+dest="${HOME}/.claude/skills"
+mkdir -p "$dest"
+
+for dir in "$src"/*/; do
+  name="$(basename "$dir")"
+  target="$dest/$name"
+  if [ -e "$target" ] && [ ! -L "$target" ]; then
+    echo "link-claude-skills: skipping $target (not a symlink)" >&2
+    continue
+  fi
+  ln -sfn "$src/$name" "$target"
+done
+
+# Remove links to skills that no longer exist.
+for link in "$dest"/*; do
+  [ -L "$link" ] || continue
+  case "$(readlink "$link")" in
+    "$src"/*) [ -e "$link" ] || rm "$link" ;;
+  esac
+done
