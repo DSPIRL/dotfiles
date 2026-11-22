@@ -4,6 +4,7 @@ btop
 cfn-format
 cfn-lint
 eza
+forgejo-cli
 fzf
 ghostty
 htop
