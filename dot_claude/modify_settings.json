@@ -5,8 +5,8 @@ set -eu
 tmp="$(mktemp)"
 cat >"$tmp"
 if [ -s "$tmp" ]; then
-  jq '.statusLine.command = "sh $HOME/.claude/statusline-command.sh"' <"$tmp"
+  jq '.statusLine.type = "command" | .statusLine.command = "sh $HOME/.claude/statusline-command.sh"' <"$tmp"
 else
-  jq -n '.statusLine.command = "sh $HOME/.claude/statusline-command.sh"'
+  jq -n '.statusLine.type = "command" | .statusLine.command = "sh $HOME/.claude/statusline-command.sh"'
 fi
 rm -f "$tmp"

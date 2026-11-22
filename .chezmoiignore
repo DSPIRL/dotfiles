@@ -75,6 +75,7 @@ tests/
 # If this machine does not run Linux, ignore the following files.
 {{ if not .isLinux }}
 .local/bin/setup-brave-keepassxc
+.local/bin/setup-zen-keepassxc
 .config/.dmenurc
 .config/cava/
 .config/cliphist/
