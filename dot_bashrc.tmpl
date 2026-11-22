@@ -285,3 +285,8 @@ if command -v atuin &>/dev/null; then
     export ATUIN_CONFIG_DIR="${XDG_CONFIG_HOME:-${HOME}/.config}/atuin"
     eval "$(atuin init bash --disable-ai --disable-up-arrow)"
 fi
+
+##### VITE+ #####
+if [ -f "${HOME}/.config/vite-plus/env" ]; then
+    . "${HOME}/.config/vite-plus/env"
+fi

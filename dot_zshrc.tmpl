@@ -416,3 +416,8 @@ for zshrc_file in "${XDG_CONFIG_HOME:-$HOME/.config}"/zsh/rc.d/*.zsh(N); do
   source "${zshrc_file}"
 done
 unset zshrc_file
+
+##### VITE+ #####
+if [[ -f "${HOME}/.config/vite-plus/env" ]]; then
+  source "${HOME}/.config/vite-plus/env"
+fi
